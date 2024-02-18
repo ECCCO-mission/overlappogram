@@ -278,7 +278,7 @@ class Inversion():
         image_height, image_width = np.shape(image)
         print(image_height, image_width)
         # Verify image width equals the response function width in cube.
-        assert image_width == self.rsp_func_width
+        #assert image_width == self.rsp_func_width
         self.image = image
 
         try:

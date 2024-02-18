@@ -15,7 +15,7 @@ from astropy.constants import k_B, c
 from astropy.table import Table
 from photutils.datasets import (make_gaussian_sources_image)
 from math import sqrt
-from passion.element import Element
+from overlappogram.element import Element
 from time import time
 
 @dataclass(order=True)

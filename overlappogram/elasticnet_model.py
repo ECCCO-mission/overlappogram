@@ -7,7 +7,7 @@ Created on Mon Mar 15 13:28:22 2021
 """
 
 from dataclasses import dataclass
-from passion.abstract_model import AbstractModel
+from overlappogram.abstract_model import AbstractModel
 from sklearn.linear_model import ElasticNet as enet
 
 @dataclass(order=True)

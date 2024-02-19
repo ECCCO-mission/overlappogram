@@ -245,7 +245,7 @@ class Inversion():
 
         #print("response count =", response_count)
         self.response_function = self.response_function.transpose()
-        print(np.shape(self.response_function))
+        print("response shape", np.shape(self.response_function))
 
         if self.rsp_dep_name == 'logt':
             self.rsp_dep_desc_fmt = '1E'

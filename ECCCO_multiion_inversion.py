@@ -15,8 +15,10 @@ import re
 import matplotlib.pyplot as plt
 from overlappogram.inversion_field_angles import Inversion
 #from overlappogram.inversion_field_angles_logts_ions import Inversion
-from sklearn.linear_model import ElasticNet as enet
+from sklearn.linear_model import ElasticNet as enet, SGDRegressor, Ridge
 from overlappogram.elasticnet_model import ElasticNetModel as model
+from overlappogram.sgd_model import SGDModel
+from overlappogram.ridge_model import RidgeModel
 from sklearn.linear_model import LassoLars as llars
 # from overlappogram.lassolars_model import LassoLarsModel as llars_model
 import time
@@ -61,8 +63,9 @@ if __name__ == '__main__':
 
     # Response file.
         #cube_file = response_dir + 'eccco_is_response_feldman_m_el_with_tables_lw_pm1230_'+str(psf)+'pix.fits'
-        #cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
-        cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
+        # cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
+        cube_file = response_dir + 'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_lw_coopersun.fits'
+        #cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
         #cube_file = response_dir + 'D14Feb2024_eccco_response_feldman_m_el_with_tables_lw.fits'
 
         #weight_file = response_dir + 'oawave_eccco_is_lw.txt'
@@ -83,11 +86,11 @@ if __name__ == '__main__':
         rsp_func_hdul = fits.open(cube_file)
 
         solution_fov_width = 2
-        detector_row_range = [450, 1450]
+        detector_row_range = [450, 455]
         #detector_row_range = None
-        #field_angle_range = [-2160, 2160]
+        field_angle_range = [-2160, 2160]
         #field_angle_range = [-1260,1260]
-        field_angle_range = None
+        # field_angle_range = None
 
         rsp_dep_name = 'logt'
         rsp_dep_list = np.round((np.arange(57,78, 1) / 10.0), decimals=1)
@@ -114,8 +117,15 @@ if __name__ == '__main__':
         rhos = [.1]
         for rho in rhos:
             for alpha in alphas:
-                enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
-                inv_model = model(enet_model)
+                # enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
+                # inv_model = model(enet_model)
+
+                # regressor = SGDRegressor(penalty='elasticnet', alpha=alpha, l1_ratio=rho, fit_intercept=False)
+                # inv_model = SGDModel(regressor)
+
+                ridge = Ridge(alpha=alpha, positive=True, fit_intercept=False)
+                inv_model = RidgeModel(ridge)
+
                 basename = os.path.splitext(os.path.basename(summed_image))[0]
 
                 start = time.time()

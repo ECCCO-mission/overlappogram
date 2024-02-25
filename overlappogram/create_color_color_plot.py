@@ -6,27 +6,6 @@ from PIL import Image
 def create_color_color_plot(dep_list: list, dep_file_fmt: str,
                             saturatdep: float, lambda_scale: float,
                             output_plot_filename: str):
-    """
-
-
-    Parameters
-    ----------
-    dep_list : list
-        DESCRIPTION.
-    dep_file_fmt : str
-        DESCRIPTION.
-    saturatdep : float
-        DESCRIPTION.
-    lambda_scale : float
-        DESCRIPTION.
-    output_plot_filename : str
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
-    """
     top = 255.0
 
     assert len(dep_list) == 3 or len(dep_list) == 4

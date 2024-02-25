@@ -54,7 +54,7 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
             new_dep_indices = []
             new_dep_list = []
             for index in range(len(dep_mask)):
-                if dep_mask[index] == True:
+                if dep_mask[index]:
                     new_dep_indices.append(dep_indices[index])
                     new_dep_list.append(dep_list[index])
             if len(new_dep_list) > 0:
@@ -74,7 +74,7 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
             dep_rsp_file = rsp_dep_file_fmt.format(dep_list[index])
             dep_rsp_data = pd.read_csv(dep_rsp_file, delim_whitespace=True)
             dep_rsp = dep_rsp_data.iloc[:, 2].values
-            if image_allocated == False:
+            if image_allocated is False:
                 image_data = np.zeros((num_rows, len(dep_rsp)))
                 image_allocated = True
             for slit_index in range(num_slits):

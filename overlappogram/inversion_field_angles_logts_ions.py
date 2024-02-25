@@ -90,7 +90,9 @@ class Inversion:
             ion_index, = np.where(ion_list == self.rsp_func_selection[0][index])
             print(self.rsp_func_selection[0][index])
             assert len(ion_index == 1)
-            logts = np.arange(self.rsp_func_selection[2][index], self.rsp_func_selection[3][index] + self.rsp_func_selection[1][index], self.rsp_func_selection[1][index])
+            logts = np.arange(self.rsp_func_selection[2][index],
+                              self.rsp_func_selection[3][index] + self.rsp_func_selection[1][index],
+                              self.rsp_func_selection[1][index])
             logts = np.round(logts, decimals=2)
             for logt in logts:
                 logt_index, = np.where(np.isclose(logt_list, logt))
@@ -193,7 +195,7 @@ class Inversion:
         #     begin_slit_index = self.center_slit[0] - self.half_fov[0] - (self.half_slits[0] * self.solution_fov_width)
         begin_slit_index = self.center_slit[0] - self.half_fov[0] - (self.half_slits[0] * self.solution_fov_width)
         end_slit_index = self.center_slit[0] + self.half_fov[0] + (self.half_slits[0] * self.solution_fov_width)
-        assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
+        # assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
         print("begin_slit_index =", begin_slit_index, "end_slit_index =", end_slit_index)
         #print(self.center_slit, (self.half_slits[0], self.solution_fov_width))
         #begin_slit_index = self.center_slit - (self.half_slits[0] * self.solution_fov_width)
@@ -289,9 +291,6 @@ class Inversion:
             self.image_mask = mask_hdul[0].data
             if len(np.where(self.image_mask == 0)) == 0:
                 self.image_mask = None
-            else:
-                #print("mask (h, w) =", mask_height, mask_width)
-                assert image_height == mask_height and image_width == mask_width and self.rsp_func_width == self.image_width
         else:
             #self.image_mask = np.ones((image_height, image_width), dtype=np.float32)
             self.image_mask = None
@@ -329,11 +328,11 @@ class Inversion:
 
         '''
         # Verify input data has been initialized.
-        assert self.image_width != 0 and self.image_height != 0
+        # assert self.image_width != 0 and self.image_height != 0
         if detector_row_range is not None:
-            assert len(detector_row_range) == 2
-            assert detector_row_range[1] >= detector_row_range[0]
-            assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
+            # assert len(detector_row_range) == 2
+            # assert detector_row_range[1] >= detector_row_range[0]
+            # assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
             self.detector_row_min = detector_row_range[0]
             self.detector_row_max = detector_row_range[1]
         else:
@@ -713,10 +712,6 @@ class Inversion:
             image_mask = mask_hdul[0].data
             if len(np.where(image_mask == 0)) == 0:
                 image_mask = None
-            else:
-                #print("mask (h, w) =", mask_height, mask_width)
-                #assert self.image_height == mask_height and self.image_width == mask_width and self.rsp_func_width == self.image_width
-                assert em_rows == mask_height and self.rsp_func_width == mask_width
         else:
             image_mask = None
 

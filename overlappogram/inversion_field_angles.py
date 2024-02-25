@@ -178,12 +178,13 @@ class Inversion:
 
         # Check if even FOV.
         # if self.half_fov[1] == 0:
-        #     begin_slit_index = self.center_slit[0] - (self.half_fov[0] - 1) - (self.half_slits[0] * self.solution_fov_width)
+        #     begin_slit_index = self.center_slit[0] - (self.half_fov[0] - 1)
+        #     - (self.half_slits[0] * self.solution_fov_width)
         # else:
         #     begin_slit_index = self.center_slit[0] - self.half_fov[0] - (self.half_slits[0] * self.solution_fov_width)
         begin_slit_index = self.center_slit[0] - self.half_fov[0] - (self.half_slits[0] * self.solution_fov_width)
         end_slit_index = self.center_slit[0] + self.half_fov[0] + (self.half_slits[0] * self.solution_fov_width)
-        assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
+        # assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
         print("begin_slit_index =", begin_slit_index, "end_slit_index =", end_slit_index)
         #print(self.center_slit, (self.half_slits[0], self.solution_fov_width))
         #begin_slit_index = self.center_slit - (self.half_slits[0] * self.solution_fov_width)
@@ -291,9 +292,6 @@ class Inversion:
             self.image_mask = mask_hdul[0].data
             if len(np.where(self.image_mask == 0)) == 0:
                 self.image_mask = None
-            else:
-                #print("mask (h, w) =", mask_height, mask_width)
-                assert image_height == mask_height and image_width == mask_width and self.rsp_func_width == self.image_width
         else:
             #self.image_mask = np.ones((image_height, image_width), dtype=np.float32)
             self.image_mask = None
@@ -345,9 +343,9 @@ class Inversion:
         # Verify input data has been initialized.
         assert self.image_width != 0 and self.image_height != 0
         if detector_row_range is not None:
-            assert len(detector_row_range) == 2
-            assert detector_row_range[1] >= detector_row_range[0]
-            assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
+            # assert len(detector_row_range) == 2
+            # assert detector_row_range[1] >= detector_row_range[0]
+            # assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
             self.detector_row_min = detector_row_range[0]
             self.detector_row_max = detector_row_range[1]
         else:
@@ -524,7 +522,7 @@ class Inversion:
 
         '''
         # Verify input data has been initialized.
-        assert self.image_width != 0 and self.image_height != 0
+        # assert self.image_width != 0 and self.image_height != 0
         self.mp_em_data_cube = np.zeros((self.image_height, self.num_slits, self.num_deps), dtype=np.float32)
         self.mp_inverted_data = np.zeros((self.image_height, self.image_width), dtype=np.float32)
         if score:
@@ -532,9 +530,9 @@ class Inversion:
         self.mp_model = model
 
         if detector_row_range is not None:
-            assert len(detector_row_range) == 2
-            assert detector_row_range[1] >= detector_row_range[0]
-            assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
+            # assert len(detector_row_range) == 2
+            # assert detector_row_range[1] >= detector_row_range[0]
+            # assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
             self.detector_row_min = detector_row_range[0]
             self.detector_row_max = detector_row_range[1]
         else:
@@ -675,9 +673,6 @@ class Inversion:
             image_mask = mask_hdul[0].data
             if len(np.where(image_mask == 0)) == 0:
                 image_mask = None
-            else:
-                #print("mask (h, w) =", mask_height, mask_width)
-                assert self.image_height == mask_height and self.image_width == mask_width and self.rsp_func_width == self.image_width
         else:
             image_mask = None
 

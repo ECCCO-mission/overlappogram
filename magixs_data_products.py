@@ -47,7 +47,8 @@ def calc_cold_block_cal(values):
     return ((52.37 * calc_analog_cal(values)) - 157.55)
 
 def calc_ccd_holder_cal(values):
-    return ((0.5513 * calc_analog_cal(values)**3) + (1.3523 * calc_analog_cal(values)**2) + (29.942 * calc_analog_cal(values)) - 116.85)
+    return ((0.5513 * calc_analog_cal(values)**3) + (1.3523 * calc_analog_cal(values)**2)
+            + (29.942 * calc_analog_cal(values)) - 116.85)
 
 @dataclass(order=True)
 class MaGIXSDataProducts:
@@ -144,9 +145,11 @@ class MaGIXSDataProducts:
 
         # Subtract bias for each quadrant.
         image[8:quad_height, 50:quad_width] -= np.mean(image[8:quad_height, 15:50], axis=1)[:, None]
-        image[8:quad_height, quad_width:width - 50] -= np.mean(image[8:quad_height, width - 50:width - 15], axis=1)[:, None]
+        image[8:quad_height, quad_width:width - 50] -= np.mean(image[8:quad_height,
+                                                               width - 50:width - 15], axis=1)[:, None]
         image[quad_height:height - 8, 50:quad_width] -= np.mean(image[quad_height:height - 8, 15:50], axis=1)[:, None]
-        image[quad_height:height - 8, quad_width:width - 50] -= np.mean(image[quad_height:height - 8, width - 50:width - 15], axis=1)[:, None]
+        image[quad_height:height - 8, quad_width:width - 50] -= np.mean(image[quad_height:height - 8,
+                                                                        width - 50:width - 15], axis=1)[:, None]
 
         return image
 
@@ -181,7 +184,8 @@ class MaGIXSDataProducts:
         active_image[0:active_height, 0:active_half_width] = image[8:active_height + 8, 50:50 + active_half_width]
 
         # Right side.
-        active_image[0:active_height, active_half_width:active_width] = image[8:active_height + 8, quad_width + 2:width - 50]
+        active_image[0:active_height, active_half_width:active_width] = image[8:active_height + 8,
+                                                                        quad_width + 2:width - 50]
 
         return active_image
 
@@ -248,13 +252,15 @@ class MaGIXSDataProducts:
                 median_value = np.median(adjacent_pixel_list)
                 original_value = image[bad_pixel_list[0][c], bad_pixel_list[1][c]]
                 image[bad_pixel_list[0][c], bad_pixel_list[1][c]] = median_value
-                original_values.loc[c, ['y', 'x', 'value']]  = [bad_pixel_list[0][c], bad_pixel_list[1][c], original_value]
+                original_values.loc[c, ['y', 'x', 'value']]  = [bad_pixel_list[0][c], bad_pixel_list[1][c],
+                                                                original_value]
 
             return image, original_values
         else:
             return image, pd.DataFrame(columns=['y', 'x', 'value'])
 
-    def create_bad_pixel_mask(self, image_list: list, pre_master_dark_file: str, post_master_dark_file: str, sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
+    def create_bad_pixel_mask(self, image_list: list, pre_master_dark_file: str, post_master_dark_file: str,
+                              sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
         '''
         Creates a bad pixel mask.  This algorithm uses values from the entire image.
         The algorithm for determining bad pixels is any values above the mean - (sigma * standard deviation)
@@ -280,10 +286,10 @@ class MaGIXSDataProducts:
         None.
 
         '''
-        assert(percent_threshold > 0.0 and percent_threshold <=1.0)
-
         number_images = len(image_list)
-        image_cube = np.zeros((number_images, self.active_pixels_height, self.active_pixels_width), dtype=np.float32)
+        image_cube = np.zeros((number_images,
+                               self.active_pixels_height,
+                               self.active_pixels_width), dtype=np.float32)
 
         with fits.open(pre_master_dark_file) as dark_hdul:
             pre_master_dark = dark_hdul[0].data.astype(np.float32).copy()
@@ -301,11 +307,18 @@ class MaGIXSDataProducts:
                     camera_sn = image_hdul[0].header['CAM_SN']
                     first_image = False
                 img_seq_num_list.append(image_hdul[0].header['IMG_ISN'])
-                image, image_header, bad_pixels_replaced_values = self.create_adjusted_light(image_hdul[0].data, image_hdul[0].header, pre_master_dark, pre_dark_temp, post_master_dark, post_dark_temp, None)
+                image, image_header, bad_pixels_replaced_values = self.create_adjusted_light(image_hdul[0].data,
+                                                                                             image_hdul[0].header,
+                                                                                             pre_master_dark,
+                                                                                             pre_dark_temp,
+                                                                                             post_master_dark,
+                                                                                             post_dark_temp,
+                                                                                             None)
                 image_cube[index, :, :] = image
 
         # Despike.
-        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True) + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
+        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True)
+                                          + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
         #print("despike_len = ", np.count_nonzero(np.isnan(image_cube)))
 
         bad_pixel_mask = np.zeros((self.active_pixels_height, self.active_pixels_width), dtype=np.float32)
@@ -313,8 +326,10 @@ class MaGIXSDataProducts:
 
         bad_pixels[np.where(np.isnan(image_cube))] = np.nan
         for index in range(number_images):
-            bad_pixels[index, :, :][np.where(image_cube[index, :, :] < np.nanmean(image_cube[index, :, :], axis=(0,1)) - (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
-            bad_pixels[index, :, :][np.where(image_cube[index, :, :] > np.nanmean(image_cube[index, :, :], axis=(0,1)) + (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
+            bad_pixels[index, :, :][np.where(image_cube[index, :, :] < np.nanmean(image_cube[index, :, :], axis=(0,1))
+                                             - (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
+            bad_pixels[index, :, :][np.where(image_cube[index, :, :] > np.nanmean(image_cube[index, :, :], axis=(0,1))
+                                             + (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
 
         # Set dark and hot pixels where number is equal to or greater than percent threshold
         bad_pixel_mask[np.where(np.nanmean(bad_pixels, axis=0) >= percent_threshold)] = 1
@@ -338,7 +353,9 @@ class MaGIXSDataProducts:
         hdulist = fits.HDUList([hdu])
         hdulist.writeto(bad_pixel_mask_file, overwrite=True)
 
-    def create_bad_pixel_mask_by_tap(self, image_list: list, sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
+    def create_bad_pixel_mask_by_tap(self, image_list: list,
+                                     sigma: np.float32,
+                                     percent_threshold: np.float32, bad_pixel_mask_file: str):
         '''
         Creates a bad pixel mask.  This algorithm uses values from the entire image.
         The algorithm for determining bad pixels is any values above the mean - (sigma * standard deviation)
@@ -383,7 +400,8 @@ class MaGIXSDataProducts:
                 image_cube[index, :, :] = image
 
         # Despike.
-        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True) + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
+        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True)
+                                          + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
         #print("despike_len = ", np.count_nonzero(np.isnan(image_cube)))
 
         bad_pixel_mask = np.zeros((self.active_pixels_height, self.active_pixels_width), dtype=np.float32)

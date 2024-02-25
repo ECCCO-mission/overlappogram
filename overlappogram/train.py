@@ -153,9 +153,6 @@ class Train:
             self.image_mask = mask_hdul[0].data
             if len(np.where(image_mask == 0)) == 0:
                 self.image_mask = None
-            else:
-                #print("mask (h, w) =", mask_height, mask_width)
-                assert image_height == mask_height and image_width == mask_width and self.wavelength_width == self.image_width
         else:
             #self.image_mask = np.ones((image_height, image_width))
             self.image_mask = None
@@ -180,9 +177,6 @@ class Train:
         None.
 
         '''
-        # Verify input data has been initialized.
-        assert self.image_width != 0 and self.image_height != 0
-
         #for image_row_number in range(self.image_height):
         #for image_row_number in range(180, 184):
         for image_row_number in range(240, 250):

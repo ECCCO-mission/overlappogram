@@ -22,10 +22,9 @@ class AbstractModel(ABC):
         Returns
         -------
         em : TYPE
-            Emisions (i.e. coefficients).
+            Emissions (i.e. coefficients).
         data_out : TYPE
             Predicted output.
-
         """
         pass
 

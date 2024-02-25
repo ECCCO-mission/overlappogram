@@ -117,14 +117,14 @@ if __name__ == '__main__':
         rhos = [.1]
         for rho in rhos:
             for alpha in alphas:
-                # enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
-                # inv_model = model(enet_model)
+                enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
+                inv_model = model(enet_model)
 
                 # regressor = SGDRegressor(penalty='elasticnet', alpha=alpha, l1_ratio=rho, fit_intercept=False)
                 # inv_model = SGDModel(regressor)
 
-                ridge = Ridge(alpha=alpha, positive=True, fit_intercept=False)
-                inv_model = RidgeModel(ridge)
+                # ridge = Ridge(alpha=alpha, positive=True, fit_intercept=False)
+                # inv_model = RidgeModel(ridge)
 
                 basename = os.path.splitext(os.path.basename(summed_image))[0]
 

@@ -1,28 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 09:27:08 2020
-
-@author: dbeabout
-"""
+import concurrent.futures
+import datetime
+import os
+import typing as tp
+import warnings
+from copy import deepcopy
 from dataclasses import dataclass
+
 import numpy as np
 from astropy.io import fits
-import pandas as pd
-import os
-from sklearn import preprocessing
-import multiprocessing as mp
-from copy import deepcopy
-import asyncio
-import warnings
 from sklearn.exceptions import ConvergenceWarning
-import typing as tp
-import itertools
-import datetime
-import concurrent.futures
+
 
 @dataclass(order=True)
-class Inversion():
+class Inversion:
     '''
     Inversion for overlap-a-gram data.
 
@@ -662,13 +652,13 @@ class Inversion():
         header['SLTNFOV'] = (self.solution_fov_width, 'Solution FOV Width')
         header['DEPNAME'] = (self.rsp_dep_name, 'Dependence Name')
         header['SMTHOVER'] = (self.smooth_over, 'Smooth Over')
-        header['LOGT_MIN'] = ("{:.2f}".format(self.dep_list[0]), 'Minimum Logt')
-        header['LOGT_DLT'] = ("{:.2f}".format(self.max_dep_list_delta), 'Delta Logt')
+        header['LOGT_MIN'] = (f"{self.dep_list[0]:.2f}", 'Minimum Logt')
+        header['LOGT_DLT'] = (f"{self.max_dep_list_delta:.2f}", 'Delta Logt')
         header['LOGT_NUM'] = (len(self.dep_list), 'Number Logts')
-        header['FA_MIN'] = ("{:.3f}".format(self.field_angle_range_list[0]), 'Minimum Field Angle')
-        header['FA_DLT'] = ("{:.3f}".format(self.max_field_angle_list_delta), 'Delta Field Angle')
+        header['FA_MIN'] = (f"{self.field_angle_range_list[0]:.3f}", 'Minimum Field Angle')
+        header['FA_DLT'] = (f"{self.max_field_angle_list_delta:.3f}", 'Delta Field Angle')
         header['FA_NUM'] = (self.num_field_angles, 'Number Field Angles')
-        header['FA_CDELT'] = ("{:.3f}".format(self.solution_fov_width * self.max_field_angle_list_delta), 'Field Angle CDELT')
+        header['FA_CDELT'] = (f"{self.solution_fov_width * self.max_field_angle_list_delta:.3f}", 'Field Angle CDELT')
         header['DROW_MIN'] = (self.detector_row_min, 'Minimum Detector Row')
         header['DROW_MAX'] = (self.detector_row_max, 'Maximum Detector Row')
 
@@ -742,6 +732,6 @@ class Inversion():
 
                     dep_image_cube[index, image_row_number, :] = dep_image
 
-        dep_image_filename = output_dir + "dep_image_cube_{}_{:.2}_{:.2}.fits".format(self.rsp_dep_name, self.dep_list[0], self.dep_list[len(self.dep_list)-1])
+        dep_image_filename = output_dir + f"dep_image_cube_{self.rsp_dep_name}_{self.dep_list[0]:.2}_{self.dep_list[len(self.dep_list)-1]:.2}.fits"
         em_data_cube_hdul[0].data = dep_image_cube
         em_data_cube_hdul.writeto(dep_image_filename, overwrite=True)

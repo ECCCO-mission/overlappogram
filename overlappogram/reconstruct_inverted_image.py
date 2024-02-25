@@ -1,15 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jan 12 10:38:24 2021
-
-@author: dbeabout
-"""
+import os
 
 import numpy as np
-from astropy.io import fits 
 import pandas as pd
-import os
+from astropy.io import fits
+
 
 def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: str,
                                output_dir_path: str, rsp_dep_list: np.ndarray = None):
@@ -37,7 +31,7 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
     em_data_cube = image_hdul[0].data
     print(np.shape(em_data_cube))
     num_rows, num_slits, num_deps = np.shape(em_data_cube)
-    
+
     try:
         pixel_fov_width = image_hdul[0].header['PIXELFOV']
         solution_fov_width = image_hdul[0].header['SLTNFOV']
@@ -46,7 +40,7 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
     except:
         slit_shift_width = 1
     print("slit shift width =", slit_shift_width)
-    
+
     binary_table_exists = True
     try:
         #dep_name = image_hdul[0].header['DEPNAME']
@@ -70,9 +64,9 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
     except:
         binary_table_exists = False
         #print(repr(e))
-        
+
     image_allocated = False
-        
+
     if binary_table_exists:
         calc_half_slits = divmod(num_slits, 2)
         num_half_slits = int(calc_half_slits[0])
@@ -96,7 +90,7 @@ def reconstruct_inverted_image(em_data_cube_slot_data: str, rsp_dep_file_fmt: st
 
         # Create output directory.
         os.makedirs(output_dir_path, exist_ok=True)
-                    
+
         image_file = output_dir_path + "reconstructed_inverted_image.fits"
         print(image_file)
         hdu = fits.PrimaryHDU(image_data)

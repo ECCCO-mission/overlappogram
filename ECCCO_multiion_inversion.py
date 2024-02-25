@@ -1,31 +1,21 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jun  9 08:52:51 2021
 
 @author: dbeabout
 """
-from magixs_data_products import MaGIXSDataProducts
-from overlappogram.create_gnt_image import create_gnt_image
-from overlappogram.create_color_color_plot import create_color_color_plot
-import numpy as np
-from astropy.io import fits
 import os
-import re
-import matplotlib.pyplot as plt
-from overlappogram.inversion_field_angles import Inversion
-#from overlappogram.inversion_field_angles_logts_ions import Inversion
-from sklearn.linear_model import ElasticNet as enet, SGDRegressor, Ridge
-from overlappogram.elasticnet_model import ElasticNetModel as model
-from overlappogram.sgd_model import SGDModel
-from overlappogram.ridge_model import RidgeModel
-from sklearn.linear_model import LassoLars as llars
 # from overlappogram.lassolars_model import LassoLarsModel as llars_model
 import time
-import pandas as pd
-from joblib import Parallel, delayed, parallel_backend
-import warnings
-from sklearn.exceptions import ConvergenceWarning
+
+import numpy as np
+from astropy.io import fits
+#from overlappogram.inversion_field_angles_logts_ions import Inversion
+from sklearn.linear_model import ElasticNet as enet
+
+from magixs_data_products import MaGIXSDataProducts
+from overlappogram.elasticnet_model import ElasticNetModel as model
+from overlappogram.inversion_field_angles import Inversion
 
 '''def calculate_weights(data, weights, sig_read, exp_time):
     # Read image
@@ -117,7 +107,13 @@ if __name__ == '__main__':
         rhos = [.1]
         for rho in rhos:
             for alpha in alphas:
-                enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
+                enet_model = enet(alpha=alpha,
+                                  l1_ratio=rho,
+                                  max_iter=100000,
+                                  precompute=True,
+                                  positive=True,
+                                  fit_intercept=False,
+                                  selection='cyclic')
                 inv_model = model(enet_model)
 
                 # regressor = SGDRegressor(penalty='elasticnet', alpha=alpha, l1_ratio=rho, fit_intercept=False)
@@ -131,19 +127,8 @@ if __name__ == '__main__':
                 start = time.time()
                 inversion.multiprocessing_invert(inv_model, inversion_dir, output_file_prefix=basename,
                 #inversion.invert(inv_model, inversion_dir, output_file_prefix=basename,
-                            output_file_postfix='x'+str(solution_fov_width)+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf' ,detector_row_range=detector_row_range, score=False)
+                            output_file_postfix='x'+str(solution_fov_width)+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf' ,
+                                                 detector_row_range=detector_row_range,
+                                                 score=False)
                 end = time.time()
                 print("Inversion Time =", end - start)
-
-            ##create spectrally pure
-     ####           mdp = MaGIXSDataProducts()
-    ####            dir_path=inversion_dir
-     #           image_list = [dir_path + 'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el_decon_em_data_cube_x'+str(solution_fov_width)+'_'+str(rho*10)+'_'+str(alpha)+'.fits]'
-    ####            image_list = [dir_path + 'eccco_is_lw_psf'+str(psf)+'pix_el_em_data_cube_x'+str(solution_fov_width)+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf.fits']
-    ####            gnt_dir=response_dir
-     ####           gnt_file = gnt_dir + 'master_gnt_eccco_inelectrons_cm3perspersr_with_tables.fits'
-
-    ####            rsp_dep_list = np.round((np.arange(56, 68, 1) / 10.0), decimals=1)
-    ####            mdp.create_level2_0_spectrally_pure_images(image_list, gnt_file, rsp_dep_list, dir_path)
-
-

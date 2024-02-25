@@ -1,18 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr  8 13:29:11 2021
-
-@author: dbeabout
-"""
-
 import numpy as np
-from astropy.io import fits 
+from astropy.io import fits
+
 
 def create_poisson_noisy_image(image: np.ndarray, output_image_file: str,
                                exposure_time: float):
-    '''
-    
+    """
+
 
     Parameters
     ----------
@@ -27,7 +20,7 @@ def create_poisson_noisy_image(image: np.ndarray, output_image_file: str,
     -------
     None.
 
-    '''
+    """
     # Create and save poisson noisy image.
     rng = np.random.default_rng()
     noisy_image = rng.poisson(image * exposure_time) / exposure_time

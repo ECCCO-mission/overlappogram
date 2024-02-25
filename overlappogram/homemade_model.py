@@ -1,27 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 15 13:28:22 2021
-
-@author: dbeabout
-"""
 import numpy as np
-from dataclasses import dataclass
-
 from scipy.optimize import minimize
-from congrid import congrid
 
-class Model():
+
+class Model:
     def __init__(self,alpha) -> None:
         self.alpha=alpha
     def get_params(self):
         return {'alpha':self.alpha}
-class HomemadeModel():
+class HomemadeModel:
     def __init__(self,model):
         self.model=model
     def invert(self, response_function, data):
         # weights=np.full((2048),1)
-        
+
         l=response_function.shape[1]
         R=np.eye(l,l,1)-np.eye(l,l,-1)
         def f(x):
@@ -30,9 +21,9 @@ class HomemadeModel():
             for t in range(response_function.shape[0]):
                 s+=self.model.alpha*np.linalg.norm(x[t])#np.linalg.norm(response_function[t]@x[t] -data)+self.alpha*np.linalg.norm(R@x)
             return s
-        
+
         # data_out = self.model.predict(np.full_like(response_function,0.))
-        
+
         em = minimize(f,np.ones((15,256),dtype=float))
         print(em)
         data_out = sum([response_function[t]@em[t] for t in range(15)])

@@ -1,24 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 09:27:08 2020
-
-@author: dbeabout
-"""
-from dataclasses import dataclass
-import numpy as np
-from astropy.io import fits 
-import pandas as pd
-#from scipy.ndimage.interpolation import shift
 import os
-from sklearn.linear_model import ElasticNetCV
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import GroupShuffleSplit
-from sklearn.linear_model import ElasticNet as enet
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+from astropy.io import fits
 from sklearn.linear_model import LassoLarsCV
 
+
 @dataclass(order=True)
-class Train():
+class Train:
     '''
     Inversion for overlap-a-gram data.
 
@@ -71,11 +61,11 @@ class Train():
         # self.slit_shift_width = int(round(calc_shift_width[0]))
         self.slit_shift_width = int(round(self.solution_fov_width / self.pixel_fov_width))
         #print("slit shift width =", self.slit_shift_width)
-        
+
         self.image_height = 0
         self.image_width = 0
         # Read response files and create response matrix
-        response_files = [self.rsp_dep_file_fmt.format(i) for i in self.rsp_dep_list]        
+        response_files = [self.rsp_dep_file_fmt.format(i) for i in self.rsp_dep_list]
         #print("Response files =", response_files)
         self.num_response_files = len(response_files)
         assert(self.num_response_files > 0)
@@ -120,11 +110,11 @@ class Train():
                     self.response_function[response_count, :] = slit_em
                     self.groups[response_count] = index
                     response_count += 1
-        
+
         print("groups =", self.groups)
         #print("response count =", response_count)
         self.response_function = self.response_function.transpose()
-        
+
         if self.rsp_dep_desc_fmt == '':
             max_dep_len = len(max(self.rsp_dep_list, key=len))
             self.rsp_dep_desc_fmt = str(max_dep_len) + 'A'
@@ -155,7 +145,7 @@ class Train():
         self.image_width = image_width
         self.image_height = image_height
         self.input_image = os.path.basename(input_image)
-        
+
         if image_mask is not None:
             # Read mask
             mask_hdul = fits.open(image_mask)
@@ -169,7 +159,7 @@ class Train():
         else:
             #self.image_mask = np.ones((image_height, image_width))
             self.image_mask = None
-        
+
     def invert(self):
         '''
         Invert image.
@@ -210,15 +200,10 @@ class Train():
             #         image_row[mask_pixels] = 0
             #         masked_rsp_func = self.response_function.copy()
             #         masked_rsp_func[mask_pixels, :] = 0
-                             
-            #cv = GroupShuffleSplit(n_splits=3, random_state=0).split(X=self.response_function, y=image_row, groups=self.groups)
-            cv = 5
+
             #alphas = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.1]
-            alphas = [1e-5, 1e-1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
             #alphas = np.arange(0.1, 1.0, 0.1)
-            ratios = np.arange(0.1, 1, 0.05)
             #ratios = [0.05, 0.1, 0.15, 0.2]
-            #model = ElasticNetCV(alphas=alphas, l1_ratio=ratios, max_iter=50000, precompute=True, normalize=True, positive=True, fit_intercept=True, selection='random', cv=cv)
             model = LassoLarsCV(max_iter=50000, precompute=True, normalize=True, positive=True, fit_intercept=True)
             model.fit(self.response_function, image_row)
             #print("model =", model)
@@ -226,17 +211,7 @@ class Train():
             #print('l1_ratio: %f' % model.l1_ratio_)
             print('intercept: %f' % model.intercept_)
             print('n_iter: %f' % model.n_iter_)
-            
-            # # define grid
-            # grid = dict()
-            # grid['alpha'] = np.arange(0.1, 1.0, 0.1)
-            # grid['l1_ratio'] = np.arange(0.1, 1, 0.05)
-            # enet_model = enet(max_iter=50000, precompute=True, normalize=True, positive=True, fit_intercept=True, selection='random')
-            # search = GridSearchCV(enet_model, grid, scoring='neg_mean_squared_error', cv=5, n_jobs=-1)
-            # results = search.fit(self.response_function, image_row)
-            # print("MAE =", results.best_score_)
-            # print("Config =", results.best_params_)
-                 
+
     def __add_fits_keywords(self, header):
         '''
         Add FITS keywords to FITS header.
@@ -257,4 +232,3 @@ class Train():
         header.append(('SLITFOV', self.slit_fov_width, 'Slit FOV Width'), end=True)
         header.append(('DEPNAME', self.rsp_dep_name, 'Dependence Name'), end=True)
         header.append(('SMTHOVER', self.smooth_over, 'Smooth Over'), end=True)
-

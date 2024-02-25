@@ -1,20 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jan 12 10:38:24 2021
-
-@author: dbeabout
-"""
+import typing as tp
 
 import numpy as np
-from astropy.io import fits 
 import pandas as pd
-import os
-import typing as tp
+from astropy.io import fits
+
 
 def create_dependence_image(em_data_cube_data: tp.Union[str, list], rsp_dep_file_fmt: str,
                             image_file_fmt: str, rsp_dep_list: np.ndarray = None):
-    '''
+    """
     Creates a dependence image for each dependence.  If the response dependence
     list is None, a data cube is created for all dependences in binary table.
 
@@ -34,7 +27,7 @@ def create_dependence_image(em_data_cube_data: tp.Union[str, list], rsp_dep_file
     -------
     None.
 
-    '''
+    """
     if type(em_data_cube_data) == str:
         image_hdul = fits.open(em_data_cube_data)
         em_data_cube = image_hdul[0].data
@@ -89,7 +82,7 @@ def create_dependence_image(em_data_cube_data: tp.Union[str, list], rsp_dep_file
     except:
         keywords_and_table_exists = False
         #print(repr(e))
-    
+
     if keywords_and_table_exists:
         calc_half_slits = divmod(num_slits, 2)
         num_half_slits = int(calc_half_slits[0])
@@ -109,7 +102,7 @@ def create_dependence_image(em_data_cube_data: tp.Union[str, list], rsp_dep_file
                     slit_rsp = dep_rsp
                 for row in range(num_rows):
                     dep_data_cube[row, slit_index, :] = slit_rsp * em_data_cube[row, slit_index, dep_indices[index]]
-                    
+
             dep_data_cube_file = image_file_fmt.format(dep_list[index]) + ".fits"
             #print(dep_data_cube_file)
             fits_hdu = fits.PrimaryHDU(data = dep_data_cube, header = em_data_cube_header)

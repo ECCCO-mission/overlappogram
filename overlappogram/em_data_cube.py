@@ -1,33 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 11 11:35:41 2020
-
-@author: dbeabout
-"""
-
-# Needed for versions prior to Python 3.10 if returning a class like itself.
 from __future__ import annotations
 
-from dataclasses import dataclass
-import numpy as np
-import astropy.units as u
-from astropy.io import fits 
-from ndcube import NDCube
-import typing as tp
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import math
-from sklearn.linear_model import ElasticNet as enet
-import scipy.stats
-from photutils.datasets import apply_poisson_noise
-#from sunpy.visualization.animator import ArrayAnimatorWCS
-from statistics import pvariance, median_grouped
-from astropy.stats import sigma_clipped_stats
-from photutils import find_peaks
-from typing import Tuple
+import typing as tp
+from dataclasses import dataclass
 from time import time
-from scipy.sparse import csc_matrix
+
+import astropy.units as u
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats
+from astropy.io import fits
+from ndcube import NDCube
+from photutils.datasets import apply_poisson_noise
+from sklearn.linear_model import ElasticNet as enet
+
 
 def create_background(num_x: int, num_y: int, background_value: float, add_noise: bool = False) -> np.ndarray:
     '''
@@ -57,10 +43,10 @@ def create_background(num_x: int, num_y: int, background_value: float, add_noise
     return background
 
 @dataclass(order=True)
-class EMDataCube():
+class EMDataCube:
     cube: NDCube
     background: tp.Optional[tp.Union[np.ndarray]] = None
-    
+
     def __post_init__(self):
         # Verify wcs and data shape match
         assert self.cube.wcs.pixel_shape == np.shape(self.cube.data)[::-1]
@@ -77,11 +63,11 @@ class EMDataCube():
             # Verify background shape matches spatial shape
             assert np.shape(self.background) == (y ,x)
             self.cube.data[:, :, self.zero_velocity] = self.background
-            
+
     def add_explosive_event(self, filename: str, locations: list):
         '''
         Add explossive event to emission cube.
-        
+
         Parameters
         ----------
         filename : str
@@ -113,11 +99,11 @@ class EMDataCube():
             pixel_coords = self.cube.world_to_pixel(y, x, 0 * u.km/u.s)
             pixel_x = int(np.rint(pixel_coords[1].value))
             pixel_y = int(np.rint(pixel_coords[0].value))
-            # Verify coordintates within cube
+            # Verify coordinates within cube
             if (pixel_x >= 0 and pixel_x < num_x) and (pixel_y >= 0 and pixel_y < num_y):
                 self.cube.data[pixel_y, pixel_x, :] = 0.0
                 self.cube.data[pixel_y, pixel_x, :] = vel_vector
-        
+
     def create_simulated_data(self, image_list: list):
         '''
         Creates simulated camera/image data.
@@ -139,11 +125,11 @@ class EMDataCube():
             world_y, world_x, world_vel = self.cube.pixel_to_world(y * u.pix, x * u.pix, z * u.pix)
             for image in image_list:
                 image.add_simulated_data(world_x, world_y, world_vel, self.cube.data[y, x, z])
-                        
+
     def prep_inversion(self, image_list):
         # Initialize cube data
         self.cube.data[:, :, :] = 0.0
-        
+
         # Calculate crop ROI in world coordinates
         num_y, num_x, num_vel = self.cube.wcs.array_shape
         print("prep inversion", num_x, num_y, num_vel)
@@ -160,7 +146,7 @@ class EMDataCube():
         max_world_y = world_y[num_y][num_x]
         print("min world =", min_world_x, min_world_y)
         print("max world =", max_world_x, max_world_y)
-        
+
         # Create images to invert
         for image in image_list:
             self.inversion_image_list.append(image.crop_roi([min_world_y, min_world_x], [max_world_y, max_world_x]))
@@ -193,7 +179,7 @@ class EMDataCube():
                         image_kernel = inversion_image.create_kernel(x_out, y_out, vel_out)
                         kernel = np.append(kernel, image_kernel)
                     self.resp1[c,:] = kernel
-                
+
                     self.x1[c] = x_out.to(u.arcsec).value  # arcsec
                     self.y1[c] = y_out.to(u.arcsec).value  # arcsec
                     self.vel1[c] = vel_out.to(u.km / u.s).value  # km / s
@@ -201,23 +187,23 @@ class EMDataCube():
 
         self.resp1 = self.resp1.transpose()
         self.resp0 = np.copy(self.resp1)
-        
+
     def invert_data(self, alpha=0.0025, rho=0.975, slope=0.0, bias=1.0):
         # Adjust the resp1 to reflect the weight
         weight = abs(self.vel1)*slope + bias
         for i in range(0, self.num_em_values):
             self.resp1[:, i] = self.resp0[:, i] * weight[i]
 #            self.resp1[:, i] = self.resp0[:, i] / weight[i]
- 	
+
         enet_model = enet(alpha=alpha, l1_ratio = rho, precompute=True, normalize=True, positive=True, fit_intercept=True, selection='random')
         enet_model.fit(self.resp1, self.inversion_data)
         data_out = enet_model.predict(self.resp1)
         em = enet_model.coef_
- 	
+
         # Take the weight out of the EM
         for i in range(0, self.num_em_values):
             em[i] = em[i] / weight[i]
-                
+
         # Update cube data
         c = 0
         num_y, num_x, num_vel = self.cube.wcs.array_shape
@@ -226,18 +212,18 @@ class EMDataCube():
                 for k in range(0, num_vel):
                     self.cube.data[j, i, k] = em[c]
                     c = c + 1
-						
+
         #wcs_anim = ArrayAnimatorWCS(self.cube.data,self.cube.wcs,slices = (0, 'x','y'))
         #plt.show()
-        
+
         plt.figure()
         plt.scatter(self.vel1, em, c='r', marker='.')
         plot_title='alpha='+str('%f' % alpha)+' l1ratio='+str('%f' % rho)+' slope='+str('%f' % slope)
         plt.grid(b=True)
         plt.title(plot_title)
-            
+
         # Display inverted data
-        image_offset = 0;
+        image_offset = 0
         for inversion_image in self.inversion_image_list:
             image_data = inversion_image.data()
             y_pixels, x_pixels = np.shape(image_data)
@@ -248,12 +234,12 @@ class EMDataCube():
             plt.figure()
             plt.imshow(inverted_data)
             plt.gca().invert_yaxis()
-            image_offset += (y_pixels * x_pixels)       
-                
+            image_offset += (y_pixels * x_pixels)
+
     def prep_inversion1(self, image_list):
         # Initialize cube data
         self.cube.data[:, :, :] = 0.0
-        
+
         # Calculate crop ROI in world coordinates
         num_y, num_x, num_vel = self.cube.wcs.array_shape
         world_y, world_x, world_vel = self.cube.axis_world_coords(edges=True)
@@ -265,7 +251,7 @@ class EMDataCube():
         max_world_y = world_y[num_y][num_x]
         print("min world =", min_world_x, min_world_y)
         print("max world =", max_world_x, max_world_y)
-        
+
         # Create images to invert
         for image in image_list:
             self.inversion_image_list.append(image.crop_roi([min_world_y, min_world_x], [max_world_y, max_world_x]))
@@ -279,22 +265,22 @@ class EMDataCube():
             #print("x pixels =", x_pixels, "y pixels =", y_pixels)
             self.inversion_data_len += (y_pixels * x_pixels)
             self.inversion_data = np.append(self.inversion_data, np.reshape(image_data, (y_pixels * x_pixels)))
-        
-    def invert_data1(self, alpha=0.0025, rho=0.975, slope=0.0, bias=1.0, inversion_image_data_list: tp.Optional[tp.Union[tp.List[np.ndarray]]] = None):
+
+    def invert_data1(self, alpha=0.0025, rho=0.975, slope=0.0, bias=1.0, inversion_image_data_list: tp.Optional[tp.Union[list[np.ndarray]]] = None):
         num_y, num_x, num_vel = self.cube.wcs.array_shape
 
         ### First pass - zero velocity only
-        num_em_values = num_x * num_y * 1     
+        num_em_values = num_x * num_y * 1
         x1_i = np.zeros(num_em_values)
         y1_j = np.zeros(num_em_values)
         vel1_k = np.zeros(num_em_values)
         vel1 = np.zeros(num_em_values)
-        
+
         start_time = time()
 
         # Create response function
         resp1  = np.zeros((num_em_values, self.inversion_data_len))
-        
+
         csc_row_vec = np.array([])
         csc_col_vec = np.array([])
         csc_rf_vec = np.array([])
@@ -321,7 +307,7 @@ class EMDataCube():
                 csc_row_vec = np.append(csc_row_vec, row_vec)
                 csc_col_vec = np.append(csc_col_vec, col_vec)
                 csc_rf_vec = np.append(csc_rf_vec, rf_vec)
-                
+
                 x1_i[c] = i
                 y1_j[c] = j
                 vel1_k[c] = self.zero_velocity
@@ -331,22 +317,22 @@ class EMDataCube():
 
         resp1 = resp1.transpose()
         resp0 = np.copy(resp1)
-        
+
         #resp1 = csc_matrix((csc_rf_vec, (csc_row_vec, csc_col_vec)), shape=(self.inversion_data_len, c)).toarray()
-        
+
         end_time = time()
         print("first pass, response function create time =", end_time - start_time)
         start_time = end_time
-       
+
         enet_model = enet(alpha=alpha, l1_ratio = rho, precompute=True, normalize=True, positive=True, fit_intercept=True, selection='random')
         enet_model.fit(resp1, self.inversion_data)
         data_out = enet_model.predict(resp1)
         em = enet_model.coef_
-        
+
         end_time = time()
         print("first pass, inversion time =", end_time - start_time)
         start_time = end_time
-                
+
         # Update cube data
         c = 0
         num_y, num_x, num_vel = self.cube.wcs.array_shape
@@ -355,15 +341,15 @@ class EMDataCube():
                 self.cube.data[j, i, self.zero_velocity] = em[c]
 #                self.cube.data[j, i, (self.zero_velocity + 1)] = em[c]
                 c = c + 1
-						
+
         plt.figure()
         plt.scatter(vel1, em, c='r', marker='.')
         plot_title='alpha='+str('%f' % alpha)+' l1ratio='+str('%f' % rho)+' slope='+str('%f' % slope)
         plt.grid(b=True)
         plt.title(plot_title)
-            
+
         # Display inverted data
-        image_offset = 0;
+        image_offset = 0
         for inversion_image in self.inversion_image_list:
             image_data = inversion_image.data()
             y_pixels, x_pixels = np.shape(image_data)
@@ -384,14 +370,14 @@ class EMDataCube():
             diff_count = np.count_nonzero(diff_image < 0.0)
             print("diff cout = ", diff_count)
             #print(diff_image)
-            
+
         # Calculate intensity
         intensity_values = np.zeros((num_y, num_x), dtype=np.float64)
         for x in range(num_x):
             for y in range(num_y):
                 intensity = np.sum(self.cube.data[y, x, :])
                 intensity_values[y, x] = intensity
-                
+
         y, x = np.shape(intensity_values)
         X, Y = np.meshgrid(np.linspace(0, x, len(intensity_values[0,:])), np.linspace(0, y, len(intensity_values[:,0])))
         fig = plt.figure()
@@ -400,24 +386,24 @@ class EMDataCube():
         #fig.colorbar(cp) # Add a colorbar to a plot
         ax.set_title('Intensity')
         plt.show()
-                
+
         ### Second pass
         zero_count = np.count_nonzero(intensity_values == 0.0)
 #        zero_count = np.count_nonzero(intensity_values <= 50.0)
         nonzero_count = intensity_values.size - zero_count
         print("second pass ", zero_count, nonzero_count)
-#        num_em_values = nonzero_count + (zero_count * num_vel)   
-        num_em_values = (nonzero_count * num_vel) + zero_count  
+#        num_em_values = nonzero_count + (zero_count * num_vel)
+        num_em_values = (nonzero_count * num_vel) + zero_count
         x1_i = np.zeros(num_em_values)
         y1_j = np.zeros(num_em_values)
         vel1_k = np.zeros(num_em_values)
         vel1 = np.zeros(num_em_values)
-        
+
         start_time = time()
 
         # Create response function
         resp1  = np.zeros((num_em_values, self.inversion_data_len))
-        
+
         csc_row_vec = np.array([])
         csc_col_vec = np.array([])
         csc_rf_vec = np.array([])
@@ -441,7 +427,7 @@ class EMDataCube():
                         csc_row_vec = np.append(csc_row_vec, row_vec)
                         csc_col_vec = np.append(csc_col_vec, col_vec)
                         csc_rf_vec = np.append(csc_rf_vec, rf_vec)
-                
+
                         x1_i[c] = i
                         y1_j[c] = j
                         vel1_k[c] = k
@@ -460,22 +446,22 @@ class EMDataCube():
                     csc_row_vec = np.append(csc_row_vec, row_vec)
                     csc_col_vec = np.append(csc_col_vec, col_vec)
                     csc_rf_vec = np.append(csc_rf_vec, rf_vec)
-                
+
                     x1_i[c] = i
                     y1_j[c] = j
                     vel1_k[c] = self.zero_velocity
                     vel1[c] = vel_out.to(u.km / u.s).value  # km / s
                     c = c + 1
-        
+
         end_time = time()
         print("second pass, response function create time =", end_time - start_time)
         start_time = end_time
 
         resp1 = resp1.transpose()
         resp0 = np.copy(resp1)
-        
+
         #resp1 = csc_matrix((csc_rf_vec, (csc_row_vec, csc_col_vec)), shape=(self.inversion_data_len, c)).toarray()
-        
+
 #         # Adjust the resp1 to reflect the weight
 #         print("vel out =", vel1)
 #         print("slope =", slope)
@@ -484,30 +470,30 @@ class EMDataCube():
 #         for i in range(0, num_em_values):
 #             resp1[:, i] = resp0[:, i] * weight[i]
 # #            resp1[:, i] = resp0[:, i] / weight[i]
- 	
+
         enet_model = enet(alpha=alpha, l1_ratio = rho, precompute=True, normalize=True, positive=True, fit_intercept=True, selection='random')
         enet_model.fit(resp1, self.inversion_data)
         data_out = enet_model.predict(resp1)
         em = enet_model.coef_
-        
+
         end_time = time()
         print("second pass, inversion time =", end_time - start_time)
         start_time = end_time
- 	
+
         # # Take the weight out of the EM
         # for i in range(0, num_em_values):
         #     em[i] = em[i] / weight[i]
-                
+
         # Update cube data
         for c in range(0, num_em_values):
             self.cube.data[int(y1_j[c]), int(x1_i[c]), int(vel1_k[c])] = em[c]
-						
+
         plt.figure()
         plt.scatter(vel1, em, c='r', marker='.')
         plot_title='alpha='+str('%f' % alpha)+' l1ratio='+str('%f' % rho)+' slope='+str('%f' % slope)
         plt.grid(b=True)
         plt.title(plot_title)
-            
+
         # Display inverted data
         image_offset = 0
         image_count = 0
@@ -531,13 +517,13 @@ class EMDataCube():
             # plt.gca().invert_yaxis()
             image_offset += (y_pixels * x_pixels)
             image_count += 1
-             
+
 #             # diff_image = image_data - inverted_data
 #             # plt_fig = plt.figure()
 #             # plt_im = plt.imshow(diff_image, origin='lower')
 #             # plt_fig.colorbar(plt_im)
 #             # plt.show()
-               
+
     def crop_tile(self, x1: int, y1: int, x2: int, y2: int) -> EMDataCube:
         '''
         Create a slice of the emission data cube as a tile for inversions.
@@ -561,14 +547,14 @@ class EMDataCube():
         '''
         em_tile = self.cube[y1:y2, x1:x2, :]
         print(em_tile)
-        
+
         new_em = EMDataCube(em_tile)
-        
+
         return new_em
-        
-    def calculate_moments(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+
+    def calculate_moments(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         '''
-        Calulate moments 0 - 3.
+        Calculate moments 0 - 3.
 
         Returns
         -------
@@ -610,10 +596,8 @@ class EMDataCube():
                     line_width_values[y, x] = line_width
                     skew_values[y, x] = skew
         return intensity_values, vbar_values, line_width_values, skew_values
-                    
+
     def write(self, filename : str):
         fits_header = self.cube.wcs.to_header()
         fits_hdu = fits.PrimaryHDU(data = self.cube.data, header = fits_header)
         fits_hdu.writeto(filename, overwrite=True)
-        
-        

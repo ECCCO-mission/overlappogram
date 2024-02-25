@@ -1,14 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 15 13:28:22 2021
-
-@author: dbeabout
-"""
-
 from dataclasses import dataclass
-from overlappogram.abstract_model import AbstractModel
+
 from sklearn.linear_model import ElasticNet as enet
+
+from overlappogram.abstract_model import AbstractModel
+
 
 @dataclass(order=True)
 class ElasticNetModel(AbstractModel):
@@ -30,7 +25,7 @@ class ElasticNetModel(AbstractModel):
         header['INVMDL'] = ('Elastic Net', 'Inversion Model')
         header['ALPHA'] = (params['alpha'], 'Inversion Model Alpha')
         header['RHO'] = (params['l1_ratio'], 'Inversion Model Rho')
-        
+
     def get_score(self, response_function, data):
         score = self.model.score(response_function, data)
         return score

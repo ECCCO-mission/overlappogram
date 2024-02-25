@@ -1,21 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 15 13:28:22 2021
-
-@author: dbeabout
-"""
-
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from abc import ABC, abstractclassmethod
+
 import numpy as np
-from typing import Tuple
+
 
 @dataclass(order=True)
 class AbstractModel(ABC):
-    @abstractclassmethod
-    def invert(self, response_function, data) -> Tuple[np.ndarray, np.ndarray]:
-        '''
+    @classmethod
+    @abstractmethod
+    def invert(self, response_function, data) -> tuple[np.ndarray, np.ndarray]:
+        """
         Invert data.
 
         Parameters
@@ -28,13 +22,14 @@ class AbstractModel(ABC):
         Returns
         -------
         em : TYPE
-            Emmisions (i.e. coefficients).
+            Emisions (i.e. coefficients).
         data_out : TYPE
             Predicted output.
 
-        '''
+        """
         pass
-    @abstractclassmethod
+
+    @classmethod
+    @abstractmethod
     def add_fits_keywords(self, header):
         pass
-    

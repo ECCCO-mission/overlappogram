@@ -1,8 +1,0 @@
-numpy
-astropy
-scikit-learn
-pandas
-pillow
-matplotlib
-photutils
-scipy

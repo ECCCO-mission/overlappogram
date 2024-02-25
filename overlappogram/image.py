@@ -1,25 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 09:27:08 2020
-
-@author: dbeabout
-"""
 from dataclasses import dataclass
-import numpy as np
-import matplotlib.pyplot as plt
-import astropy.units as u
-from astropy.io import fits 
-from ndcube import NDCube
-from astropy.constants import k_B, c
-from astropy.table import Table
-from photutils.datasets import (make_gaussian_sources_image)
 from math import sqrt
+
+import astropy.units as u
+import matplotlib.pyplot as plt
+import numpy as np
+from astropy.constants import c, k_B
+from astropy.io import fits
+from astropy.table import Table
+from ndcube import NDCube
+from photutils.datasets import make_gaussian_sources_image
+
 from overlappogram.element import Element
-from time import time
+
 
 @dataclass(order=True)
-class Image():
+class Image:
     cube: NDCube
     element: Element
     sigma_psf: np.float64
@@ -45,7 +40,7 @@ class Image():
         self.sources['y_stddev'] = [self.sigma_psf]
         self.sources['theta'] = [self.angle]
         self.crop_roi_coords = []
-       
+
     def calculate_detector_dispersion(self,element_temperature, element_mass,
                                       element_rest_wavelength, sigma_psf,
                                       pixel_delta_wavelength):
@@ -56,10 +51,10 @@ class Image():
             pixel_delta_wavelength / element_rest_wavelength * (c.value / 1.e3)
         sigma_thermal = thermal_velocity/self.width_of_pix_in_km_s
         self.sigma_along_disp = np.sqrt(sigma_psf**2 + sigma_thermal**2)
-        
+
     def data(self):
         return self.cube.data[:][:]
-            
+
     def create_kernel(self, x, y, vel):
         #start_time = time()
 #        pixel_y, pixel_x = self.cube.world_to_pixel(y, x)
@@ -85,9 +80,9 @@ class Image():
             if (kernel_sum != 0.0):
                 kernel = kernel / kernel_sum
         else:
-            kernel = np.zeros((self.num_y_pixels * self.num_x_pixels))
+            kernel = np.zeros(self.num_y_pixels * self.num_x_pixels)
         return kernel
-    
+
     def crop_roi(self, lower, upper):
         pixel_y, pixel_x = self.cube.world_to_pixel(lower[0], lower[1])
         print("crop_roi pixels ll =", pixel_y, pixel_x)
@@ -102,9 +97,9 @@ class Image():
         plt.figure()
         plt.imshow(image_roi.data, origin='lower')
         # image_roi.plot()
-        
+
         new_image = Image(image_roi, self.element, self.sigma_psf, self.pixel_delta_wavelength, self.camera_angle)
-        
+
         crop_roi_coords = []
         world_y, world_x = new_image.cube.pixel_to_world(0 * u.pix, 0 * u.pix)
         pixel_y, pixel_x = self.cube.world_to_pixel(world_y, world_x)
@@ -119,10 +114,10 @@ class Image():
         new_image.set_crop_roi_coords(crop_roi_coords)
 
         return new_image
-    
+
     def set_crop_roi_coords(self, roi_coords):
         self.crop_roi_coords = roi_coords
-    
+
     def get_crop_roi_coords(self):
         print("inside image get_crop_roi_coords =", self.crop_roi_coords)
         return self.crop_roi_coords
@@ -132,7 +127,7 @@ class Image():
         kernel = self.create_kernel(x, y, vel) * em
         kernel = np.reshape(kernel, (self.num_y_pixels, self.num_x_pixels))
         self.cube.data[:, :] += kernel
-                        
+
     def write(self, filename : str):
         fits_header = self.cube.wcs.to_header()
         fits_hdu = fits.PrimaryHDU(data = self.cube.data, header = fits_header)

@@ -1,33 +1,27 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun  8 13:47:48 2021
-
-@author: dbeabout
-"""
-
-from dataclasses import dataclass
-import numpy as np
-import numpy.ma as ma
-from astropy.io import fits
-import astropy.wcs
-import typing as tp
-import pandas as pd
-import os.path
-from datetime import datetime, date, timedelta, timezone
-import dateutil
 import glob
-from scipy.io import loadmat
+import math
 import os
-from astropy.table import Table
-from overlappogram.inversion_field_angles import Inversion
-from sklearn.linear_model import ElasticNet as enet
-from overlappogram.elasticnet_model import ElasticNetModel as enet_model
-from sklearn.linear_model import LassoLars as llars
+import os.path
 # from overlappogram.lassolars_model import LassoLarsModel as llars_model
 import time
+import typing as tp
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+
+import astropy.wcs
+import dateutil
+import numpy as np
+import numpy.ma as ma
+import pandas as pd
+from astropy.io import fits
+from astropy.table import Table
 from PIL import Image
-import math
+from scipy.io import loadmat
+from sklearn.linear_model import ElasticNet as enet
+from sklearn.linear_model import LassoLars as llars
+
+from overlappogram.elasticnet_model import ElasticNetModel as enet_model
+from overlappogram.inversion_field_angles import Inversion
 
 # Launch T0 (seconds since beginning of year) and timestamp.
 launch_t0 = 18296410.2713640
@@ -35,11 +29,16 @@ launch_timestamp = '2021-07-30T18:22:21Z'
 
 # Pixel deltas (y, x).
 pixel_8_deltas = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-pixel_16_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, 2), (0, -2), (0, 2), (1, -2), (1, 2), (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
-pixel_16_box_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (0, -2), (0, -1), (0, 1), (0, 2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
-pixel_16_adjacent_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
+pixel_16_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, 2), (0, -2), (0, 2), (1, -2), (1, 2),
+                   (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
+pixel_16_box_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2),
+                       (0, -2), (0, -1), (0, 1), (0, 2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (2, -2), (2, -1),
+                       (2, 0), (2, 1), (2, 2)]
+pixel_16_adjacent_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1),
+                            (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
 pixel_8_adjacent_deltas = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (-1, 0)]
-pixel_16_adjacent_wrap_deltas = [(-1, -2), (-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
+pixel_16_adjacent_wrap_deltas = [(-1, -2), (-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2),
+                                 (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
 
 def calc_analog_cal(raw_values):
     return  ((raw_values / 1024.0) * 5.0)
@@ -51,7 +50,7 @@ def calc_ccd_holder_cal(values):
     return ((0.5513 * calc_analog_cal(values)**3) + (1.3523 * calc_analog_cal(values)**2) + (29.942 * calc_analog_cal(values)) - 116.85)
 
 @dataclass(order=True)
-class MaGIXSDataProducts():
+class MaGIXSDataProducts:
     '''
     Inversion for overlap-a-gram data.
 
@@ -470,7 +469,7 @@ class MaGIXSDataProducts():
                 summed_fpga_vaux += image_hdul[0].header['FPGAVAUX']
                 summed_fpga_vbrm += image_hdul[0].header['FPGAVBRM']
                 for t in range(8):
-                    summed_adc_temp[t] += image_hdul[0].header['ADCTEMP{}'.format(t + 1)]
+                    summed_adc_temp[t] += image_hdul[0].header[f'ADCTEMP{t + 1}']
                 img_seq_num_list.append(image_hdul[0].header['IMG_ISN'])
                 image = self.remove_bias(image_hdul[0].data.astype(np.float32))
                 image = self.remove_inactive_pixels(image)
@@ -491,7 +490,7 @@ class MaGIXSDataProducts():
         master_dark_header['FPGAVAUX'] = (summed_fpga_vaux / number_images, 'FPGA VccAux (volts)')
         master_dark_header['FPGAVBRM'] = (summed_fpga_vbrm / number_images, 'FPGA VccBram (volts)')
         for t in range(8):
-            master_dark_header.append(('ADCTEMP{}'.format(t + 1), summed_adc_temp[t] / number_images, 'ADC Tempature{} (degC'.format(t + 1)), end=True)
+            master_dark_header.append((f'ADCTEMP{t + 1}', summed_adc_temp[t] / number_images, f'ADC Temperature{t + 1} (degC'), end=True)
 
         master_dark_header['LEVEL'] = ('0.2', 'Data Product Level')
         image_sequence_numbers = self.create_image_sequence_number_list(img_seq_num_list)
@@ -593,7 +592,7 @@ class MaGIXSDataProducts():
         input_dir : str
            Directory of Level 0.5 images to update..
         matlab_file : str
-            Matlab filename containing the tempertures.  This is a NSROC file.
+            Matlab filename containing the temperatures.  This is a NSROC file.
 
         Returns
         -------
@@ -1774,7 +1773,7 @@ class MaGIXSDataProducts():
             noisy_image = rng.poisson(image)
             noisy_image = noisy_image / image_exposure_time
             hdu = fits.PrimaryHDU(noisy_image.astype(np.float32))
-            noisy_image_filename = output_dir_path + "Run{}".format(i + 1) + output_file_post_fix + ".fits"
+            noisy_image_filename = output_dir_path + f"Run{i + 1}" + output_file_post_fix + ".fits"
             hdu.writeto(noisy_image_filename, overwrite=True)
 
     def create_image_sequence_number_list(self, numbers: list) -> str:
@@ -1784,27 +1783,27 @@ class MaGIXSDataProducts():
             if not number_list:
                 first_in_sequence = num
                 last_number = num
-                number_list += "{}".format(last_number)
+                number_list += f"{last_number}"
             else:
                 if num == (last_number + 1):
                     last_number = num
                 elif num > (last_number + 1):
                     if last_number == (first_in_sequence + 1):
-                        number_list += ", {}".format(last_number)
+                        number_list += f", {last_number}"
                     elif last_number > (first_in_sequence + 1):
-                        number_list += "-{}".format(last_number)
+                        number_list += f"-{last_number}"
                     first_in_sequence = num
                     last_number = num
-                    number_list += ", {}".format(last_number)
+                    number_list += f", {last_number}"
                 else:
                     first_in_sequence = num
                     last_number = num
-                    number_list += ", {}".format(last_number)
+                    number_list += f", {last_number}"
         if number_list:
             if last_number == (first_in_sequence + 1):
-                number_list += ", {}".format(last_number)
+                number_list += f", {last_number}"
             elif last_number > (first_in_sequence + 1):
-                number_list += "-{}".format(last_number)
+                number_list += f"-{last_number}"
         return number_list
 
 

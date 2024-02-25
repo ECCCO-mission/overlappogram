@@ -1,28 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 09:27:08 2020
-
-@author: dbeabout
-"""
-from dataclasses import dataclass
-import numpy as np
-from astropy.io import fits 
-import pandas as pd
-import os
-from sklearn import preprocessing
-import multiprocessing as mp
-from copy import deepcopy
-import asyncio
-import warnings
-from sklearn.exceptions import ConvergenceWarning
-import typing as tp
-from scipy.sparse import csc_matrix
-import itertools
 import datetime
+import os
+import typing as tp
+import warnings
+from copy import deepcopy
+from dataclasses import dataclass
+
+import numpy as np
+from astropy.io import fits
+from sklearn.exceptions import ConvergenceWarning
+
 
 @dataclass(order=True)
-class Inversion():
+class Inversion:
     '''
     Inversion for overlap-a-gram data.
 
@@ -49,17 +38,17 @@ class Inversion():
     solution_fov_width: np.int32 = 1
     smooth_over: str = 'spatial'
     field_angle_range: list = None
-    def __post_init__(self):        
+    def __post_init__(self):
         self.image_height = 0
         self.image_width = 0
-        
+
         # Open response function cube file.
         rsp_func_hdul = fits.open(self.rsp_func_cube_file)
         rsp_func_cube = rsp_func_hdul[0].data
         self.num_ions, self.num_logts, num_field_angles, rsp_func_width = np.shape(rsp_func_cube)
         #print(self.num_ions, self.num_logts, num_field_angles, rsp_func_width)
         self.rsp_func_cube_filename = os.path.basename(self.rsp_func_cube_file)
-        
+
         self.inv_date = datetime.datetime.now().isoformat(timespec='milliseconds').replace("+00:00", "Z")
 
         try:
@@ -107,7 +96,7 @@ class Inversion():
                 logt_index, = np.where(np.isclose(logt_list, logt))
                 assert len(logt_index == 1)
                 logt_ion_table[logt_index, ion_index[0]] = 1
-            
+
         print(logt_ion_table)
         inv_selection = np.where(logt_ion_table == 1)
         print(inv_selection, type(inv_selection))
@@ -134,7 +123,7 @@ class Inversion():
         print(self.inverted_selection, type(self.inverted_selection))
 
         self.rsp_func_width = rsp_func_width
-        
+
         max_num_field_angles = num_field_angles
         field_angle_list_deltas = abs(np.diff(self.field_angle_list))
         self.max_field_angle_list_delta = max(field_angle_list_deltas)
@@ -164,7 +153,7 @@ class Inversion():
             begin_slit_index = self.field_angle_range_index_list[0]
             end_slit_index = self.field_angle_range_index_list[1]
             num_field_angles = (end_slit_index - begin_slit_index) + 1
-            
+
         # Check if number of field angles is even.
         calc_half_fields_angles = divmod(num_field_angles, 2)
         if calc_half_fields_angles[1] == 0.0:
@@ -172,14 +161,14 @@ class Inversion():
             self.field_angle_range_index_list[1] = end_slit_index
             self.field_angle_range_list[1]  = self.field_angle_list[end_slit_index]
             num_field_angles = (end_slit_index - begin_slit_index) + 1
-                
+
         calc_num_slits = divmod(num_field_angles, self.solution_fov_width)
         self.num_slits =  int(calc_num_slits[0])
         # Check if number of slits is even.
         calc_half_num_slits = divmod(self.num_slits, 2)
         if calc_half_num_slits[1] == 0.0:
             self.num_slits -= 1
-        #self.num_slits = num_field_angles * self.solution_fov_width        
+        #self.num_slits = num_field_angles * self.solution_fov_width
         assert self.num_slits >= 3
         #print("number slits =", self.num_slits)
         #self.center_slit = divmod(num_field_angles, 2)
@@ -187,11 +176,11 @@ class Inversion():
         # if self.half_slits[0] * self.solution_fov_width > self.center_slit[0]:
         #     self.num_slits = self.num_slits - 2
         #     self.half_slits = divmod(self.num_slits, 2)
-            
+
         self.half_fov = divmod(self.solution_fov_width, 2)
         #assert self.half_fov[1] == 1
-        
-            
+
+
         #print("old center slit", self.center_slit)
         #self.center_slit = self.center_slit + begin_slit_index
         self.center_slit = divmod(end_slit_index - begin_slit_index, 2) + begin_slit_index
@@ -247,11 +236,11 @@ class Inversion():
                         else:
                             self.response_function[response_count, :] = rsp_func_cube[inv_selection[1][index], inv_selection[0][index], slit_num - self.half_fov[0]:slit_num + self.half_fov[0] + 1, :].sum(axis=0)
                     response_count += 1
-        
+
         #print("response count =", response_count)
         self.response_function = self.response_function.transpose()
         print(np.shape(self.response_function))
-                    
+
     def get_response_function(self):
         return self.response_function
 
@@ -279,20 +268,20 @@ class Inversion():
         # Verify image width equals the response function width in cube.
         assert image_width == self.rsp_func_width
         self.image = image
-        
+
         try:
             image_exposure_time = image_hdul[0].header['IMG_EXP']
         except KeyError:
             image_exposure_time = 1.0
         self.image /= image_exposure_time
         self.image[np.where(self.image < 0.0)] = 0.0
-        
+
         self.image_hdul = image_hdul
         #print("image (h, w) =", image_height, image_width)
         self.image_width = image_width
         self.image_height = image_height
         self.input_image = os.path.basename(input_image)
-        
+
         if image_mask is not None:
             # Read mask
             mask_hdul = fits.open(image_mask)
@@ -310,7 +299,7 @@ class Inversion():
             self.image_mask_filename = os.path.basename(image_mask)
         else:
             self.image_mask_filename = ''
-        
+
     def invert(self, model, output_dir: str,
                 output_file_prefix: str = '',
                 output_file_postfix: str = '',
@@ -411,12 +400,12 @@ class Inversion():
                             for slit_num in range(self.num_slits):
                                 em_data_cube[image_row_number, slit_num, self.inverted_selection[0][index], self.inverted_selection[1][index]] = 0.0
                                 response_count += 1
-                      
+
         print("Number Nonconvergences", num_nonconvergences)
-            
+
         # Create output directory.
         os.makedirs(output_dir, exist_ok=True)
-            
+
         # Save EM data cube.
         base_filename = output_file_prefix
         if len(output_file_prefix) > 0 and output_file_prefix[-1] != '_':
@@ -446,7 +435,7 @@ class Inversion():
         ion_hdu = fits.BinTableHDU.from_columns([col1, col2])
         hdulist = fits.HDUList([hdu, logt_hdu, ion_hdu])
         hdulist.writeto(em_data_cube_file, overwrite=True)
-               
+
         # Save model predicted data.
         base_filename = output_file_prefix
         if len(output_file_prefix) > 0 and output_file_prefix[-1] != '_':
@@ -479,8 +468,8 @@ class Inversion():
     #     #     else:
     #     #         slit_em = em[slit_num::self.num_slits]
     #     #     self.mp_em_data_cube[image_row_number, slit_num, :] = slit_em
-            
-    #     # self.mp_inverted_data[image_row_number, :] = data_out        
+
+    #     # self.mp_inverted_data[image_row_number, :] = data_out
 
     #     for slit_num in range(self.num_slits):
     #         if self.smooth_over == 'dependence':
@@ -488,9 +477,9 @@ class Inversion():
     #         else:
     #             slit_em = result[1][slit_num::self.num_slits]
     #         self.mp_em_data_cube[result[0], slit_num, :] = slit_em
-            
+
     #     self.mp_inverted_data[result[0], :] = result[2]
-       
+
     # def multiprocessing_invert_image_row(self, image_row_number: np.int32, model):
     #     #print("Inverting image row", image_row_number)
     #     image_row = self.image[image_row_number,:]
@@ -507,15 +496,15 @@ class Inversion():
     #     # if len(zero_image_pixels) > 0:
     #     #     masked_rsp_func = masked_rsp_func.copy()
     #     #     masked_rsp_func[zero_image_pixels, :] = 0.0
-        
+
     #     # masked_rsp_func2 = preprocessing.MinMaxScaler().fit_transform(masked_rsp_func)
     #     # em, data_out = model.invert(masked_rsp_func2, image_row)
     #     #model = deepcopy(self.mp_model)
     #     #em, data_out = model.invert(masked_rsp_func, image_row)
     #     em, data_out = model.invert(masked_rsp_func, image_row)
-        
+
     #     return [image_row_number, em, data_out]
-    
+
     # async def produce(self, queue):
     #     for image_row_number in range(1024):
     #         image_row = self.image[image_row_number,:]
@@ -539,14 +528,14 @@ class Inversion():
     #         await asyncio.sleep(0.001)
     #         # wait for an item from the producer
     #         item = await queue.get()
-    
+
     #         # process the item
     #         em, data_out = item[3].invert(item[1], item[2])
     #         #print(i)
-            
+
     #         # Write inversion to queue.
     #         await answer.put((item[0], em, data_out))
-    
+
     #         # Notify the queue that the item has been processed
     #         queue.task_done()
     #         #await asyncio.sleep(0.001)
@@ -554,7 +543,7 @@ class Inversion():
     # async def run_multiprocessing_inversion(self):
     #     queue = asyncio.Queue()
     #     await self.produce(queue)
-    
+
     #     # schedule consumers
     #     consumers = []
     #     #for _ in range(os.cpu_count()):
@@ -562,19 +551,19 @@ class Inversion():
     #         #print(i)
     #         consumer = asyncio.create_task(self.consume(queue, self.output_queue, i))
     #         consumers.append(consumer)
-    
+
     #     # run the producer and wait for completion
     #     #await self.produce(queue)
     #     # wait until the consumer has processed all items
     #     await queue.join()
-    
+
     #     # the consumers are still awaiting for an item, cancel them
     #     for consumer in consumers:
     #         consumer.cancel()
-    
+
     #     # wait until all worker tasks are cancelled
     #     await asyncio.gather(*consumers, return_exceptions=True)
-    
+
     # def multiprocessing_invert(self, model, output_dir: str,
     #                            output_file_prefix: str = '',
     #             output_file_postfix: str = '',
@@ -616,11 +605,11 @@ class Inversion():
     #     #         #pool.apply_async(self.multiprocessing_invert_image_row, args = (i, ), callback = self.multiprocessing_callback)
     #     #     pool.close()
     #     #     pool.join()
-        
+
     #     self.output_queue = asyncio.Queue()
     #     asyncio.run(self.run_multiprocessing_inversion())
     #     #await self.run_multiprocessing_inversion()
-        
+
     #     while not self.output_queue.empty():
     #         result = self.output_queue.get_nowait()
     #         for slit_num in range(self.num_slits):
@@ -629,12 +618,12 @@ class Inversion():
     #             else:
     #                 slit_em = result[1][slit_num::self.num_slits]
     #             self.mp_em_data_cube[result[0], slit_num, :] = slit_em
-                
+
     #         self.mp_inverted_data[result[0], :] = result[2]
-            
+
     #     # Create output directory.
     #     os.makedirs(output_dir, exist_ok=True)
-            
+
     #     # Save EM data cube.
     #     base_filename = output_file_prefix
     #     if len(output_file_prefix) > 0 and output_file_prefix[-1] != '_':
@@ -658,7 +647,7 @@ class Inversion():
     #     table_hdu = fits.BinTableHDU.from_columns([col1, col2])
     #     hdulist = fits.HDUList([hdu, table_hdu])
     #     hdulist.writeto(em_data_cube_file, overwrite=True)
-               
+
     #     # Save model predicted data.
     #     base_filename = output_file_prefix
     #     if len(output_file_prefix) > 0 and output_file_prefix[-1] != '_':
@@ -675,7 +664,7 @@ class Inversion():
     #     self.__add_fits_keywords(model_predicted_data_hdul[0].header)
     #     model.add_fits_keywords(model_predicted_data_hdul[0].header)
     #     model_predicted_data_hdul.writeto(data_file, overwrite=True)
-       
+
     def __add_fits_keywords(self, header):
         '''
         Add FITS keywords to FITS header.
@@ -701,10 +690,10 @@ class Inversion():
         header['SLTNFOV'] = (self.solution_fov_width, 'Solution FOV Width')
         #header['DEPNAME'] = (self.rsp_dep_name, 'Dependence Name')
         header['SMTHOVER'] = (self.smooth_over, 'Smooth Over')
-        header['FA_MIN'] = ("{:.3f}".format(self.field_angle_range_list[0]), 'Minimum Field Angle')
-        header['FA_DLT'] = ("{:.3f}".format(self.max_field_angle_list_delta), 'Delta Field Angle')
+        header['FA_MIN'] = (f"{self.field_angle_range_list[0]:.3f}", 'Minimum Field Angle')
+        header['FA_DLT'] = (f"{self.max_field_angle_list_delta:.3f}", 'Delta Field Angle')
         header['FA_NUM'] = (self.num_field_angles, 'Number Field Angles')
-        header['FA_CDELT'] = ("{:.3f}".format(self.solution_fov_width * self.max_field_angle_list_delta), 'Field Angle CDELT')
+        header['FA_CDELT'] = (f"{self.solution_fov_width * self.max_field_angle_list_delta:.3f}", 'Field Angle CDELT')
         header['DROW_MIN'] = (self.detector_row_min, 'Minimum Detector Row')
         header['DROW_MAX'] = (self.detector_row_max, 'Maximum Detector Row')
 

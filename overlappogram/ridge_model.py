@@ -1,14 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 15 13:28:22 2021
-
-@author: dbeabout
-"""
-
 from dataclasses import dataclass
-from overlappogram.abstract_model import AbstractModel
+
 from sklearn.linear_model import Ridge
+
+from overlappogram.abstract_model import AbstractModel
 
 
 @dataclass(order=True)

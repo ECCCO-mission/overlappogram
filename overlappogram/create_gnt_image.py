@@ -1,20 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jan 12 10:38:24 2021
-
-@author: dbeabout
-"""
+import typing as tp
 
 import numpy as np
-from astropy.io import fits 
 import pandas as pd
-import os
-import typing as tp
+from astropy.io import fits
+
 
 def create_gnt_image(em_data_cube_data: tp.Union[str, list], gnt_ions: np.ndarray,
                      gnt_file_fmt: str, image_file_fmt: str):
-    '''
+    """
     Creates a gnt image for each dependence.
 
     Parameters
@@ -27,13 +20,13 @@ def create_gnt_image(em_data_cube_data: tp.Union[str, list], gnt_ions: np.ndarra
     gnt_file_fmt : str
         Path including format of filename (e.g. 't_and_g_{:s}.txt').
     image_file_fmt : str
-        Path incuding format of filename for created image FITS files (i.e. gnt_image_logt_{:.1f}).
+        Path including format of filename for created image FITS files (i.e. gnt_image_logt_{:.1f}).
 
     Returns
     -------
     None.
 
-    '''
+    """
     if type(em_data_cube_data) == str:
         image_hdul = fits.open(em_data_cube_data)
         em_data_cube = image_hdul[0].data
@@ -75,7 +68,7 @@ def create_gnt_image(em_data_cube_data: tp.Union[str, list], gnt_ions: np.ndarra
     except:
         binary_table_exists = False
         #print(repr(e))
-    
+
     if binary_table_exists:
         for index in range(len(gnt_ions)):
             gnt_file = gnt_file_fmt.format(gnt_ions[index])
@@ -91,11 +84,11 @@ def create_gnt_image(em_data_cube_data: tp.Union[str, list], gnt_ions: np.ndarra
             else:
                 gnt_logts_list = list(gnt_logts)
                 for dep_index, dep in enumerate(dep_list):
-                    gnt_index = gnt_logts_list.index('{:.2}'.format(dep))
+                    gnt_index = gnt_logts_list.index(f'{dep:.2}')
                     gnt_dep_values[dep_index] = gnt_values[gnt_index]
-            
+
             gnt_image = (em_data_cube[:,:,0:width] * gnt_dep_values).sum(axis=2)
-                    
+
             gnt_image_file = image_file_fmt.format(gnt_ions[index]) + ".fits"
             fits_hdu = fits.PrimaryHDU(data = gnt_image, header = em_data_cube_header)
             fits_hdu.writeto(gnt_image_file, overwrite=True)

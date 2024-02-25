@@ -1,20 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 09:27:08 2020
-
-@author: dbeabout
-"""
-from dataclasses import dataclass
-import numpy as np
-from astropy.io import fits
-import pandas as pd
-#from scipy.ndimage.interpolation import shift
 import os
-from sklearn import preprocessing
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+from astropy.io import fits
+
 
 @dataclass(order=True)
-class Inversion():
+class Inversion:
     '''
     Inversion for overlap-a-gram data.
 
@@ -287,4 +280,3 @@ class Inversion():
         header.append(('SLITFOV', self.slit_fov_width, 'Slit FOV Width'), end=True)
         header.append(('DEPNAME', self.rsp_dep_name, 'Dependence Name'), end=True)
         header.append(('SMTHOVER', self.smooth_over, 'Smooth Over'), end=True)
-

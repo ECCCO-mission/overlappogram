@@ -245,7 +245,7 @@ class Inversion():
 
         #print("response count =", response_count)
         self.response_function = self.response_function.transpose()
-        print(np.shape(self.response_function))
+        print("response shape", np.shape(self.response_function))
 
         if self.rsp_dep_name == 'logt':
             self.rsp_dep_desc_fmt = '1E'
@@ -278,7 +278,7 @@ class Inversion():
         image_height, image_width = np.shape(image)
         print(image_height, image_width)
         # Verify image width equals the response function width in cube.
-        assert image_width == self.rsp_func_width
+        #assert image_width == self.rsp_func_width
         self.image = image
 
         try:

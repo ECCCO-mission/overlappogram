@@ -6,19 +6,21 @@ Created on Wed Jun  9 08:52:51 2021
 @author: dbeabout
 """
 from magixs_data_products import MaGIXSDataProducts
-from passion.create_gnt_image import create_gnt_image
-from passion.create_color_color_plot import create_color_color_plot
+from overlappogram.create_gnt_image import create_gnt_image
+from overlappogram.create_color_color_plot import create_color_color_plot
 import numpy as np
 from astropy.io import fits
 import os
 import re
 import matplotlib.pyplot as plt
-from passion.inversion_field_angles import Inversion
-#from passion.inversion_field_angles_logts_ions import Inversion
-from sklearn.linear_model import ElasticNet as enet
-from passion.elasticnet_model import ElasticNetModel as model
+from overlappogram.inversion_field_angles import Inversion
+#from overlappogram.inversion_field_angles_logts_ions import Inversion
+from sklearn.linear_model import ElasticNet as enet, SGDRegressor, Ridge
+from overlappogram.elasticnet_model import ElasticNetModel as model
+from overlappogram.sgd_model import SGDModel
+from overlappogram.ridge_model import RidgeModel
 from sklearn.linear_model import LassoLars as llars
-from passion.lassolars_model import LassoLarsModel as llars_model
+# from overlappogram.lassolars_model import LassoLarsModel as llars_model
 import time
 import pandas as pd
 from joblib import Parallel, delayed, parallel_backend
@@ -57,17 +59,19 @@ if __name__ == '__main__':
     #PSA for magixs1
 
     # Response function file path.
-        response_dir ='/Users/spanchap/ECCCO/dbase_isothermal_spectra/eccco_feldman_m/'
+        response_dir ='data/'
 
     # Response file.
         #cube_file = response_dir + 'eccco_is_response_feldman_m_el_with_tables_lw_pm1230_'+str(psf)+'pix.fits'
-        cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
+        # cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
+        cube_file = response_dir + 'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_lw_coopersun.fits'
+        #cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
         #cube_file = response_dir + 'D14Feb2024_eccco_response_feldman_m_el_with_tables_lw.fits'
 
         #weight_file = response_dir + 'oawave_eccco_is_lw.txt'
 
     #Data directory and data file
-        data_dir ='/Users/spanchap/ECCCO/PhaseA_forward_models/Cooper_Amy_data/t2files/'
+        data_dir ='data/'
     #    summed_image  = data_dir + 'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el_decon.fits'
         summed_image  = data_dir+'eccco_is_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
         sample_weights_data  = data_dir +'eccco_is_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
@@ -75,18 +79,18 @@ if __name__ == '__main__':
         #sample_weights_data  = data_dir +'eccco_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
 
     #The inversion directory is where the output will be written
-        inversion_dir = data_dir+ 'Inversion/'
+        inversion_dir = 'output/'
 
     #Read in response,
 
         rsp_func_hdul = fits.open(cube_file)
 
         solution_fov_width = 2
-        detector_row_range = [450, 1450]
+        detector_row_range = [450, 455]
         #detector_row_range = None
-        field_angle_range = [-2160,2160]
+        field_angle_range = [-2160, 2160]
         #field_angle_range = [-1260,1260]
-        #field_angle_range = None
+        # field_angle_range = None
 
         rsp_dep_name = 'logt'
         rsp_dep_list = np.round((np.arange(57,78, 1) / 10.0), decimals=1)
@@ -115,6 +119,13 @@ if __name__ == '__main__':
             for alpha in alphas:
                 enet_model = enet(alpha=alpha, l1_ratio=rho, max_iter=100000,precompute=True, positive=True, fit_intercept=False, selection='cyclic')
                 inv_model = model(enet_model)
+
+                # regressor = SGDRegressor(penalty='elasticnet', alpha=alpha, l1_ratio=rho, fit_intercept=False)
+                # inv_model = SGDModel(regressor)
+
+                # ridge = Ridge(alpha=alpha, positive=True, fit_intercept=False)
+                # inv_model = RidgeModel(ridge)
+
                 basename = os.path.splitext(os.path.basename(summed_image))[0]
 
                 start = time.time()

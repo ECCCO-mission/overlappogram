@@ -17,7 +17,8 @@ dependencies = ["numpy",
     "matplotlib",
     "photutils",
     "scipy",
-    "ndcube"
+    "ndcube",
+    "toml"
 ]
 requires-python = ">=3.9"
 authors = [

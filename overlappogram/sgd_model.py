@@ -21,10 +21,10 @@ class SGDModel(AbstractModel):
 
     def add_fits_keywords(self, header):
         params = self.model.get_params()
-        # print(params)
-        header['INVMDL'] = ('Elastic Net', 'Inversion Model')
-        header['ALPHA'] = (params['alpha'], 'Inversion Model Alpha')
-        header['RHO'] = (params['l1_ratio'], 'Inversion Model Rho')
+        # # print(params)
+        # header['INVMDL'] = ('Elastic Net', 'Inversion Model')
+        # header['ALPHA'] = (params['alpha'], 'Inversion Model Alpha')
+        # header['RHO'] = (params['l1_ratio'], 'Inversion Model Rho')
 
     def get_score(self, response_function, data):
         return self.model.score(response_function, data)

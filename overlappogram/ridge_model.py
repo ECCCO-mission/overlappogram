@@ -27,5 +27,4 @@ class RidgeModel(AbstractModel):
         # header['RHO'] = (params['l1_ratio'], 'Inversion Model Rho')
 
     def get_score(self, response_function, data):
-        score = self.model.score(response_function, data)
-        return score
+        return self.model.score(response_function, data)

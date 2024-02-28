@@ -20,28 +20,34 @@ def run_inversion(config: dict):
     inversion.initialize_input_data(config['paths']['image'],
                                     None,
                                     config['paths']['weights'])
+    # inversion.sample_weights = None
 
     for alpha in config['settings']['alphas']:
         for rho in config['settings']['rhos']:
             enet_model = ElasticNet(alpha=alpha,
                                     l1_ratio=rho,
-                                    max_iter=100000,
-                                    precompute=True,
+                                    tol=1E-4,
+                                    max_iter=10_000,
+                                    precompute=False,
                                     positive=True,
+                                    copy_X=False,
                                     fit_intercept=False,
-                                    selection='cyclic')
+                                    selection='cyclic',
+                                    warm_start=False)
             inv_model = model(enet_model)
+
             basename = os.path.splitext(os.path.basename(config['paths']['image']))[0]
 
             start = time.time()
 
             postfix = 'x'+str(config['settings']['solution_fov_width'])+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf'
             inversion.multiprocessing_invert(inv_model,
+            # inversion.invert(inv_model,
                                              config['paths']['output'],
                                              output_file_prefix=basename,
                                              output_file_postfix=postfix,
                                              detector_row_range=config['settings']['detector_row_range'],
-                                             score=False)
+                                             score=True)
 
             end = time.time()
             print("Inversion Time =", end - start)

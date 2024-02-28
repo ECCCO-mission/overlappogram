@@ -55,6 +55,7 @@ if __name__ == '__main__':
         #cube_file = response_dir + 'eccco_is_response_feldman_m_el_with_tables_lw_pm1230_'+str(psf)+'pix.fits'
         # cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
         cube_file = response_dir + 'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_lw_coopersun.fits'
+        #cube_file = response_dir + "response_img_normalized.fits"
         #cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
         #cube_file = response_dir + 'D14Feb2024_eccco_response_feldman_m_el_with_tables_lw.fits'
 
@@ -64,7 +65,9 @@ if __name__ == '__main__':
         data_dir ='data/'
     #    summed_image  = data_dir + 'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el_decon.fits'
         summed_image  = data_dir+'eccco_is_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
-        sample_weights_data  = data_dir +'eccco_is_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
+        #summed_img = data_dir+'forwardmodel_img_normalized.fits'
+        sample_weights_data = data_dir +'eccco_is_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
+        #sample_weights_data = data_dir + 'weights_img_normalized.fits'
         #summed_image  = data_dir+'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
         #sample_weights_data  = data_dir +'eccco_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
 
@@ -83,7 +86,7 @@ if __name__ == '__main__':
         # field_angle_range = None
 
         rsp_dep_name = 'logt'
-        rsp_dep_list = np.round((np.arange(57,78, 1) / 10.0), decimals=1)
+        rsp_dep_list = np.round((np.arange(57, 78, 1) / 10.0), decimals=1)
 
     #smooth_over = 'spatial'
         smooth_over = 'dependence'
@@ -91,8 +94,6 @@ if __name__ == '__main__':
         inversion = Inversion(rsp_func_cube_file=cube_file,
                           rsp_dep_name=rsp_dep_name, rsp_dep_list=rsp_dep_list,
                           solution_fov_width=solution_fov_width,smooth_over=smooth_over,field_angle_range=field_angle_range)
-
-
 
         #inversion.initialize_input_data(summed_image)#,image_mask_file)
         #sample_weights_data = calculate_weights(summed_image, weight_file, 8., 1.)

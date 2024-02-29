@@ -1,9 +1,9 @@
 import os
 
-nthreads = 1
-os.environ["OMP_NUM_THREADS"] = str(nthreads)
-os.environ["OPENBLAS_NUM_THREADS"] = str(nthreads)
-os.environ["MKL_NUM_THREADS"] = str(nthreads)
+NUMPY_TREAD_COUNT = 1
+os.environ["OMP_NUM_THREADS"] = str(NUMPY_TREAD_COUNT)
+os.environ["OPENBLAS_NUM_THREADS"] = str(NUMPY_TREAD_COUNT)
+os.environ["MKL_NUM_THREADS"] = str(NUMPY_TREAD_COUNT)
 
 import argparse
 import os

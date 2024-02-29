@@ -72,7 +72,7 @@ def create_dependence_image(em_data_cube_data: tp.Union[str, list], rsp_dep_file
             new_dep_indices = []
             new_dep_list = []
             for index in range(len(dep_mask)):
-                if dep_mask[index] == True:
+                if dep_mask[index]:
                     new_dep_indices.append(dep_indices[index])
                     new_dep_list.append(dep_list[index])
             if len(new_dep_list) > 0:

@@ -461,7 +461,7 @@ class Inversion:
             hdulist.writeto(data_file, overwrite=True)
 
     def multiprocessing_invert_image_row(self, image_row_number: np.int32, model, score = False):
-        print("Inverting image row", image_row_number)
+        print(f"Inverting image row {image_row_number:>4}", end="\r")
         image_row = self.image[image_row_number,:]
         masked_rsp_func = self.response_function
         if self.image_mask is not None:

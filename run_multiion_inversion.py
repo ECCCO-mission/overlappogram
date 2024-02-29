@@ -1,3 +1,10 @@
+import os
+
+nthreads = 1
+os.environ["OMP_NUM_THREADS"] = str(nthreads)
+os.environ["OPENBLAS_NUM_THREADS"] = str(nthreads)
+os.environ["MKL_NUM_THREADS"] = str(nthreads)
+
 import argparse
 import os
 import time
@@ -20,7 +27,6 @@ def run_inversion(config: dict):
     inversion.initialize_input_data(config['paths']['image'],
                                     None,
                                     config['paths']['weights'])
-    # inversion.sample_weights = None
 
     for alpha in config['settings']['alphas']:
         for rho in config['settings']['rhos']:
@@ -42,7 +48,6 @@ def run_inversion(config: dict):
 
             postfix = 'x'+str(config['settings']['solution_fov_width'])+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf'
             inversion.multiprocessing_invert(inv_model,
-            # inversion.invert(inv_model,
                                              config['paths']['output'],
                                              output_file_prefix=basename,
                                              output_file_postfix=postfix,

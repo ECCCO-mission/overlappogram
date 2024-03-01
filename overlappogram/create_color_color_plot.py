@@ -29,12 +29,10 @@ def create_color_color_plot(
                 pass
             first_dep = False
         dep_data[dep_index, :, :] = dep_data_cube
-        print(np.max(dep_data[dep_index]), np.min(dep_data[dep_index]))
     average_slits = np.average(dep_data, axis=0)
 
     for dep_index in range(len(dep_list)):
         dep_data[dep_index] = dep_data[dep_index] - average_slits
-        print(np.max(dep_data[dep_index]), np.min(dep_data[dep_index]))
         dep_data[dep_index] = np.maximum(
             np.minimum(dep_data[dep_index], saturatdep), 0.0
         )
@@ -43,7 +41,6 @@ def create_color_color_plot(
         slit_data = dep_data[3]
         max_value = np.max(slit_data)
         min_value = np.min(slit_data)
-        print("yellow", max_value, min_value)
         y_channel = np.maximum(
             np.minimum(
                 (
@@ -57,7 +54,6 @@ def create_color_color_plot(
     slit_data = dep_data[0]
     max_value = np.max(slit_data)
     min_value = np.min(slit_data)
-    print("red", max_value, min_value)
     r_channel = np.maximum(
         np.minimum(
             ((top + 0.9999) * (slit_data - min_value) / (max_value - min_value)).astype(
@@ -73,7 +69,6 @@ def create_color_color_plot(
     slit_data = dep_data[1]
     max_value = np.max(slit_data)
     min_value = np.min(slit_data)
-    print("green", max_value, min_value)
     g_channel = np.maximum(
         np.minimum(
             ((top + 0.9999) * (slit_data - min_value) / (max_value - min_value)).astype(
@@ -89,7 +84,6 @@ def create_color_color_plot(
     slit_data = dep_data[2]
     max_value = np.max(slit_data)
     min_value = np.min(slit_data)
-    print("blue", max_value, min_value)
     b_channel = np.maximum(
         np.minimum(
             ((top + 0.9999) * (slit_data - min_value) / (max_value - min_value)).astype(

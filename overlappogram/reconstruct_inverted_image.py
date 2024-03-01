@@ -43,7 +43,7 @@ def reconstruct_inverted_image(
         slit_shift_width = int(round(calc_shift_width[0]))
     except:  # noqa: E722 # TODO figure out what exception was expected
         slit_shift_width = 1
-    print("slit shift width =", slit_shift_width)
+    # print("slit shift width =", slit_shift_width)
 
     binary_table_exists = True
     try:

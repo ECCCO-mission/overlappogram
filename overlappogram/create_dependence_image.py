@@ -36,7 +36,6 @@ def create_dependence_image(
         image_hdul = fits.open(em_data_cube_data)
         em_data_cube = image_hdul[0].data
         em_data_cube_header = image_hdul[0].header
-        print(np.shape(em_data_cube))
         num_rows, num_slits, num_deps = np.shape(em_data_cube)
     else:
         num_runs = len(em_data_cube)
@@ -45,7 +44,6 @@ def create_dependence_image(
             # EM Data Cube
             image_hdul = fits.open(em_data_cube_data[index])
             em_data_cube = image_hdul[0].data
-            # print(np.shape(image_hdul[0].data))
             height, num_slits, width = np.shape(image_hdul[0].data)
             if first_run:
                 em_data_cube_header = image_hdul[0].header
@@ -63,10 +61,8 @@ def create_dependence_image(
         pixel_fov_width = image_hdul[0].header["PIXELFOV"]
         solution_fov_width = image_hdul[0].header["SLTNFOV"]
         slit_shift_width = int(round(solution_fov_width / pixel_fov_width))
-        # print("solution fov = ", solution_fov_width, pixel_fov_width)
 
         dep_name = image_hdul[0].header["DEPNAME"]
-        print("dep name =", dep_name)
         dep_indices = image_hdul[1].data["index"]
         dep_list = image_hdul[1].data[dep_name]
         if rsp_dep_list is not None:
@@ -83,7 +79,6 @@ def create_dependence_image(
     # except Exception as e:
     except:  # noqa: E722 # TODO figure out what exception was expected
         keywords_and_table_exists = False
-        # print(repr(e))
 
     if keywords_and_table_exists:
         calc_half_slits = divmod(num_slits, 2)
@@ -114,6 +109,5 @@ def create_dependence_image(
                     )
 
             dep_data_cube_file = image_file_fmt.format(dep_list[index]) + ".fits"
-            # print(dep_data_cube_file)
             fits_hdu = fits.PrimaryHDU(data=dep_data_cube, header=em_data_cube_header)
             fits_hdu.writeto(dep_data_cube_file, overwrite=True)

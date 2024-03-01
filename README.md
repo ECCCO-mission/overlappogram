@@ -7,6 +7,8 @@
 Overlappogram is a Python package for inverting overlappogram observations of the Sun, for examples MaGIXS observations
 or ECCCO observations.
 
+This code was originally written by Dyana Beabout.
+
 ## How to Use
 
 `python run_multiion_inversion.py ./path/to/image.fits ./path/to/config.toml`

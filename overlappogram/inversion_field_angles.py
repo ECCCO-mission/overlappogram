@@ -4,6 +4,7 @@ import os
 import typing as tp
 import warnings
 from dataclasses import dataclass
+from threading import Lock
 
 import numpy as np
 from astropy.io import fits
@@ -47,6 +48,7 @@ class Inversion:
     field_angle_range: list = None
 
     def __post_init__(self):
+        self.thread_count_lock = Lock()
         self.image_height = 0
         self.image_width = 0
 
@@ -82,7 +84,6 @@ class Inversion:
         dep_name = rsp_func_hdul[0].header["DEPNAME"]
         dep_list = rsp_func_hdul[1].data[dep_name]
         dep_list = np.round(dep_list, decimals=2)
-        print("dep_list", dep_list)
         self.pixels = rsp_func_hdul[2].data["index"]
         self.field_angle_list = rsp_func_hdul[2].data["field_angle"]
         self.field_angle_list = np.round(self.field_angle_list, decimals=2)
@@ -95,33 +96,26 @@ class Inversion:
         else:
             dep_list_deltas = abs(np.diff(dep_list))
             self.max_dep_list_delta = max(dep_list_deltas)
-            # print(self.max_dep_list_delta)
             dep_index_list = []
             for dep in self.rsp_dep_list:
                 delta_dep_list = abs(dep_list - dep)
                 dep_index = np.argmin(delta_dep_list)
                 if abs(dep_list[dep_index] - dep) < self.max_dep_list_delta:
-                    # print(dep, dep_index, dep_list[dep_index])
                     dep_index_list = np.append(dep_index_list, dep_index)
             new_index_list = [*set(dep_index_list)]
             new_index_list = np.array(new_index_list, dtype=np.int32)
             new_index_list.sort()
             self.dep_index_list = new_index_list
             self.dep_list = dep_list[new_index_list]
-            # print(dep_list[new_index_list])
 
         self.num_deps = len(self.dep_list)
-        print("num deps =", self.num_deps)
-        print("dep index list =", self.dep_index_list)
         self.rsp_func_width = rsp_func_width
 
         field_angle_list_deltas = abs(np.diff(self.field_angle_list))
         self.max_field_angle_list_delta = max(field_angle_list_deltas)
-        # print(self.max_field_angle_list_delta)
         if self.field_angle_range is None:
             begin_slit_index = np.int64(0)
             end_slit_index = np.int64(len(self.field_angle_list) - 1)
-            print("begin index", begin_slit_index, ", end index", end_slit_index)
             self.field_angle_range_index_list = [begin_slit_index, end_slit_index]
             self.field_angle_range_list = self.field_angle_list[
                 self.field_angle_range_index_list
@@ -136,9 +130,7 @@ class Inversion:
                     abs(self.field_angle_list[angle_index] - angle)
                     < self.max_field_angle_list_delta
                 ):
-                    # print(angle, angle_index, self.field_angle_list[angle_index])
                     angle_index_list = np.append(angle_index_list, angle_index)
-            print(angle_index_list)
             new_index_list = [*set(angle_index_list)]
             new_index_list = np.array(new_index_list, dtype=np.int32)
             new_index_list.sort()
@@ -187,7 +179,6 @@ class Inversion:
         self.center_slit = (
             divmod(end_slit_index - begin_slit_index, 2) + begin_slit_index
         )
-        print("center slit", self.center_slit, self.num_slits, self.half_slits)
 
         # Check if even FOV.
         # if self.half_fov[1] == 0:
@@ -206,9 +197,6 @@ class Inversion:
             + (self.half_slits[0] * self.solution_fov_width)
         )
         # assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
-        print(
-            "begin_slit_index =", begin_slit_index, "end_slit_index =", end_slit_index
-        )
         # print(self.center_slit, (self.half_slits[0], self.solution_fov_width))
         # begin_slit_index = self.center_slit - (self.half_slits[0] * self.solution_fov_width)
         # end_slit_
@@ -333,7 +321,6 @@ class Inversion:
 
         # print("response count =", response_count)
         self.response_function = self.response_function.transpose()
-        print("response shape", np.shape(self.response_function))
 
         if self.rsp_dep_name == "logt":
             self.rsp_dep_desc_fmt = "1E"
@@ -366,7 +353,6 @@ class Inversion:
         image_hdul = fits.open(input_image)
         image = image_hdul[0].data
         image_height, image_width = np.shape(image)
-        print(image_height, image_width)
         # Verify image width equals the response function width in cube.
         # assert image_width == self.rsp_func_width
         self.image = image
@@ -400,7 +386,6 @@ class Inversion:
             self.image_mask_filename = ""
 
         if sample_weights_data is not None:
-            print("sample", sample_weights_data)
             sample_weights_hdul = fits.open(sample_weights_data)
             sample_weights_height, sample_weights_width = np.shape(
                 sample_weights_hdul[0].data
@@ -471,8 +456,6 @@ class Inversion:
             )
         for image_row_number in image_row_number_range:
             # if (image_row_number % 10 == 0):
-            if image_row_number % 1 == 0:
-                print("image row number =", image_row_number)
             # print(image_row_number)
             image_row = self.image[image_row_number, :]
             masked_rsp_func = self.response_function
@@ -585,7 +568,6 @@ class Inversion:
         self, image_row_number: np.int32, chunk_index: int, score=False
     ):
         model = self.models[chunk_index]
-        print(f"Inverting image row {image_row_number:>4}", end="\r")
         image_row = self.image[image_row_number, :]
         masked_rsp_func = self.response_function
         if self.image_mask is not None:
@@ -617,6 +599,12 @@ class Inversion:
             return [image_row_number, em, data_out, score_data]
         else:  # noqa: RET505
             return [image_row_number, em, data_out]
+
+    def progress_indicator(self, future):
+        with self.thread_count_lock:
+            self.completed_row_count += 1
+            print(f"{self.completed_row_count/self.total_row_count*100:3.0f}% complete", end="\r")
+
 
     def multiprocessing_invert(
         self,
@@ -656,6 +644,7 @@ class Inversion:
         None.
 
         """
+
         # Verify input data has been initialized.
         # assert self.image_width != 0 and self.image_height != 0
         self.mp_em_data_cube = np.zeros(
@@ -675,17 +664,16 @@ class Inversion:
             self.detector_row_min = 0
             self.detector_row_max = self.image_height - 1
 
-        np.arange(
-            self.detector_row_min,
-            self.detector_row_max,
-            (self.detector_row_max - self.detector_row_min) / num_threads,
-        )
+        self.completed_row_count = 0
+        self.total_row_count = self.detector_row_max - self.detector_row_min
+
         starts = np.arange(
             self.detector_row_min,
             self.detector_row_max,
             (self.detector_row_max - self.detector_row_min) / num_threads,
         ).astype(int)
         ends = np.append(starts[1:], self.detector_row_max)
+
         futures = []
         executors = []
         self.models = []
@@ -705,19 +693,16 @@ class Inversion:
             )
             self.models.append(model(enet_model))
 
-            futures.extend(
-                [
-                    executors[-1].submit(
-                        self.multiprocessing_invert_image_row, row, chunk_index, score
-                    )
-                    for row in range(start, end + 1)
-                ]
-            )
+            new_futures = [executors[-1].submit(self.multiprocessing_invert_image_row, row, chunk_index, score)
+                           for row in range(start, end)]
+            for future in new_futures:
+                future.add_done_callback(self.progress_indicator)
+
+            futures.extend(new_futures)
 
         # Wait for all tasks to complete and retrieve the results
         for future in concurrent.futures.as_completed(futures):
             result = future.result()
-            # print(result)
             for slit_num in range(self.num_slits):
                 if self.smooth_over == "dependence":
                     slit_em = result[1][
@@ -731,12 +716,8 @@ class Inversion:
             if score:
                 self.mp_score_data[result[0]] = result[3]
 
-        # print("before shutdown")
         for executor in executors:
             executor.shutdown()
-        # print("after shutdown")
-
-        print("Finished with tasks")
 
         # Create output directory.
         os.makedirs(output_dir, exist_ok=True)
@@ -776,7 +757,6 @@ class Inversion:
             base_filename += "_"
         base_filename += output_file_postfix
         data_file = output_dir + base_filename + ".fits"
-        # print("data file", data_file)
         model_predicted_data_hdul = self.image_hdul.copy()
         model_predicted_data_hdul[0].data = self.mp_inverted_data
         model_predicted_data_hdul[0].header["LEVEL"] = (level, "Level")

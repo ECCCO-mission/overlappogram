@@ -91,11 +91,9 @@ class EMDataCube:
         # Create explosive event velocity vector
         vel_vector = np.zeros(num_vel)
         velocities = self.cube.axis_world_coords(2)
-        # print(velocities)
         for vel_num in range(len(vel)):
             em_vel_index = np.where(velocities == vel[vel_num] * u.km / u.s)
             if len(em_vel_index) == 1:
-                # print("vel index =", em_vel_index, vel[vel_num] * u.km/u.s)
                 vel_vector[em_vel_index[0][0]] = em[vel_num]
         for x, y in locations:
             pixel_coords = self.cube.world_to_pixel(y, x, 0 * u.km / u.s)
@@ -140,20 +138,15 @@ class EMDataCube:
 
         # Calculate crop ROI in world coordinates
         num_y, num_x, num_vel = self.cube.wcs.array_shape
-        print("prep inversion", num_x, num_y, num_vel)
         self.num_em_values = num_x * num_y * num_vel
         self.x1 = np.zeros(self.num_em_values)
         self.y1 = np.zeros(self.num_em_values)
         self.vel1 = np.zeros(self.num_em_values)
         world_y, world_x, world_vel = self.cube.axis_world_coords(edges=True)
-        # print("world x", world_x)
-        # print("world y", world_y)
         min_world_x = world_x[0][0]
         max_world_x = world_x[num_y][num_x]
         min_world_y = world_y[0][0]
         max_world_y = world_y[num_y][num_x]
-        print("min world =", min_world_x, min_world_y)
-        print("max world =", max_world_x, max_world_y)
 
         # Create images to invert
         for image in image_list:
@@ -171,7 +164,6 @@ class EMDataCube:
         for inversion_image in self.inversion_image_list:
             image_data = inversion_image.data()
             y_pixels, x_pixels = np.shape(image_data)
-            # print("x pixels =", x_pixels, "y pixels =", y_pixels)
             self.inversion_data_len += y_pixels * x_pixels
             self.inversion_data = np.append(
                 self.inversion_data, np.reshape(image_data, (y_pixels * x_pixels))
@@ -188,7 +180,6 @@ class EMDataCube:
                         j * u.pix, i * u.pix, k * u.pix
                     )
                     kernel = np.array([])
-                    # print("i =", i, "j =", j, "k =", k)
                     for inversion_image in self.inversion_image_list:
                         image_kernel = inversion_image.create_kernel(
                             x_out, y_out, vel_out
@@ -261,18 +252,18 @@ class EMDataCube:
             inverted_data = data_out[
                 image_offset : image_offset + (y_pixels * x_pixels)
             ]
-            print(
-                "pearson correlation =",
-                scipy.stats.pearsonr(
-                    np.reshape(image_data, (y_pixels * x_pixels)), inverted_data
-                ),
-            )
-            print(
-                "linregress =",
-                scipy.stats.linregress(
-                    np.reshape(image_data, (y_pixels * x_pixels)), inverted_data
-                ),
-            )
+            # print(
+            #     "pearson correlation =",
+            #     scipy.stats.pearsonr(
+            #         np.reshape(image_data, (y_pixels * x_pixels)), inverted_data
+            #     ),
+            # )
+            # print(
+            #     "linregress =",
+            #     scipy.stats.linregress(
+            #         np.reshape(image_data, (y_pixels * x_pixels)), inverted_data
+            #     ),
+            # )
             inverted_data = np.reshape(inverted_data, (y_pixels, x_pixels))
             plt.figure()
             plt.imshow(inverted_data)
@@ -286,14 +277,10 @@ class EMDataCube:
         # Calculate crop ROI in world coordinates
         num_y, num_x, num_vel = self.cube.wcs.array_shape
         world_y, world_x, world_vel = self.cube.axis_world_coords(edges=True)
-        # print("world x", world_x)
-        # print("world y", world_y)
         min_world_x = world_x[0][0]
         max_world_x = world_x[num_y][num_x]
         min_world_y = world_y[0][0]
         max_world_y = world_y[num_y][num_x]
-        print("min world =", min_world_x, min_world_y)
-        print("max world =", max_world_x, max_world_y)
 
         # Create images to invert
         for image in image_list:
@@ -307,7 +294,6 @@ class EMDataCube:
         for inversion_image in self.inversion_image_list:
             image_data = inversion_image.data()
             y_pixels, x_pixels = np.shape(image_data)
-            # print("x pixels =", x_pixels, "y pixels =", y_pixels)
             self.inversion_data_len += y_pixels * x_pixels
             self.inversion_data = np.append(
                 self.inversion_data, np.reshape(image_data, (y_pixels * x_pixels))
@@ -347,13 +333,11 @@ class EMDataCube:
                     j * u.pix, i * u.pix, self.zero_velocity * u.pix
                 )
                 # end_time1 = time()
-                # print("create kernel time =", end_time1 - start_time1)
                 kernel = np.array([])
                 for inversion_image in self.inversion_image_list:
                     # start_time1 = time()
                     image_kernel = inversion_image.create_kernel(x_out, y_out, vel_out)
                     # end_time1 = time()
-                    # print("create kernel time =", end_time1 - start_time1)
                     kernel = np.append(kernel, image_kernel)
                 resp1[c, :] = kernel
                 row_vec = np.where(kernel != 0.0)

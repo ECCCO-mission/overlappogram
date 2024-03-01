@@ -2321,10 +2321,10 @@ class MaGIXSDataProducts:
                         ion_wavelength_name = "ion_wavelength"
                     else:
                         ion_wavelength_name = ion_wavelength_table_format
-                    print(ion_wavelength_name)
+                    # print(ion_wavelength_name)
 
                     ion_wavelength_values = gnt_hdul[2].data[ion_wavelength_name]
-                    print(ion_wavelength_values)
+                    # print(ion_wavelength_values)
                 except KeyError:
                     ion_wavelength_values = []
                 assert len(ion_wavelength_values) == num_gnts
@@ -2337,10 +2337,10 @@ class MaGIXSDataProducts:
                     gnt_values = np.zeros((num_gnts, num_rsp_deps), dtype=np.float64)
                     dep_cnt = 0
                     for dep in rsp_dep_list:
-                        print(np.around(dep, decimals=2))
+                        # print(np.around(dep, decimals=2))
                         try:
                             index = np.where(gnt_dep_list == np.around(dep, decimals=2))
-                            print(index[0][0])
+                            # print(index[0][0])
                         except:  # noqa: E722 # TODO figure out what exception was expected
                             pass
                         if len(index[0] == 1):
@@ -2375,12 +2375,12 @@ class MaGIXSDataProducts:
                         basename = os.path.splitext(
                             os.path.basename(image_list[index])
                         )[0]
-                        print(type(basename))
+                        # print(type(basename))
                         slice_index = basename.find("_em_data_cube")
-                        print(type(basename))
+                        # print(type(basename))
                         postfix_val = basename.split("_x")
                         postfix_val = postfix_val[1]
-                        print(postfix_val)
+                        # print(postfix_val)
                         basename = basename[:slice_index]
                         basename += (
                             "_spectrally_pure_data_cube_x" + postfix_val + ".fits"

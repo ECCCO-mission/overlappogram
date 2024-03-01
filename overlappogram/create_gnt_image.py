@@ -36,7 +36,6 @@ def create_gnt_image(
         em_data_cube = image_hdul[0].data
         em_data_cube = np.transpose(em_data_cube, axes=(1, 2, 0))
         em_data_cube_header = image_hdul[0].header
-        print(np.shape(em_data_cube))
         # num_rows, num_slits, num_deps = np.shape(em_data_cube)
         height, num_slits, width = np.shape(em_data_cube)
     else:
@@ -48,7 +47,6 @@ def create_gnt_image(
             em_data_cube = image_hdul[0].data
             em_data_cube_header = image_hdul[0].header
             em_data_cube = np.transpose(em_data_cube, axes=(1, 2, 0))
-            # print(np.shape(image_hdul[0].data))
             # height, num_slits, width = np.shape(image_hdul[0].data)
             height, num_slits, width = np.shape(em_data_cube)
             if first_run:
@@ -64,12 +62,10 @@ def create_gnt_image(
     binary_table_exists = True
     try:
         dep_name = image_hdul[0].header["DEPNAME"]
-        # print("dep name =", dep_name)
         dep_list = image_hdul[1].data[dep_name]
     # except Exception as e:
     except:  # noqa: E722 # TODO figure out what exception was expected
         binary_table_exists = False
-        # print(repr(e))
 
     if binary_table_exists:
         for index in range(len(gnt_ions)):

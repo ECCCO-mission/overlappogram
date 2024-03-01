@@ -479,7 +479,7 @@ class Inversion:
 
     #     self.mp_inverted_data[result[0], :] = result[2]
 
-    # def multiprocessing_invert_image_row(self, image_row_number: np.int32, model):
+        # def multiprocessing_invert_image_row(self, image_row_number: np.int32, model):
     #     #print("Inverting image row", image_row_number)
     #     image_row = self.image[image_row_number,:]
     #     masked_rsp_func = self.response_function

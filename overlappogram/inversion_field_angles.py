@@ -9,7 +9,9 @@ from dataclasses import dataclass
 import numpy as np
 from astropy.io import fits
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.linear_model import ElasticNet
 
+from overlappogram.elasticnet_model import ElasticNetModel as model
 
 @dataclass(order=True)
 class Inversion:
@@ -460,8 +462,9 @@ class Inversion:
             hdulist = fits.HDUList([hdu])
             hdulist.writeto(data_file, overwrite=True)
 
-    def multiprocessing_invert_image_row(self, image_row_number: np.int32, model, score = False):
-        print("Inverting image row", image_row_number)
+    def multiprocessing_invert_image_row(self, image_row_number: np.int32, chunk_index: int, score = False):
+        model = self.models[chunk_index]
+        print(f"Inverting image row {image_row_number:>4}", end="\r")
         image_row = self.image[image_row_number,:]
         masked_rsp_func = self.response_function
         if self.image_mask is not None:
@@ -490,10 +493,11 @@ class Inversion:
         else:
             return [image_row_number, em, data_out]
 
-    def multiprocessing_invert(self, model, output_dir: str,
+    def multiprocessing_invert(self, model_config, alpha, rho, output_dir: str,
                                output_file_prefix: str = '',
                                output_file_postfix: str = '',
                                level: str = '2.0',
+                               num_threads: int = 1,
                                detector_row_range: tp.Union[list, None] = None,
                                score = False):
         '''
@@ -530,38 +534,59 @@ class Inversion:
         self.mp_model = model
 
         if detector_row_range is not None:
-            # assert len(detector_row_range) == 2
-            # assert detector_row_range[1] >= detector_row_range[0]
-            # assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
             self.detector_row_min = detector_row_range[0]
             self.detector_row_max = detector_row_range[1]
         else:
             self.detector_row_min = 0
             self.detector_row_max = self.image_height - 1
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=(os.cpu_count() - 1)) as executor:
 
-            # Submit each download task to the thread pool
-            futures = [executor.submit(self.multiprocessing_invert_image_row, i, deepcopy(model), score) for i in range(self.detector_row_min, self.detector_row_max + 1)]
+        np.arange(self.detector_row_min,
+                  self.detector_row_max,
+                  (self.detector_row_max - self.detector_row_min) / num_threads)
+        starts = np.arange(self.detector_row_min,
+                           self.detector_row_max,
+                           (self.detector_row_max - self.detector_row_min)/num_threads).astype(int)
+        ends = np.append(starts[1:], self.detector_row_max)
+        futures = []
+        executors = []
+        self.models = []
+        for chunk_index, (start, end) in enumerate(zip(starts, ends)):
+                executors.append(concurrent.futures.ThreadPoolExecutor(max_workers=1))
+                enet_model = ElasticNet(alpha=alpha,
+                                        l1_ratio=rho,
+                                        tol=model_config['tol'],
+                                        max_iter=model_config['max_iter'],
+                                        precompute=False,  # setting this to true slows down performance dramatically
+                                        positive=True,
+                                        copy_X=False,
+                                        fit_intercept=False,
+                                        selection=model_config['selection'],
+                                        warm_start=model_config['warm_start'])
+                self.models.append(model(enet_model))
 
-            # Wait for all tasks to complete and retrieve the results
-            for future in concurrent.futures.as_completed(futures):
-                result = future.result()
-                #print(result)
-                for slit_num in range(self.num_slits):
-                    if self.smooth_over == 'dependence':
-                        slit_em = result[1][slit_num * self.num_deps:(slit_num + 1) * self.num_deps]
-                    else:
-                        slit_em = result[1][slit_num::self.num_slits]
-                    self.mp_em_data_cube[result[0], slit_num, :] = slit_em
+                futures.extend([executors[-1].submit(self.multiprocessing_invert_image_row, row, chunk_index, score)
+                           for row in range(start, end + 1)])
 
-                self.mp_inverted_data[result[0], :] = result[2]
-                if score:
-                    self.mp_score_data[result[0]] = result[3]
+        # Wait for all tasks to complete and retrieve the results
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            #print(result)
+            for slit_num in range(self.num_slits):
+                if self.smooth_over == 'dependence':
+                    slit_em = result[1][slit_num * self.num_deps:(slit_num + 1) * self.num_deps]
+                else:
+                    slit_em = result[1][slit_num::self.num_slits]
+                self.mp_em_data_cube[result[0], slit_num, :] = slit_em
 
-            #print("before shutdown")
+            self.mp_inverted_data[result[0], :] = result[2]
+            if score:
+                self.mp_score_data[result[0]] = result[3]
+
+        #print("before shutdown")
+        for executor in executors:
             executor.shutdown()
-            #print("after shutdown")
+        #print("after shutdown")
 
         print("Finished with tasks")
 
@@ -583,7 +608,7 @@ class Inversion:
         em_data_cube_header['LEVEL'] = (level, 'Level')
         em_data_cube_header['UNITS'] = ('1e26 cm-5', 'Units')
         self.__add_fits_keywords(em_data_cube_header)
-        model.add_fits_keywords(em_data_cube_header)
+        self.models[-1].add_fits_keywords(em_data_cube_header)
         hdu = fits.PrimaryHDU(data = em_data_cube, header = em_data_cube_header)
         # Add binary table.
         col1 = fits.Column(name='index', format='1I', array=self.dep_index_list)
@@ -607,7 +632,7 @@ class Inversion:
         model_predicted_data_hdul[0].header['LEVEL'] = (level, 'Level')
         model_predicted_data_hdul[0].header['UNITS'] = 'Electron s-1'
         self.__add_fits_keywords(model_predicted_data_hdul[0].header)
-        model.add_fits_keywords(model_predicted_data_hdul[0].header)
+        self.models[-1].add_fits_keywords(model_predicted_data_hdul[0].header)
         model_predicted_data_hdul.writeto(data_file, overwrite=True)
 
         if score:
@@ -624,6 +649,8 @@ class Inversion:
             hdu = fits.PrimaryHDU(data = self.mp_score_data)
             hdulist = fits.HDUList([hdu])
             hdulist.writeto(score_data_file, overwrite=True)
+
+        return em_data_cube_file
 
     def __add_fits_keywords(self, header):
         '''

@@ -163,3 +163,5 @@ cython_debug/
 # overlappogram data
 data/
 output/
+*.fits
+*/*.fits

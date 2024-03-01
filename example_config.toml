@@ -1,0 +1,28 @@
+[paths]
+response = "data/ECCCO_speedtest_runs/D27Feb2024_eccco_response_feldman_m_el_with_tables_trim_sw_lw_s_i_scaled.fits"
+weights = "data/ECCCO_speedtest_runs/combined_ECCCO_weights_trim_sw_lw_s_i_scaled.fits"
+gnt = "data/ECCCO_speedtest_runs/master_gnt_eccco_inphotons_cm3persperpix_with_tables.fits"
+
+[output]
+prefix = ""
+make_spectral = true
+directory = "output/test/"
+
+[inversion]
+solution_fov_width = 2
+detector_row_range = [0, 792]
+field_angle_range = [-1227, 1227]
+response_dependency_name = "logt"
+response_dependency_list = [5.7, 5.8, 5.9, 6.0 , 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8]
+smooth_over = 'dependence'
+
+[model]
+alphas = [0.2] #[0.2, 0.1, 0.01, 0.005]
+rhos = [0.1]
+warm_start = true
+tol = 1E-2
+max_iter = 10_000
+selection = 'cyclic'
+
+[execution]
+num_threads = 50

@@ -1,27 +1,33 @@
-import glob
-import math
-import os
-import os.path
-# from overlappogram.lassolars_model import LassoLarsModel as llars_model
-import time
-import typing as tp
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jun  8 13:47:48 2021
 
-import astropy.wcs
-import dateutil
+@author: dbeabout
+"""
+
+from dataclasses import dataclass
 import numpy as np
 import numpy.ma as ma
-import pandas as pd
 from astropy.io import fits
-from astropy.table import Table
-from PIL import Image
+import astropy.wcs
+import typing as tp
+import pandas as pd
+import os.path
+from datetime import datetime, date, timedelta, timezone
+import dateutil
+import glob
 from scipy.io import loadmat
-from sklearn.linear_model import ElasticNet as enet
-from sklearn.linear_model import LassoLars as llars
-
-from overlappogram.elasticnet_model import ElasticNetModel as enet_model
+import os
+from astropy.table import Table
 from overlappogram.inversion_field_angles import Inversion
+from sklearn.linear_model import ElasticNet as enet
+from overlappogram.elasticnet_model import ElasticNetModel as enet_model
+from sklearn.linear_model import LassoLars as llars
+#from passion.lassolars_model import LassoLarsModel as llars_model
+import time
+from PIL import Image
+import math
 
 # Launch T0 (seconds since beginning of year) and timestamp.
 launch_t0 = 18296410.2713640
@@ -29,16 +35,11 @@ launch_timestamp = '2021-07-30T18:22:21Z'
 
 # Pixel deltas (y, x).
 pixel_8_deltas = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-pixel_16_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, 2), (0, -2), (0, 2), (1, -2), (1, 2),
-                   (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
-pixel_16_box_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2),
-                       (0, -2), (0, -1), (0, 1), (0, 2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (2, -2), (2, -1),
-                       (2, 0), (2, 1), (2, 2)]
-pixel_16_adjacent_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1),
-                            (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
+pixel_16_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, 2), (0, -2), (0, 2), (1, -2), (1, 2), (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
+pixel_16_box_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (0, -2), (0, -1), (0, 1), (0, 2), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (2, -2), (2, -1), (2, 0), (2, 1), (2, 2)]
+pixel_16_adjacent_deltas = [(-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
 pixel_8_adjacent_deltas = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (-1, 0)]
-pixel_16_adjacent_wrap_deltas = [(-1, -2), (-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2),
-                                 (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
+pixel_16_adjacent_wrap_deltas = [(-1, -2), (-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (2, 1), (2, 0), (2, -1), (2, -2), (1, -2), (0, -2), (-1, -2)]
 
 def calc_analog_cal(raw_values):
     return  ((raw_values / 1024.0) * 5.0)
@@ -47,11 +48,10 @@ def calc_cold_block_cal(values):
     return ((52.37 * calc_analog_cal(values)) - 157.55)
 
 def calc_ccd_holder_cal(values):
-    return ((0.5513 * calc_analog_cal(values)**3) + (1.3523 * calc_analog_cal(values)**2)
-            + (29.942 * calc_analog_cal(values)) - 116.85)
+    return ((0.5513 * calc_analog_cal(values)**3) + (1.3523 * calc_analog_cal(values)**2) + (29.942 * calc_analog_cal(values)) - 116.85)
 
 @dataclass(order=True)
-class MaGIXSDataProducts:
+class MaGIXSDataProducts():
     '''
     Inversion for overlap-a-gram data.
 
@@ -145,11 +145,9 @@ class MaGIXSDataProducts:
 
         # Subtract bias for each quadrant.
         image[8:quad_height, 50:quad_width] -= np.mean(image[8:quad_height, 15:50], axis=1)[:, None]
-        image[8:quad_height, quad_width:width - 50] -= np.mean(image[8:quad_height,
-                                                               width - 50:width - 15], axis=1)[:, None]
+        image[8:quad_height, quad_width:width - 50] -= np.mean(image[8:quad_height, width - 50:width - 15], axis=1)[:, None]
         image[quad_height:height - 8, 50:quad_width] -= np.mean(image[quad_height:height - 8, 15:50], axis=1)[:, None]
-        image[quad_height:height - 8, quad_width:width - 50] -= np.mean(image[quad_height:height - 8,
-                                                                        width - 50:width - 15], axis=1)[:, None]
+        image[quad_height:height - 8, quad_width:width - 50] -= np.mean(image[quad_height:height - 8, width - 50:width - 15], axis=1)[:, None]
 
         return image
 
@@ -184,8 +182,7 @@ class MaGIXSDataProducts:
         active_image[0:active_height, 0:active_half_width] = image[8:active_height + 8, 50:50 + active_half_width]
 
         # Right side.
-        active_image[0:active_height, active_half_width:active_width] = image[8:active_height + 8,
-                                                                        quad_width + 2:width - 50]
+        active_image[0:active_height, active_half_width:active_width] = image[8:active_height + 8, quad_width + 2:width - 50]
 
         return active_image
 
@@ -252,15 +249,13 @@ class MaGIXSDataProducts:
                 median_value = np.median(adjacent_pixel_list)
                 original_value = image[bad_pixel_list[0][c], bad_pixel_list[1][c]]
                 image[bad_pixel_list[0][c], bad_pixel_list[1][c]] = median_value
-                original_values.loc[c, ['y', 'x', 'value']]  = [bad_pixel_list[0][c], bad_pixel_list[1][c],
-                                                                original_value]
+                original_values.loc[c, ['y', 'x', 'value']]  = [bad_pixel_list[0][c], bad_pixel_list[1][c], original_value]
 
             return image, original_values
         else:
             return image, pd.DataFrame(columns=['y', 'x', 'value'])
 
-    def create_bad_pixel_mask(self, image_list: list, pre_master_dark_file: str, post_master_dark_file: str,
-                              sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
+    def create_bad_pixel_mask(self, image_list: list, pre_master_dark_file: str, post_master_dark_file: str, sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
         '''
         Creates a bad pixel mask.  This algorithm uses values from the entire image.
         The algorithm for determining bad pixels is any values above the mean - (sigma * standard deviation)
@@ -286,10 +281,10 @@ class MaGIXSDataProducts:
         None.
 
         '''
+        assert(percent_threshold > 0.0 and percent_threshold <=1.0)
+
         number_images = len(image_list)
-        image_cube = np.zeros((number_images,
-                               self.active_pixels_height,
-                               self.active_pixels_width), dtype=np.float32)
+        image_cube = np.zeros((number_images, self.active_pixels_height, self.active_pixels_width), dtype=np.float32)
 
         with fits.open(pre_master_dark_file) as dark_hdul:
             pre_master_dark = dark_hdul[0].data.astype(np.float32).copy()
@@ -307,18 +302,11 @@ class MaGIXSDataProducts:
                     camera_sn = image_hdul[0].header['CAM_SN']
                     first_image = False
                 img_seq_num_list.append(image_hdul[0].header['IMG_ISN'])
-                image, image_header, bad_pixels_replaced_values = self.create_adjusted_light(image_hdul[0].data,
-                                                                                             image_hdul[0].header,
-                                                                                             pre_master_dark,
-                                                                                             pre_dark_temp,
-                                                                                             post_master_dark,
-                                                                                             post_dark_temp,
-                                                                                             None)
+                image, image_header, bad_pixels_replaced_values = self.create_adjusted_light(image_hdul[0].data, image_hdul[0].header, pre_master_dark, pre_dark_temp, post_master_dark, post_dark_temp, None)
                 image_cube[index, :, :] = image
 
         # Despike.
-        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True)
-                                          + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
+        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True) + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
         #print("despike_len = ", np.count_nonzero(np.isnan(image_cube)))
 
         bad_pixel_mask = np.zeros((self.active_pixels_height, self.active_pixels_width), dtype=np.float32)
@@ -326,10 +314,8 @@ class MaGIXSDataProducts:
 
         bad_pixels[np.where(np.isnan(image_cube))] = np.nan
         for index in range(number_images):
-            bad_pixels[index, :, :][np.where(image_cube[index, :, :] < np.nanmean(image_cube[index, :, :], axis=(0,1))
-                                             - (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
-            bad_pixels[index, :, :][np.where(image_cube[index, :, :] > np.nanmean(image_cube[index, :, :], axis=(0,1))
-                                             + (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
+            bad_pixels[index, :, :][np.where(image_cube[index, :, :] < np.nanmean(image_cube[index, :, :], axis=(0,1)) - (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
+            bad_pixels[index, :, :][np.where(image_cube[index, :, :] > np.nanmean(image_cube[index, :, :], axis=(0,1)) + (sigma * np.nanstd(image_cube[index, :, :], axis=(0,1))))] = 1
 
         # Set dark and hot pixels where number is equal to or greater than percent threshold
         bad_pixel_mask[np.where(np.nanmean(bad_pixels, axis=0) >= percent_threshold)] = 1
@@ -353,9 +339,7 @@ class MaGIXSDataProducts:
         hdulist = fits.HDUList([hdu])
         hdulist.writeto(bad_pixel_mask_file, overwrite=True)
 
-    def create_bad_pixel_mask_by_tap(self, image_list: list,
-                                     sigma: np.float32,
-                                     percent_threshold: np.float32, bad_pixel_mask_file: str):
+    def create_bad_pixel_mask_by_tap(self, image_list: list, sigma: np.float32, percent_threshold: np.float32, bad_pixel_mask_file: str):
         '''
         Creates a bad pixel mask.  This algorithm uses values from the entire image.
         The algorithm for determining bad pixels is any values above the mean - (sigma * standard deviation)
@@ -400,8 +384,7 @@ class MaGIXSDataProducts:
                 image_cube[index, :, :] = image
 
         # Despike.
-        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True)
-                                          + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
+        image_cube[np.where(image_cube > (np.nanmedian(image_cube, axis=0, keepdims=True) + (sigma * np.nanstd(image_cube, axis=0, keepdims=True))))] = np.nan
         #print("despike_len = ", np.count_nonzero(np.isnan(image_cube)))
 
         bad_pixel_mask = np.zeros((self.active_pixels_height, self.active_pixels_width), dtype=np.float32)
@@ -487,7 +470,7 @@ class MaGIXSDataProducts:
                 summed_fpga_vaux += image_hdul[0].header['FPGAVAUX']
                 summed_fpga_vbrm += image_hdul[0].header['FPGAVBRM']
                 for t in range(8):
-                    summed_adc_temp[t] += image_hdul[0].header[f'ADCTEMP{t + 1}']
+                    summed_adc_temp[t] += image_hdul[0].header['ADCTEMP{}'.format(t + 1)]
                 img_seq_num_list.append(image_hdul[0].header['IMG_ISN'])
                 image = self.remove_bias(image_hdul[0].data.astype(np.float32))
                 image = self.remove_inactive_pixels(image)
@@ -508,7 +491,7 @@ class MaGIXSDataProducts:
         master_dark_header['FPGAVAUX'] = (summed_fpga_vaux / number_images, 'FPGA VccAux (volts)')
         master_dark_header['FPGAVBRM'] = (summed_fpga_vbrm / number_images, 'FPGA VccBram (volts)')
         for t in range(8):
-            master_dark_header.append((f'ADCTEMP{t + 1}', summed_adc_temp[t] / number_images, f'ADC Temperature{t + 1} (degC'), end=True)
+            master_dark_header.append(('ADCTEMP{}'.format(t + 1), summed_adc_temp[t] / number_images, 'ADC Tempature{} (degC'.format(t + 1)), end=True)
 
         master_dark_header['LEVEL'] = ('0.2', 'Data Product Level')
         image_sequence_numbers = self.create_image_sequence_number_list(img_seq_num_list)
@@ -610,7 +593,7 @@ class MaGIXSDataProducts:
         input_dir : str
            Directory of Level 0.5 images to update..
         matlab_file : str
-            Matlab filename containing the temperatures.  This is a NSROC file.
+            Matlab filename containing the tempertures.  This is a NSROC file.
 
         Returns
         -------
@@ -1791,7 +1774,7 @@ class MaGIXSDataProducts:
             noisy_image = rng.poisson(image)
             noisy_image = noisy_image / image_exposure_time
             hdu = fits.PrimaryHDU(noisy_image.astype(np.float32))
-            noisy_image_filename = output_dir_path + f"Run{i + 1}" + output_file_post_fix + ".fits"
+            noisy_image_filename = output_dir_path + "Run{}".format(i + 1) + output_file_post_fix + ".fits"
             hdu.writeto(noisy_image_filename, overwrite=True)
 
     def create_image_sequence_number_list(self, numbers: list) -> str:
@@ -1801,27 +1784,27 @@ class MaGIXSDataProducts:
             if not number_list:
                 first_in_sequence = num
                 last_number = num
-                number_list += f"{last_number}"
+                number_list += "{}".format(last_number)
             else:
                 if num == (last_number + 1):
                     last_number = num
                 elif num > (last_number + 1):
                     if last_number == (first_in_sequence + 1):
-                        number_list += f", {last_number}"
+                        number_list += ", {}".format(last_number)
                     elif last_number > (first_in_sequence + 1):
-                        number_list += f"-{last_number}"
+                        number_list += "-{}".format(last_number)
                     first_in_sequence = num
                     last_number = num
-                    number_list += f", {last_number}"
+                    number_list += ", {}".format(last_number)
                 else:
                     first_in_sequence = num
                     last_number = num
-                    number_list += f", {last_number}"
+                    number_list += ", {}".format(last_number)
         if number_list:
             if last_number == (first_in_sequence + 1):
-                number_list += f", {last_number}"
+                number_list += ", {}".format(last_number)
             elif last_number > (first_in_sequence + 1):
-                number_list += f"-{last_number}"
+                number_list += "-{}".format(last_number)
         return number_list
 
 

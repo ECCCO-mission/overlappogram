@@ -9,15 +9,17 @@ from overlappogram.abstract_model import AbstractModel
 class ElasticNetModel(AbstractModel):
     model: enet = enet()
 
-    def invert(self, response_function, data, sample_weights = None):
-        #print(sample_weights)
-        self.model.fit(response_function, data, sample_weight=sample_weights, check_input=True)
-        #self.model.fit(response_function, data)
-        #score=(self.model.score(response_function, data, sample_weight=sample_weights))
+    def invert(self, response_function, data, sample_weights=None):
+        # print(sample_weights)
+        self.model.fit(
+            response_function, data, sample_weight=sample_weights, check_input=True
+        )
+        # self.model.fit(response_function, data)
+        # score=(self.model.score(response_function, data, sample_weight=sample_weights))
         data_out = self.model.predict(response_function)
         em = self.model.coef_
         return em, data_out
-        #return em, data_out, score
+        # return em, data_out, score
 
     def add_fits_keywords(self, header):
         # params = self.model.get_params()

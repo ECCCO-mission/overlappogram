@@ -2,8 +2,9 @@ import numpy as np
 from astropy.io import fits
 
 
-def create_poisson_noisy_image(image: np.ndarray, output_image_file: str,
-                               exposure_time: float):
+def create_poisson_noisy_image(
+    image: np.ndarray, output_image_file: str, exposure_time: float
+):
     """
 
 
@@ -25,5 +26,5 @@ def create_poisson_noisy_image(image: np.ndarray, output_image_file: str,
     rng = np.random.default_rng()
     noisy_image = rng.poisson(image * exposure_time) / exposure_time
     hdu = fits.PrimaryHDU(noisy_image)
-    hdu.header.append(('EXPTIME', noisy_image, 'Exposure Time (seconds)'), end=True)
+    hdu.header.append(("EXPTIME", noisy_image, "Exposure Time (seconds)"), end=True)
     hdu.writeto(output_image_file, overwrite=True)

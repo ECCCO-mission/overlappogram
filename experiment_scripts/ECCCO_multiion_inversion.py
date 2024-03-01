@@ -10,14 +10,14 @@ import time
 
 import numpy as np
 from astropy.io import fits
-#from overlappogram.inversion_field_angles_logts_ions import Inversion
+# from overlappogram.inversion_field_angles_logts_ions import Inversion
 from sklearn.linear_model import ElasticNet as enet
 
 from magixs_data_products import MaGIXSDataProducts
 from overlappogram.elasticnet_model import ElasticNetModel as model
 from overlappogram.inversion_field_angles import Inversion
 
-'''def calculate_weights(data, weights, sig_read, exp_time):
+"""def calculate_weights(data, weights, sig_read, exp_time):
     # Read image
     image_hdul = fits.open(data)
     image = image_hdul[0].data
@@ -31,90 +31,107 @@ from overlappogram.inversion_field_angles import Inversion
     hdu = fits.PrimaryHDU(data = sample_weights)
     hdulist = fits.HDUList([hdu])
     hdulist.writeto(sample_weight_file, overwrite=True)
-    return sample_weight_file'''
+    return sample_weight_file"""
 
-if __name__ == '__main__':
-
-    channel = 'all'
-    abund='feldman'
-    fwhm='0'
-    #psfs=[2,3,4,5]
-    #psfs=[1,2,3,4,5]
-    #psfs=[3,5]
-    psfs=[4]
+if __name__ == "__main__":
+    channel = "all"
+    abund = "feldman"
+    fwhm = "0"
+    # psfs=[2,3,4,5]
+    # psfs=[1,2,3,4,5]
+    # psfs=[3,5]
+    psfs = [4]
     for psf in psfs:
+        mdp = MaGIXSDataProducts()
+        # PSA for magixs1
 
+        # Response function file path.
+        response_dir = "data/"
 
-        mdp=MaGIXSDataProducts()
-    #PSA for magixs1
-
-    # Response function file path.
-        response_dir ='data/'
-
-    # Response file.
-        #cube_file = response_dir + 'eccco_is_response_feldman_m_el_with_tables_lw_pm1230_'+str(psf)+'pix.fits'
+        # Response file.
+        # cube_file = response_dir + 'eccco_is_response_feldman_m_el_with_tables_lw_pm1230_'+str(psf)+'pix.fits'
         # cube_file = response_dir +'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_slw_coopersun.fits'
-        cube_file = response_dir + 'D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_lw_coopersun.fits'
-        #cube_file = response_dir + "response_img_normalized.fits"
-        #cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
-        #cube_file = response_dir + 'D14Feb2024_eccco_response_feldman_m_el_with_tables_lw.fits'
+        cube_file = (
+            response_dir
+            + "D16Feb2024_eccco_response_feldman_m_el_with_tables_s_i_lw_coopersun.fits"
+        )
+        # cube_file = response_dir + "response_img_normalized.fits"
+        # cube_file = response_dir + 'D1Aug2023_eccco_response_feldman_m_el_with_tables_lw.fits'
+        # cube_file = response_dir + 'D14Feb2024_eccco_response_feldman_m_el_with_tables_lw.fits'
 
-        #weight_file = response_dir + 'oawave_eccco_is_lw.txt'
+        # weight_file = response_dir + 'oawave_eccco_is_lw.txt'
 
-    #Data directory and data file
-        data_dir ='data/'
-    #    summed_image  = data_dir + 'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el_decon.fits'
-        summed_image  = data_dir+'eccco_is_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
-        #summed_img = data_dir+'forwardmodel_img_normalized.fits'
-        sample_weights_data = data_dir +'eccco_is_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
-        #sample_weights_data = data_dir + 'weights_img_normalized.fits'
-        #summed_image  = data_dir+'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
-        #sample_weights_data  = data_dir +'eccco_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
+        # Data directory and data file
+        data_dir = "data/"
+        #    summed_image  = data_dir + 'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el_decon.fits'
+        summed_image = (
+            data_dir
+            + "eccco_is_lw_forwardmodel_thermal_response_psf"
+            + str(psf)
+            + "pix_el.fits"
+        )
+        # summed_img = data_dir+'forwardmodel_img_normalized.fits'
+        sample_weights_data = (
+            data_dir
+            + "eccco_is_lw_forwardmodel_sample_weights_psf"
+            + str(psf)
+            + "pix_el.fits"
+        )
+        # sample_weights_data = data_dir + 'weights_img_normalized.fits'
+        # summed_image  = data_dir+'eccco_lw_forwardmodel_thermal_response_psf'+str(psf)+'pix_el.fits'
+        # sample_weights_data  = data_dir +'eccco_lw_forwardmodel_sample_weights_psf'+str(psf)+'pix_el.fits'
 
-    #The inversion directory is where the output will be written
-        inversion_dir = 'output/'
+        # The inversion directory is where the output will be written
+        inversion_dir = "output/"
 
-    #Read in response,
+        # Read in response,
 
         rsp_func_hdul = fits.open(cube_file)
 
         solution_fov_width = 2
         detector_row_range = [450, 455]
-        #detector_row_range = None
+        # detector_row_range = None
         field_angle_range = [-2160, 2160]
-        #field_angle_range = [-1260,1260]
+        # field_angle_range = [-1260,1260]
         # field_angle_range = None
 
-        rsp_dep_name = 'logt'
+        rsp_dep_name = "logt"
         rsp_dep_list = np.round((np.arange(57, 78, 1) / 10.0), decimals=1)
 
-    #smooth_over = 'spatial'
-        smooth_over = 'dependence'
+        # smooth_over = 'spatial'
+        smooth_over = "dependence"
 
-        inversion = Inversion(rsp_func_cube_file=cube_file,
-                          rsp_dep_name=rsp_dep_name, rsp_dep_list=rsp_dep_list,
-                          solution_fov_width=solution_fov_width,smooth_over=smooth_over,field_angle_range=field_angle_range)
+        inversion = Inversion(
+            rsp_func_cube_file=cube_file,
+            rsp_dep_name=rsp_dep_name,
+            rsp_dep_list=rsp_dep_list,
+            solution_fov_width=solution_fov_width,
+            smooth_over=smooth_over,
+            field_angle_range=field_angle_range,
+        )
 
-        #inversion.initialize_input_data(summed_image)#,image_mask_file)
-        #sample_weights_data = calculate_weights(summed_image, weight_file, 8., 1.)
-        #print(sample_weights_data)
-        #syntax (summed image, mask image, sample weights image)
+        # inversion.initialize_input_data(summed_image)#,image_mask_file)
+        # sample_weights_data = calculate_weights(summed_image, weight_file, 8., 1.)
+        # print(sample_weights_data)
+        # syntax (summed image, mask image, sample weights image)
         inversion.initialize_input_data(summed_image, None, sample_weights_data)
 
-        #new forweights
+        # new forweights
         # (photon convert file name:str, sigma read:float,exptime:float)
-        #error_parameters=(response_dir + 'oawave_eccco_is_lw.txt',8.,1.)
+        # error_parameters=(response_dir + 'oawave_eccco_is_lw.txt',8.,1.)
         alphas = [5]
-        rhos = [.1]
+        rhos = [0.1]
         for rho in rhos:
             for alpha in alphas:
-                enet_model = enet(alpha=alpha,
-                                  l1_ratio=rho,
-                                  max_iter=100000,
-                                  precompute=True,
-                                  positive=True,
-                                  fit_intercept=False,
-                                  selection='cyclic')
+                enet_model = enet(
+                    alpha=alpha,
+                    l1_ratio=rho,
+                    max_iter=100000,
+                    precompute=True,
+                    positive=True,
+                    fit_intercept=False,
+                    selection="cyclic",
+                )
                 inv_model = model(enet_model)
 
                 # regressor = SGDRegressor(penalty='elasticnet', alpha=alpha, l1_ratio=rho, fit_intercept=False)
@@ -126,10 +143,20 @@ if __name__ == '__main__':
                 basename = os.path.splitext(os.path.basename(summed_image))[0]
 
                 start = time.time()
-                inversion.multiprocessing_invert(inv_model, inversion_dir, output_file_prefix=basename,
-                #inversion.invert(inv_model, inversion_dir, output_file_prefix=basename,
-                            output_file_postfix='x'+str(solution_fov_width)+'_'+str(rho*10)+'_'+str(alpha)+'_wpsf' ,
-                                                 detector_row_range=detector_row_range,
-                                                 score=False)
+                inversion.multiprocessing_invert(
+                    inv_model,
+                    inversion_dir,
+                    output_file_prefix=basename,
+                    # inversion.invert(inv_model, inversion_dir, output_file_prefix=basename,
+                    output_file_postfix="x"
+                    + str(solution_fov_width)
+                    + "_"
+                    + str(rho * 10)
+                    + "_"
+                    + str(alpha)
+                    + "_wpsf",
+                    detector_row_range=detector_row_range,
+                    score=False,
+                )
                 end = time.time()
                 print("Inversion Time =", end - start)

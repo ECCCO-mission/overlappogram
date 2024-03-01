@@ -9,7 +9,7 @@ from sklearn.linear_model import LassoLarsCV
 
 @dataclass(order=True)
 class Train:
-    '''
+    """
     Inversion for overlap-a-gram data.
 
     Attributes
@@ -37,15 +37,17 @@ class Train:
     -------
     None.
 
-    '''
+    """
+
     pixel_fov_width: np.float64
     solution_fov_width: np.float64
     slit_fov_width: np.float64
     rsp_dep_name: str
     rsp_dep_list: list
     rsp_dep_file_fmt: str
-    rsp_dep_desc_fmt: str = ''
-    smooth_over: str = 'spatial'
+    rsp_dep_desc_fmt: str = ""
+    smooth_over: str = "spatial"
+
     def __post_init__(self):
         # Calculate number of slits
         calc_num_slits = divmod(self.slit_fov_width, self.solution_fov_width)
@@ -54,22 +56,24 @@ class Train:
             self.num_slits += 1
         if self.num_slits % 2 == 0.0:
             self.num_slits += 1
-        #print("number slits =", self.num_slits)
+        # print("number slits =", self.num_slits)
         self.half_slits = divmod(self.num_slits, 2)
-        #print("half slits =", self.half_slits)
+        # print("half slits =", self.half_slits)
         # calc_shift_width = divmod(self.solution_fov_width, self.pixel_fov_width)
         # self.slit_shift_width = int(round(calc_shift_width[0]))
-        self.slit_shift_width = int(round(self.solution_fov_width / self.pixel_fov_width))
-        #print("slit shift width =", self.slit_shift_width)
+        self.slit_shift_width = int(
+            round(self.solution_fov_width / self.pixel_fov_width)
+        )
+        # print("slit shift width =", self.slit_shift_width)
 
         self.image_height = 0
         self.image_width = 0
         # Read response files and create response matrix
         response_files = [self.rsp_dep_file_fmt.format(i) for i in self.rsp_dep_list]
-        #print("Response files =", response_files)
+        # print("Response files =", response_files)
         self.num_response_files = len(response_files)
-        assert(self.num_response_files > 0)
-        #print("num rsp files =", self.num_response_files)
+        assert self.num_response_files > 0
+        # print("num rsp files =", self.num_response_files)
         self.groups = np.zeros(self.num_slits * self.num_response_files, dtype=int)
         response_count = 0
         for index in range(len(response_files)):
@@ -79,32 +83,46 @@ class Train:
                 self.pixels = dep_em_data.iloc[:, 0].values
                 self.wavelengths = dep_em_data.iloc[:, 1].values
                 self.wavelength_width = len(self.wavelengths)
-                self.response_function = np.zeros((self.num_response_files * self.num_slits, self.wavelength_width))
+                self.response_function = np.zeros(
+                    (self.num_response_files * self.num_slits, self.wavelength_width)
+                )
             em = dep_em_data.iloc[:, 2].values
-            if self.smooth_over == 'dependence':
+            if self.smooth_over == "dependence":
                 # Smooth over dependence.
                 slit_count = 0
                 for slit_num in range(-self.half_slits[0], self.half_slits[0] + 1):
                     slit_shift = slit_num * self.slit_shift_width
                     if slit_shift < 0:
-                        slit_em = np.pad(em, (0, -slit_shift), mode='constant')[-slit_shift:]
+                        slit_em = np.pad(em, (0, -slit_shift), mode="constant")[
+                            -slit_shift:
+                        ]
                     elif slit_shift > 0:
-                        slit_em = np.pad(em, (slit_shift, 0), mode='constant')[:-slit_shift]
+                        slit_em = np.pad(em, (slit_shift, 0), mode="constant")[
+                            :-slit_shift
+                        ]
                     else:
                         slit_em = em
-                    self.response_function[(self.num_response_files * slit_count) + response_count, :] = slit_em
-                    self.groups[(self.num_response_files * slit_count) + response_count] = index
+                    self.response_function[
+                        (self.num_response_files * slit_count) + response_count, :
+                    ] = slit_em
+                    self.groups[
+                        (self.num_response_files * slit_count) + response_count
+                    ] = index
                     slit_count += 1
                 response_count += 1
             else:
-                self.smooth_over = 'spatial'
+                self.smooth_over = "spatial"
                 # Smooth over spatial.
                 for slit_num in range(-self.half_slits[0], self.half_slits[0] + 1):
                     slit_shift = slit_num * self.slit_shift_width
                     if slit_shift < 0:
-                        slit_em = np.pad(em, (0, -slit_shift), mode='constant')[-slit_shift:]
+                        slit_em = np.pad(em, (0, -slit_shift), mode="constant")[
+                            -slit_shift:
+                        ]
                     elif slit_shift > 0:
-                        slit_em = np.pad(em, (slit_shift, 0), mode='constant')[:-slit_shift]
+                        slit_em = np.pad(em, (slit_shift, 0), mode="constant")[
+                            :-slit_shift
+                        ]
                     else:
                         slit_em = em
                     self.response_function[response_count, :] = slit_em
@@ -112,15 +130,15 @@ class Train:
                     response_count += 1
 
         print("groups =", self.groups)
-        #print("response count =", response_count)
+        # print("response count =", response_count)
         self.response_function = self.response_function.transpose()
 
-        if self.rsp_dep_desc_fmt == '':
+        if self.rsp_dep_desc_fmt == "":
             max_dep_len = len(max(self.rsp_dep_list, key=len))
-            self.rsp_dep_desc_fmt = str(max_dep_len) + 'A'
+            self.rsp_dep_desc_fmt = str(max_dep_len) + "A"
 
     def initialize_input_data(self, input_image: str, image_mask: str = None):
-        '''
+        """
         Initialize input image and optional mask.
 
         Parameters
@@ -134,14 +152,14 @@ class Train:
         -------
         None.
 
-        '''
+        """
         # Read image
         image_hdul = fits.open(input_image)
         image_height, image_width = np.shape(image_hdul[0].data)
         # Verify image width equals number of wavelengths in dependence files.
         assert image_width == self.wavelength_width
         self.image = image_hdul[0].data
-        #print("image (h, w) =", image_height, image_width)
+        # print("image (h, w) =", image_height, image_width)
         self.image_width = image_width
         self.image_height = image_height
         self.input_image = os.path.basename(input_image)
@@ -154,11 +172,11 @@ class Train:
             if len(np.where(image_mask == 0)) == 0:
                 self.image_mask = None
         else:
-            #self.image_mask = np.ones((image_height, image_width))
+            # self.image_mask = np.ones((image_height, image_width))
             self.image_mask = None
 
     def invert(self):
-        '''
+        """
         Invert image.
 
         Parameters
@@ -176,16 +194,16 @@ class Train:
         -------
         None.
 
-        '''
-        #for image_row_number in range(self.image_height):
-        #for image_row_number in range(180, 184):
+        """
+        # for image_row_number in range(self.image_height):
+        # for image_row_number in range(180, 184):
         for image_row_number in range(240, 250):
-        #for image_row_number in range(30, 34):
-        #for image_row_number in range(530, 534):
+            # for image_row_number in range(30, 34):
+            # for image_row_number in range(530, 534):
             # if (image_row_number % 10 == 0):
             #     print("image row number =", image_row_number)
             print("image row number =", image_row_number)
-            image_row = self.image[image_row_number,:]
+            image_row = self.image[image_row_number, :]
             # masked_rsp_func = self.response_function
             # if self.image_mask is not None:
             #     mask_row = self.image_mask[image_row_number,:]
@@ -195,19 +213,25 @@ class Train:
             #         masked_rsp_func = self.response_function.copy()
             #         masked_rsp_func[mask_pixels, :] = 0
 
-            #alphas = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.1]
-            #alphas = np.arange(0.1, 1.0, 0.1)
-            #ratios = [0.05, 0.1, 0.15, 0.2]
-            model = LassoLarsCV(max_iter=50000, precompute=True, normalize=True, positive=True, fit_intercept=True)
+            # alphas = [1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.1]
+            # alphas = np.arange(0.1, 1.0, 0.1)
+            # ratios = [0.05, 0.1, 0.15, 0.2]
+            model = LassoLarsCV(
+                max_iter=50000,
+                precompute=True,
+                normalize=True,
+                positive=True,
+                fit_intercept=True,
+            )
             model.fit(self.response_function, image_row)
-            #print("model =", model)
-            print('alpha: %f' % model.alpha_)
-            #print('l1_ratio: %f' % model.l1_ratio_)
-            print('intercept: %f' % model.intercept_)
-            print('n_iter: %f' % model.n_iter_)
+            # print("model =", model)
+            print("alpha: %f" % model.alpha_)
+            # print('l1_ratio: %f' % model.l1_ratio_)
+            print("intercept: %f" % model.intercept_)
+            print("n_iter: %f" % model.n_iter_)
 
     def __add_fits_keywords(self, header):
-        '''
+        """
         Add FITS keywords to FITS header.
 
         Parameters
@@ -219,10 +243,12 @@ class Train:
         -------
         None.
 
-        '''
-        header.append(('INPUTIMG', self.input_image, 'Input Image'), end=True)
-        header.append(('PIXELFOV', self.pixel_fov_width, 'Pixel FOV Width'), end=True)
-        header.append(('SLTNFOV', self.solution_fov_width, 'Solution FOV Width'), end=True)
-        header.append(('SLITFOV', self.slit_fov_width, 'Slit FOV Width'), end=True)
-        header.append(('DEPNAME', self.rsp_dep_name, 'Dependence Name'), end=True)
-        header.append(('SMTHOVER', self.smooth_over, 'Smooth Over'), end=True)
+        """
+        header.append(("INPUTIMG", self.input_image, "Input Image"), end=True)
+        header.append(("PIXELFOV", self.pixel_fov_width, "Pixel FOV Width"), end=True)
+        header.append(
+            ("SLTNFOV", self.solution_fov_width, "Solution FOV Width"), end=True
+        )
+        header.append(("SLITFOV", self.slit_fov_width, "Slit FOV Width"), end=True)
+        header.append(("DEPNAME", self.rsp_dep_name, "Dependence Name"), end=True)
+        header.append(("SMTHOVER", self.smooth_over, "Smooth Over"), end=True)

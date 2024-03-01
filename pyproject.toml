@@ -35,7 +35,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff"]
+test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff", "coverage"]
 docs = ["sphinx", "sphinx-automodapi"]
 
 [project.urls]
@@ -49,7 +49,7 @@ Changelog = "https://github.com/jmbhughes/overlappogram/blob/main/CHANGELOG.md"
 packages = ["overlappogram"]
 
 [tool.codespell]
-skip = "*.fts,*.fits,venv,*.pro,*.asdf"
+skip = "*.fts,*.fits,venv,*.pro,*.asdf,*.ipynb"
 
 [tool.ruff]
 target-version = "py39"

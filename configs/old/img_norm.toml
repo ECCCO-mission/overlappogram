@@ -30,7 +30,7 @@ rhos = [1.0]
 # Inversion Time = 75.56018900871277  # my no shared memory thread pool executor with 11 max workers
 # Inversion Time = 77.73930597305298  # my process pool executor with copy on write for global with 11 max workers
 # Inversion Time = 88.20389604568481  # same as above with numpy having 2 threads
-# Inversion Time = 42.56954908370972  # same as above wtih numpy having 1 thread and selection='cyclic'
+# Inversion Time = 42.56954908370972  # same as above with numpy having 1 thread and selection='cyclic'
 
 # changing alpha can dramatically slow things
 # set alpha = 0.1 then Inversion Time = 1208.5097889900208

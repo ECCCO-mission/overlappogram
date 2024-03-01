@@ -35,7 +35,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff"]
+test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff", "coverage"]
 docs = ["sphinx", "sphinx-automodapi"]
 
 [project.urls]

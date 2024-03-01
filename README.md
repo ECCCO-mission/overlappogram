@@ -1,6 +1,7 @@
 # overlappogram
 
 [![CI](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml/badge.svg)](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/jmbhughes/overlappogram/graph/badge.svg?token=u1qQvzybz4)](https://codecov.io/gh/jmbhughes/overlappogram)
 
 ![overlappogram example](overlappogram.png)
 

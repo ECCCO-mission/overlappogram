@@ -9,6 +9,8 @@ or ECCCO observations.
 
 ## How to Use
 
+`python run_multiion_inversion.py ./path/to/image.fits ./path/to/config.toml`
+
 ## Getting Help
 
 ## Cite

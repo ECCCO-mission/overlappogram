@@ -16,5 +16,9 @@ rhos = [0.1]
 
 # alpha = 0.2 -> 46 seconds
 # alpha = 0.1 -> 63 seeconds
-# alpha = 0.01 -> 277 seconds
+# alpha = 0.01 -> 277 seconds ... with 30 threads = 229 seconds
+#               ... with 40 threads = 220 seconds ... with 50 threads = 217 seconds
+#               ... boost tol=1E-5 -> 333 seconds (no quality impact)
+#               ... drop tol=1E-3 -> 102 seconds (no quality impact)
+#               ... drop tol=1E-2 -> 58 seconds (starting to see deviation from earlier results... is it worse?)
 # alpha = 0.005 -> 471 seconds

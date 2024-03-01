@@ -1,10 +1,7 @@
 [build-system]
 
 requires = ["setuptools",
-            "setuptools_scm",
             "wheel"]
-
-build-backend = 'setuptools.build_meta'
 
 [project]
 name = "overlappogram"
@@ -47,6 +44,9 @@ Documentation = "https://readthedocs.org"
 Repository = "https://github.com/jmbhughes/overlappogram.git"
 "Bug Tracker" = "https://github.com/jmbhughes/overlappogram/issues"
 Changelog = "https://github.com/jmbhughes/overlappogram/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+packages = ["overlappogram"]
 
 [tool.codespell]
 skip = "*.fts,*.fits,venv,*.pro,*.asdf"

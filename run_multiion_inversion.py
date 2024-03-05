@@ -11,7 +11,7 @@ import time  # noqa: E402
 import toml  # noqa: E402
 
 from magixs_data_products import MaGIXSDataProducts  # noqa: E402
-from overlappogram.inversion_field_angles import Inversion  # noqa: E402
+from overlappogram.inversion import Inversion  # noqa: E402
 
 
 def run_inversion(image_path, config: dict):
@@ -41,7 +41,7 @@ def run_inversion(image_path, config: dict):
                 + "_wpsf"
             )
             em_cube_paths.append(
-                inversion.multiprocessing_invert(
+                inversion.invert(
                     config["model"],
                     alpha,
                     rho,

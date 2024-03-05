@@ -11,8 +11,6 @@ from astropy.io import fits
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import ElasticNet
 
-from overlappogram.elasticnet_model import ElasticNetModel as model
-
 
 @dataclass(order=True)
 class Inversion:
@@ -149,43 +147,20 @@ class Inversion:
             self.field_angle_range_list[1] = self.field_angle_list[end_slit_index]
             num_field_angles = (end_slit_index - begin_slit_index) + 1
 
-        # calc_num_slits = divmod(num_field_angles, self.solution_fov_width)
-        # self.num_slits = int(calc_num_slits[0])
-        # if calc_num_slits[1] > 0.0:
-        #     self.num_slits += 1
-        # if self.num_slits % 2 == 0.0:
-        #     self.num_slits += 1
-
         calc_num_slits = divmod(num_field_angles, self.solution_fov_width)
         self.num_slits = int(calc_num_slits[0])
         # Check if number of slits is even.
         calc_half_num_slits = divmod(self.num_slits, 2)
         if calc_half_num_slits[1] == 0.0:
             self.num_slits -= 1
-        # self.num_slits = num_field_angles * self.solution_fov_width
-        assert self.num_slits >= 3
-        # print("number slits =", self.num_slits)
-        # self.center_slit = divmod(num_field_angles, 2)
         self.half_slits = divmod(self.num_slits, 2)
-        # if self.half_slits[0] * self.solution_fov_width > self.center_slit[0]:
-        #     self.num_slits = self.num_slits - 2
-        #     self.half_slits = divmod(self.num_slits, 2)
 
         self.half_fov = divmod(self.solution_fov_width, 2)
-        # assert self.half_fov[1] == 1
 
-        # print("old center slit", self.center_slit)
-        # self.center_slit = self.center_slit + begin_slit_index
         self.center_slit = (
             divmod(end_slit_index - begin_slit_index, 2) + begin_slit_index
         )
 
-        # Check if even FOV.
-        # if self.half_fov[1] == 0:
-        #     begin_slit_index = self.center_slit[0] - (self.half_fov[0] - 1)
-        #     - (self.half_slits[0] * self.solution_fov_width)
-        # else:
-        #     begin_slit_index = self.center_slit[0] - self.half_fov[0] - (self.half_slits[0] * self.solution_fov_width)
         begin_slit_index = (
             self.center_slit[0]
             - self.half_fov[0]
@@ -196,12 +171,7 @@ class Inversion:
             + self.half_fov[0]
             + (self.half_slits[0] * self.solution_fov_width)
         )
-        # assert begin_slit_index >= 0 and end_slit_index <= (max_num_field_angles - 1)
-        # print(self.center_slit, (self.half_slits[0], self.solution_fov_width))
-        # begin_slit_index = self.center_slit - (self.half_slits[0] * self.solution_fov_width)
-        # end_slit_
-        index = self.center_slit + (self.half_slits[0] * self.solution_fov_width)
-        # print(begin_slit_index, end_slit_index)
+
         num_field_angles = (end_slit_index - begin_slit_index) + 1
         self.field_angle_range_index_list = [begin_slit_index, end_slit_index]
         self.field_angle_range_list = self.field_angle_list[
@@ -319,7 +289,6 @@ class Inversion:
                             ].sum(axis=0)
                     response_count += 1
 
-        # print("response count =", response_count)
         self.response_function = self.response_function.transpose()
 
         if self.rsp_dep_name == "logt":
@@ -353,8 +322,6 @@ class Inversion:
         image_hdul = fits.open(input_image)
         image = image_hdul[0].data
         image_height, image_width = np.shape(image)
-        # Verify image width equals the response function width in cube.
-        # assert image_width == self.rsp_func_width
         self.image = image
 
         try:
@@ -365,7 +332,6 @@ class Inversion:
         self.image[np.where(self.image < 0.0)] = 0.0
 
         self.image_hdul = image_hdul
-        # print("image (h, w) =", image_height, image_width)
         self.image_width = image_width
         self.image_height = image_height
         self.input_image = os.path.basename(input_image)
@@ -394,177 +360,7 @@ class Inversion:
         else:
             self.sample_weights = None
 
-    def invert(
-        self,
-        model,
-        output_dir: str,
-        output_file_prefix: str = "",
-        output_file_postfix: str = "",
-        level: str = "2.0",
-        detector_row_range: tp.Union[list, None] = None,
-        score=False,
-    ):
-        """
-        Invert image.
-
-        Parameters
-        ----------
-        model : Class derived from AbstractModel.
-            Inversion model.
-        output_dir : str
-            Directory to write out EM data cube and inverted data image.
-        output_file_prefix : str, optional
-            A string prefixed to the output base filenames. The default is ''.
-        output_file_postfix : str, optional
-            A string postfixed to the output base filenames. The default is ''.
-        level: str, optional
-            Level value for FITS keyword LEVEL.
-        detector_row_range: list, optional
-            Beginning and ending row numbers to invert.  If None, invert all rows.  The default is None.
-        score: bool, optional
-            Obtain scoring from model and write to file.  If None, ignore scoring.  The default is None.
-
-        Returns
-        -------
-        None.
-
-        """
-        # Verify input data has been initialized.
-        if detector_row_range is not None:
-            # assert len(detector_row_range) == 2
-            # assert detector_row_range[1] >= detector_row_range[0]
-            # assert detector_row_range[0] < self.image_height and detector_row_range[1] < self.image_height
-            self.detector_row_min = detector_row_range[0]
-            self.detector_row_max = detector_row_range[1]
-        else:
-            self.detector_row_min = 0
-            self.detector_row_max = self.image_height - 1
-        em_data_cube = np.zeros(
-            (self.image_height, self.num_slits, self.num_deps), dtype=np.float32
-        )
-        inverted_data = np.zeros(
-            (self.image_height, self.image_width), dtype=np.float32
-        )
-        if score:
-            score_data = np.zeros((self.image_height, 1), dtype=np.float32)
-        num_nonconvergences = 0
-        if detector_row_range is None:
-            image_row_number_range = range(self.image_height)
-        else:
-            image_row_number_range = range(
-                detector_row_range[0], detector_row_range[1] + 1
-            )
-        for image_row_number in image_row_number_range:
-            # if (image_row_number % 10 == 0):
-            # print(image_row_number)
-            image_row = self.image[image_row_number, :]
-            masked_rsp_func = self.response_function
-            if self.image_mask is not None:
-                mask_row = self.image_mask[image_row_number, :]
-                mask_pixels = np.where(mask_row == 0)
-                if len(mask_pixels) > 0:
-                    image_row[mask_pixels] = 0.0
-                    # image_row[mask_pixels] = 1e-26
-                    masked_rsp_func = self.response_function.copy()
-                    masked_rsp_func[mask_pixels, :] = 0.0
-                    # masked_rsp_func[mask_pixels, :] = 1e-26
-
-            if self.sample_weights is not None:
-                sample_weights_row = self.sample_weights[image_row_number, :]
-            else:
-                sample_weights_row = None
-
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "error", category=ConvergenceWarning, module="sklearn"
-                )
-                try:
-                    em, data_out = model.invert(
-                        masked_rsp_func, image_row, sample_weights_row
-                    )
-                    for slit_num in range(self.num_slits):
-                        if self.smooth_over == "dependence":
-                            slit_em = em[
-                                slit_num
-                                * self.num_deps : (slit_num + 1)
-                                * self.num_deps
-                            ]
-                        else:
-                            slit_em = em[slit_num :: self.num_slits]
-                        em_data_cube[image_row_number, slit_num, :] = slit_em
-                    inverted_data[image_row_number, :] = data_out
-                    if score:
-                        score_data[image_row_number, :] = model.get_score(
-                            masked_rsp_func, image_row
-                        )
-                    # print("Row", image_row_number, "converged.")
-                except Exception:
-                    num_nonconvergences += 1
-                    print("Row", image_row_number, "did not converge!")
-
-        print("Number Nonconvergences", num_nonconvergences)
-
-        # Create output directory.
-        os.makedirs(output_dir, exist_ok=True)
-
-        # Save EM data cube.
-        base_filename = output_file_prefix
-        if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-            base_filename += "_"
-        base_filename += "em_data_cube"
-        if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-            base_filename += "_"
-        base_filename += output_file_postfix
-        em_data_cube_file = output_dir + base_filename + ".fits"
-        # Transpose data (wavelength, y, x).  Readable by ImageJ.
-        em_data_cube = np.transpose(em_data_cube, axes=(2, 0, 1))
-        em_data_cube_header = self.image_hdul[0].header.copy()
-        em_data_cube_header["LEVEL"] = (level, "Level")
-        em_data_cube_header["UNITS"] = ("1e26 cm-5", "Units")
-        self.__add_fits_keywords(em_data_cube_header)
-        model.add_fits_keywords(em_data_cube_header)
-        hdu = fits.PrimaryHDU(data=em_data_cube, header=em_data_cube_header)
-        # Add binary table.
-        col1 = fits.Column(name="index", format="1I", array=self.dep_index_list)
-        col2 = fits.Column(
-            name=self.rsp_dep_name, format=self.rsp_dep_desc_fmt, array=self.dep_list
-        )
-        table_hdu = fits.BinTableHDU.from_columns([col1, col2])
-        hdulist = fits.HDUList([hdu, table_hdu])
-        hdulist.writeto(em_data_cube_file, overwrite=True)
-
-        # Save model predicted data.
-        base_filename = output_file_prefix
-        if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-            base_filename += "_"
-        base_filename += "model_predicted_data"
-        if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-            base_filename += "_"
-        base_filename += output_file_postfix
-        data_file = output_dir + base_filename + ".fits"
-        model_predicted_data_hdul = self.image_hdul.copy()
-        model_predicted_data_hdul[0].data = inverted_data
-        model_predicted_data_hdul[0].header["LEVEL"] = (level, "Level")
-        model_predicted_data_hdul[0].header["UNITS"] = "Electron s-1"
-        self.__add_fits_keywords(model_predicted_data_hdul[0].header)
-        model.add_fits_keywords(model_predicted_data_hdul[0].header)
-        model_predicted_data_hdul.writeto(data_file, overwrite=True)
-
-        if score:
-            # Save score.
-            base_filename = output_file_prefix
-            if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-                base_filename += "_"
-            base_filename += "model_score_data"
-            if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-                base_filename += "_"
-            base_filename += output_file_postfix
-            data_file = output_dir + base_filename + ".fits"
-            hdu = fits.PrimaryHDU(data=score_data)
-            hdulist = fits.HDUList([hdu])
-            hdulist.writeto(data_file, overwrite=True)
-
-    def multiprocessing_invert_image_row(
+    def _invert_image_row(
         self, image_row_number: np.int32, chunk_index: int, score=False
     ):
         model = self.models[chunk_index]
@@ -586,27 +382,28 @@ class Inversion:
                 "error", category=ConvergenceWarning, module="sklearn"
             )
             try:
-                em, data_out = model.invert(
-                    masked_rsp_func, image_row, sample_weights_row
-                )
+                model.fit(masked_rsp_func, image_row, sample_weight=sample_weights_row)
+                data_out = model.predict(masked_rsp_func)
+                em = model.coef_
             except Exception:
                 print("Row", image_row_number, "did not converge!")
                 em = np.zeros((self.num_slits * self.num_deps), dtype=np.float32)
                 data_out = np.zeros((self.image_width), dtype=np.float32)
 
         if score:
-            score_data = model.get_score(masked_rsp_func, image_row)
+            score_data = model.score(masked_rsp_func, image_row)
             return [image_row_number, em, data_out, score_data]
         else:  # noqa: RET505
             return [image_row_number, em, data_out]
 
-    def progress_indicator(self, future):
+    def _progress_indicator(self, future):
+        """used in multithreading to track progress of inversion"""
         with self.thread_count_lock:
             self.completed_row_count += 1
             print(f"{self.completed_row_count/self.total_row_count*100:3.0f}% complete", end="\r")
 
 
-    def multiprocessing_invert(
+    def invert(
         self,
         model_config,
         alpha,
@@ -616,6 +413,7 @@ class Inversion:
         output_file_postfix: str = "",
         level: str = "2.0",
         num_threads: int = 1,
+        mode_switch_thread_count: int = 5,
         detector_row_range: tp.Union[list, None] = None,
         score=False,
     ):
@@ -655,7 +453,6 @@ class Inversion:
         )
         if score:
             self.mp_score_data = np.zeros((self.image_height, 1), dtype=np.float32)
-        self.mp_model = model
 
         if detector_row_range is not None:
             self.detector_row_min = detector_row_range[0]
@@ -691,12 +488,12 @@ class Inversion:
                 selection=model_config["selection"],
                 warm_start=model_config["warm_start"],
             )
-            self.models.append(model(enet_model))
+            self.models.append(enet_model)
 
-            new_futures = [executors[-1].submit(self.multiprocessing_invert_image_row, row, chunk_index, score)
+            new_futures = [executors[-1].submit(self._invert_image_row, row, chunk_index, score)
                            for row in range(start, end)]
             for future in new_futures:
-                future.add_done_callback(self.progress_indicator)
+                future.add_done_callback(self._progress_indicator)
 
             futures.extend(new_futures)
 
@@ -715,6 +512,11 @@ class Inversion:
             self.mp_inverted_data[result[0], :] = result[2]
             if score:
                 self.mp_score_data[result[0]] = result[3]
+
+            with self.thread_count_lock:
+                rows_remaining = self.total_row_count - self.completed_row_count
+                if rows_remaining < mode_switch_thread_count:
+                    print("switch mode")
 
         for executor in executors:
             executor.shutdown()
@@ -737,7 +539,9 @@ class Inversion:
         em_data_cube_header["LEVEL"] = (level, "Level")
         em_data_cube_header["UNITS"] = ("1e26 cm-5", "Units")
         self.__add_fits_keywords(em_data_cube_header)
-        self.models[-1].add_fits_keywords(em_data_cube_header)
+        em_data_cube_header['INVMDL'] = ('Elastic Net', 'Inversion Model')
+        em_data_cube_header['ALPHA'] = (alpha, 'Inversion Model Alpha')
+        em_data_cube_header['RHO'] = (rho, 'Inversion Model Rho')
         hdu = fits.PrimaryHDU(data=em_data_cube, header=em_data_cube_header)
         # Add binary table.
         col1 = fits.Column(name="index", format="1I", array=self.dep_index_list)
@@ -761,8 +565,10 @@ class Inversion:
         model_predicted_data_hdul[0].data = self.mp_inverted_data
         model_predicted_data_hdul[0].header["LEVEL"] = (level, "Level")
         model_predicted_data_hdul[0].header["UNITS"] = "Electron s-1"
+        model_predicted_data_hdul[0].header['INVMDL'] = ('Elastic Net', 'Inversion Model')
+        model_predicted_data_hdul[0].header['ALPHA'] = (alpha, 'Inversion Model Alpha')
+        model_predicted_data_hdul[0].header['RHO'] = (rho, 'Inversion Model Rho')
         self.__add_fits_keywords(model_predicted_data_hdul[0].header)
-        self.models[-1].add_fits_keywords(model_predicted_data_hdul[0].header)
         model_predicted_data_hdul.writeto(data_file, overwrite=True)
 
         if score:
@@ -828,99 +634,3 @@ class Inversion:
         )
         header["DROW_MIN"] = (self.detector_row_min, "Minimum Detector Row")
         header["DROW_MAX"] = (self.detector_row_max, "Maximum Detector Row")
-
-    def create_dependence_images(
-        self, em_data_cube_file: str, output_dir: str, image_mask_file: str = None
-    ):
-        assert len(self.dep_list) >= 2
-        # Read EM data cube
-        em_data_cube_hdul = fits.open(em_data_cube_file)
-        em_data_cube = em_data_cube_hdul[0].data
-
-        if image_mask_file is not None:
-            # Read mask
-            mask_hdul = fits.open(image_mask_file)
-            mask_height, mask_width = np.shape(mask_hdul[0].data)
-            image_mask = mask_hdul[0].data
-            if len(np.where(image_mask == 0)) == 0:
-                image_mask = None
-        else:
-            image_mask = None
-
-        dep_image = np.zeros((self.image_height, self.image_width), dtype=np.float32)
-        dep_image_cube = np.zeros(
-            (len(self.dep_list), self.image_height, self.image_width), dtype=np.float32
-        )
-        if image_mask is None:
-            dep_image = np.zeros(
-                (self.image_height, self.image_width), dtype=np.float32
-            )
-            response_count = 0
-            for index, dep in zip(range(len(self.dep_list)), self.dep_list):
-                dep_image[:, :] = 0.0
-                if self.smooth_over == "dependence":
-                    # Smooth over dependence.
-                    slit_count = 0
-                    for slit_num in range(self.num_slits):
-                        dep_image += np.dot(
-                            em_data_cube[index, :, slit_num][:, None],
-                            self.response_function[
-                                :, (self.num_deps * slit_count) + response_count
-                            ][None, :],
-                        )
-                        slit_count += 1
-                    response_count += 1
-                else:
-                    self.smooth_over = "spatial"
-                    # Smooth over spatial.
-                    for slit_num in range(self.num_slits):
-                        dep_image += np.dot(
-                            em_data_cube[index, :, slit_num][:, None],
-                            self.response_function[:, response_count][None, :],
-                        )
-                        response_count += 1
-
-                dep_image_cube[index, :, :] = dep_image
-        else:
-            dep_image = np.zeros(self.image_width, dtype=np.float32)
-            for image_row_number in range(self.image_height):
-                # print("1", image_row_number)
-                mask_row = self.image_mask[image_row_number, :]
-                mask_pixels = np.where(mask_row == 0)
-                masked_rsp_func = self.response_function.copy()
-                masked_rsp_func[mask_pixels, :] = 0.0
-                response_count = 0
-                for index, dep in zip(range(len(self.dep_list)), self.dep_list):
-                    # print("2", index, dep)
-                    dep_image[:] = 0.0
-                    if self.smooth_over == "dependence":
-                        # Smooth over dependence.
-                        slit_count = 0
-                        for slit_num in range(self.num_slits):
-                            dep_image[:] += np.dot(
-                                em_data_cube[index, image_row_number, slit_num],
-                                masked_rsp_func[
-                                    :, (self.num_deps * slit_count) + response_count
-                                ],
-                            )
-                        slit_count += 1
-                        response_count += 1
-                    else:
-                        self.smooth_over = "spatial"
-                        # Smooth over spatial.
-                        for slit_num in range(self.num_slits):
-                            # print("3", slit_num)
-                            dep_image[:] += np.dot(
-                                em_data_cube[index, image_row_number, slit_num],
-                                masked_rsp_func[:, response_count],
-                            )
-                            response_count += 1
-
-                    dep_image_cube[index, image_row_number, :] = dep_image
-
-        dep_image_filename = (
-            output_dir
-            + f"dep_image_cube_{self.rsp_dep_name}_{self.dep_list[0]:.2}_{self.dep_list[len(self.dep_list)-1]:.2}.fits"
-        )
-        em_data_cube_hdul[0].data = dep_image_cube
-        em_data_cube_hdul.writeto(dep_image_filename, overwrite=True)

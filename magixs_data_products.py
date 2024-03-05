@@ -2,7 +2,6 @@ import glob
 import math
 import os
 import os.path
-import time
 import typing as tp
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -16,10 +15,6 @@ from astropy.io import fits
 from astropy.table import Table
 from PIL import Image
 from scipy.io import loadmat
-from sklearn.linear_model import ElasticNet as enet
-
-from overlappogram.elasticnet_model import ElasticNetModel as enet_model
-from overlappogram.inversion_field_angles import Inversion
 
 # Launch T0 (seconds since beginning of year) and timestamp.
 launch_t0 = 18296410.2713640
@@ -2091,102 +2086,102 @@ class MaGIXSDataProducts:
             )
             hdu_list.writeto(image_output_file, overwrite=True)
 
-    def perform_level2_0_elasticnet_inversion(
-        self,
-        image_list: list,
-        rsp_func_cube_file: str,
-        rsp_dep_name: str,
-        rsp_dep_list: tp.Union[list, None],
-        solution_fov_width: np.int32,
-        smooth_over: str,
-        field_angle_range: tp.Union[list, None],
-        image_mask_file: tp.Union[str, None],
-        level: str,
-        detector_row_range: tp.Union[list, None],
-        output_dir: str,
-    ):
-        """
-        Performs inversion of Level 2.x images using ElasticNet.
-
-        Parameters
-        ----------
-        image_list : list
-            List of Level 2.0 filenames.
-        rsp_func_cube_file: str
-            Filename of response function cube.
-        rsp_dep_name: str
-            Response dependence name (e.g. 'ion' or 'logt').
-        rsp_dep_list: list, optional
-            List of dependence items.  If None, use all dependence values.
-        solution_fov_width: np.int32
-            Solution field-of-view width.  1 (all field angles), 2 (every other one), etc.  The default is 1.
-        smooth_over: str, optional
-            Inversion smoothing (i.e. 'spatial' or 'dependence').  The default is 'spatial'.
-        field_angle_range: list, optional
-            Beginning and ending field angles to invert over.  If None, use all field angles.
-        image_mask_file : str, optional
-           Mask to apply to image and response functions for inversion.
-        level: str
-            Level value for FITS keyword LEVEL.
-        detector_row_range: list, optional
-            Beginning and ending row numbers to invert.  If None, invert all rows.  The default is None.
-        output_dir : str
-           Directory to write Level 2.x EM data cubes and model predicted data.
-
-        Returns
-        -------
-        None.
-
-        """
-        num_images = len(image_list)
-        if num_images > 0:
-            for index in range(len(image_list)):
-                print("Image ", index)
-                # Read noisy image.
-                print("Inverting:", image_list[index])
-
-                inversion = Inversion(
-                    rsp_func_cube_file=rsp_func_cube_file,
-                    rsp_dep_name=rsp_dep_name,
-                    rsp_dep_list=rsp_dep_list,
-                    solution_fov_width=solution_fov_width,
-                    smooth_over=smooth_over,
-                    field_angle_range=field_angle_range,
-                )
-
-                inversion.initialize_input_data(image_list[index], image_mask_file)
-
-                alpha = 1e-5 * 3
-                rho = 0.1
-                # alpha = 1e-3
-                # rho = 0.8
-                model = enet(
-                    alpha=alpha,
-                    l1_ratio=rho,
-                    max_iter=50000,
-                    precompute=True,
-                    positive=True,
-                    fit_intercept=True,
-                    selection="cyclic",
-                )
-                inv_model = enet_model(model)
-
-                basename = os.path.splitext(os.path.basename(image_list[index]))[0]
-                basename_components = basename.split("_")
-                basename = basename.replace(basename_components[1], "L" + level)
-                print(basename)
-
-                start = time.time()
-                inversion.invert(
-                    inv_model,
-                    output_dir,
-                    output_file_prefix=basename,
-                    output_file_postfix="",
-                    level=level,
-                    detector_row_range=detector_row_range,
-                )
-                end = time.time()
-                print("Inversion Time =", end - start)
+    # def perform_level2_0_elasticnet_inversion(
+    #     self,
+    #     image_list: list,
+    #     rsp_func_cube_file: str,
+    #     rsp_dep_name: str,
+    #     rsp_dep_list: tp.Union[list, None],
+    #     solution_fov_width: np.int32,
+    #     smooth_over: str,
+    #     field_angle_range: tp.Union[list, None],
+    #     image_mask_file: tp.Union[str, None],
+    #     level: str,
+    #     detector_row_range: tp.Union[list, None],
+    #     output_dir: str,
+    # ):
+    #     """
+    #     Performs inversion of Level 2.x images using ElasticNet.
+    #
+    #     Parameters
+    #     ----------
+    #     image_list : list
+    #         List of Level 2.0 filenames.
+    #     rsp_func_cube_file: str
+    #         Filename of response function cube.
+    #     rsp_dep_name: str
+    #         Response dependence name (e.g. 'ion' or 'logt').
+    #     rsp_dep_list: list, optional
+    #         List of dependence items.  If None, use all dependence values.
+    #     solution_fov_width: np.int32
+    #         Solution field-of-view width.  1 (all field angles), 2 (every other one), etc.  The default is 1.
+    #     smooth_over: str, optional
+    #         Inversion smoothing (i.e. 'spatial' or 'dependence').  The default is 'spatial'.
+    #     field_angle_range: list, optional
+    #         Beginning and ending field angles to invert over.  If None, use all field angles.
+    #     image_mask_file : str, optional
+    #        Mask to apply to image and response functions for inversion.
+    #     level: str
+    #         Level value for FITS keyword LEVEL.
+    #     detector_row_range: list, optional
+    #         Beginning and ending row numbers to invert.  If None, invert all rows.  The default is None.
+    #     output_dir : str
+    #        Directory to write Level 2.x EM data cubes and model predicted data.
+    #
+    #     Returns
+    #     -------
+    #     None.
+    #
+    #     """
+    #     num_images = len(image_list)
+    #     if num_images > 0:
+    #         for index in range(len(image_list)):
+    #             print("Image ", index)
+    #             # Read noisy image.
+    #             print("Inverting:", image_list[index])
+    #
+    #             inversion = Inversion(
+    #                 rsp_func_cube_file=rsp_func_cube_file,
+    #                 rsp_dep_name=rsp_dep_name,
+    #                 rsp_dep_list=rsp_dep_list,
+    #                 solution_fov_width=solution_fov_width,
+    #                 smooth_over=smooth_over,
+    #                 field_angle_range=field_angle_range,
+    #             )
+    #
+    #             inversion.initialize_input_data(image_list[index], image_mask_file)
+    #
+    #             alpha = 1e-5 * 3
+    #             rho = 0.1
+    #             # alpha = 1e-3
+    #             # rho = 0.8
+    #             model = enet(
+    #                 alpha=alpha,
+    #                 l1_ratio=rho,
+    #                 max_iter=50000,
+    #                 precompute=True,
+    #                 positive=True,
+    #                 fit_intercept=True,
+    #                 selection="cyclic",
+    #             )
+    #             inv_model = enet_model(model)
+    #
+    #             basename = os.path.splitext(os.path.basename(image_list[index]))[0]
+    #             basename_components = basename.split("_")
+    #             basename = basename.replace(basename_components[1], "L" + level)
+    #             print(basename)
+    #
+    #             start = time.time()
+    #             inversion.invert(
+    #                 inv_model,
+    #                 output_dir,
+    #                 output_file_prefix=basename,
+    #                 output_file_postfix="",
+    #                 level=level,
+    #                 detector_row_range=detector_row_range,
+    #             )
+    #             end = time.time()
+    #             print("Inversion Time =", end - start)
 
     # def perform_level2_0_lassolars_inversion(
     #     self,

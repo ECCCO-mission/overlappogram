@@ -19,8 +19,8 @@ dependencies = ["numpy",
 ]
 requires-python = ">=3.9"
 authors = [
-  {name = "Dyana Beabout", email = "dyana.l.beabout@nasa.gov"},
-  {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"}
+    {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"},
+    {name = "Dyana Beabout", email = "dyana.l.beabout@nasa.gov"},
 ]
 maintainers = [
   {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"}

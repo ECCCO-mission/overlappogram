@@ -1,9 +1,8 @@
 import concurrent.futures
 import datetime
 import os
-import typing as tp
 import warnings
-from dataclasses import dataclass
+from enum import Enum
 from threading import Lock
 
 import numpy as np
@@ -12,38 +11,35 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import ElasticNet
 
 
-@dataclass(order=True)
-class Inversion:
-    """
-    Inversion for overlap-a-gram data.
+class InversionMode(Enum):
+    ROW = 0
+    CHUNKED = 1
 
-    Attributes
-    ----------
-    rsp_func_cube_file: str
-        Filename of response function cube.
-    rsp_dep_name: str
-        Response dependence name (e.g. 'ion' or 'logt').
-    rsp_dep_list: list
-        List of dependence items.  If None, use all dependence values.
-    solution_fov_width: np.int32
-        Solution field-of-view width.  1 (all field angles), 2 (every other one), etc.  The default is 1.
-    smooth_over: str, optional
-        Inversion smoothing (i.e. 'spatial' or 'dependence').  The default is 'spatial'.
-    field_angle_range: list, optional
-        Beginning and ending field angles to invert over.
 
-    Returns
-    -------
-    None.
+class Inverter:
+    def __init__(self,
+                 rsp_func_cube_file: str,
+                 rsp_dep_name: str,
+                 rsp_dep_list: list,
+                 solution_fov_width: int = 1,
+                 smooth_over: str = 'spatial',
+                 field_angle_range: list = None,
+                 detector_row_range: list = None):
 
-    """
+        self.rsp_func_cube_file = rsp_func_cube_file
+        self.rsp_dep_name = rsp_dep_name
+        self.rsp_dep_list = rsp_dep_list
+        self.solution_fov_width = solution_fov_width
+        self.smooth_over = smooth_over
+        self.field_angle_range = field_angle_range
+        self.detector_row_range = detector_row_range
 
-    rsp_func_cube_file: str
-    rsp_dep_name: str
-    rsp_dep_list: list = None
-    solution_fov_width: np.int32 = 1
-    smooth_over: str = "spatial"
-    field_angle_range: list = None
+        self._mode = InversionMode.CHUNKED
+        self._models = []
+        self.completed_row_count = 0
+        self.unconverged_rows = []
+
+        self.__post_init__()
 
     def __post_init__(self):
         self.thread_count_lock = Lock()
@@ -297,6 +293,12 @@ class Inversion:
             max_dep_len = len(max(self.rsp_dep_list, key=len))
             self.rsp_dep_desc_fmt = str(max_dep_len) + "A"
 
+        if self.detector_row_range is None:
+            self.detector_row_range = [0, self.image_height - 1]
+
+        self.completed_row_count = 0
+        self.total_row_count = self.detector_row_range[1] - self.detector_row_range[0]
+
     def get_response_function(self):
         return self.response_function
 
@@ -360,122 +362,105 @@ class Inversion:
         else:
             self.sample_weights = None
 
-    def _invert_image_row(
-        self, image_row_number: np.int32, chunk_index: int, score=False
-    ):
-        model = self.models[chunk_index]
-        image_row = self.image[image_row_number, :]
+    def _invert_image_row(self, row_index, chunk_index):
+        model = self._models[chunk_index]
+        image_row = self.image[row_index, :]
         masked_rsp_func = self.response_function
         if self.image_mask is not None:
-            mask_row = self.image_mask[image_row_number, :]
+            mask_row = self.image_mask[row_index, :]
             mask_pixels = np.where(mask_row == 0)
             if len(mask_pixels) > 0:
                 image_row[mask_pixels] = 0
                 masked_rsp_func = self.response_function.copy()
                 masked_rsp_func[mask_pixels, :] = 0.0
         if self.sample_weights is not None:
-            sample_weights_row = self.sample_weights[image_row_number, :]
+            sample_weights_row = self.sample_weights[row_index, :]
         else:
             sample_weights_row = None
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "error", category=ConvergenceWarning, module="sklearn"
-            )
-            try:
-                model.fit(masked_rsp_func, image_row, sample_weight=sample_weights_row)
-                data_out = model.predict(masked_rsp_func)
-                em = model.coef_
-            except Exception:
-                print("Row", image_row_number, "did not converge!")
-                em = np.zeros((self.num_slits * self.num_deps), dtype=np.float32)
-                data_out = np.zeros((self.image_width), dtype=np.float32)
 
-        if score:
+        warnings.filterwarnings("error", category=ConvergenceWarning, module="sklearn")
+        try:
+            model.fit(masked_rsp_func, image_row, sample_weight=sample_weights_row)
+            data_out = model.predict(masked_rsp_func)
+            em = model.coef_
             score_data = model.score(masked_rsp_func, image_row)
-            return [image_row_number, em, data_out, score_data]
-        else:  # noqa: RET505
-            return [image_row_number, em, data_out]
+        except ConvergenceWarning:
+            self.unconverged_rows.append(row_index)
+            em = np.zeros((self.num_slits * self.num_deps), dtype=np.float32)
+            data_out = np.zeros(self.image_width, dtype=np.float32)
+            score_data = -999
+
+        return row_index, em, data_out, score_data
 
     def _progress_indicator(self, future):
         """used in multithreading to track progress of inversion"""
         with self.thread_count_lock:
-            self.completed_row_count += 1
-            print(f"{self.completed_row_count/self.total_row_count*100:3.0f}% complete", end="\r")
+            if not future.cancelled():
+                self.completed_row_count += 1
+                print(f"{self.completed_row_count/self.total_row_count*100:3.0f}% complete", end="\r")
 
+    def _switch_to_row_inversion(self, model_config, alpha, rho, num_row_threads=50):
+        self._mode = InversionMode.ROW
 
-    def invert(
-        self,
-        model_config,
-        alpha,
-        rho,
-        output_dir: str,
-        output_file_prefix: str = "",
-        output_file_postfix: str = "",
-        level: str = "2.0",
-        num_threads: int = 1,
-        mode_switch_thread_count: int = 5,
-        detector_row_range: tp.Union[list, None] = None,
-        score=False,
-    ):
-        """
-        Invert image.
+        remaining_rows = []
+        for future, (row_index, chunk_index) in self.futures.items():
+            if not future.done() and not future.running():
+                future.cancel()
+                remaining_rows.append(row_index)
+        self.futures = {}
 
-        Parameters
-        ----------
-        model : Class derived from AbstractModel.
-            Inversion model.
-        output_dir : str
-            Directory to write out EM data cube and inverted data image.
-        output_file_prefix : str, optional
-            A string prefixed to the output base filenames. The default is ''.
-        output_file_postfix : str, optional
-            A string postfixed to the output base filenames. The default is ''.
-        level: str, optional
-            Level value for FITS keyword LEVEL.
-        detector_row_range: list, optional
-            Beginning and ending row numbers to invert.  If None, invert all rows.  The default is None.
-        score: bool, optional
-            Obtain scoring from model and write to file.  If None, ignore scoring.  The default is None.
+        for executor in self.executors:
+            executor.shutdown()
 
-        Returns
-        -------
-        None.
+        self.executors = [concurrent.futures.ThreadPoolExecutor(max_workers=num_row_threads)]
 
-        """
+        self._models = []
+        for i, row_index in enumerate(remaining_rows):
+            enet_model = ElasticNet(
+                alpha=alpha,
+                l1_ratio=rho,
+                tol=model_config["tol"],
+                max_iter=model_config["max_iter"],
+                precompute=False,  # setting this to true slows down performance dramatically
+                positive=True,
+                copy_X=False,
+                fit_intercept=False,
+                selection=model_config["selection"],
+                warm_start=False
+            )
+            self._models.append(enet_model)
+            future = self.executors[-1].submit(self._invert_image_row, row_index, i)
+            future.add_done_callback(self._progress_indicator)
+            self.futures[future] = (row_index, i)
 
-        # Verify input data has been initialized.
-        # assert self.image_width != 0 and self.image_height != 0
-        self.mp_em_data_cube = np.zeros(
-            (self.image_height, self.num_slits, self.num_deps), dtype=np.float32
-        )
-        self.mp_inverted_data = np.zeros(
-            (self.image_height, self.image_width), dtype=np.float32
-        )
-        if score:
-            self.mp_score_data = np.zeros((self.image_height, 1), dtype=np.float32)
+    def _collect_results(self, mode_switch_thread_count, model_config, alpha, rho):
+        for future in concurrent.futures.as_completed(self.futures):
+            row_index, em, data_out, score_data = future.result()
+            for slit_num in range(self.num_slits):
+                if self.smooth_over == "dependence":
+                    slit_em = em[slit_num * self.num_deps: (slit_num + 1) * self.num_deps]
+                else:
+                    slit_em = em[slit_num:: self.num_slits]
+                self._em_cube[row_index, slit_num, :] = slit_em
+            self._inversion_prediction[row_index, :] = data_out
+            self._row_scores[row_index] = score_data
 
-        if detector_row_range is not None:
-            self.detector_row_min = detector_row_range[0]
-            self.detector_row_max = detector_row_range[1]
-        else:
-            self.detector_row_min = 0
-            self.detector_row_max = self.image_height - 1
+            rows_remaining = self.total_row_count - self.completed_row_count
 
-        self.completed_row_count = 0
-        self.total_row_count = self.detector_row_max - self.detector_row_min
+            if rows_remaining < mode_switch_thread_count and self._mode == InversionMode.CHUNKED:
+                self._switch_to_row_inversion(model_config, alpha, rho)
+                break
 
-        starts = np.arange(
-            self.detector_row_min,
-            self.detector_row_max,
-            (self.detector_row_max - self.detector_row_min) / num_threads,
-        ).astype(int)
-        ends = np.append(starts[1:], self.detector_row_max)
+    def _start_chunk_inversion(self, model_config, alpha, rho, num_threads):
+        starts = np.arange(self.detector_row_range[0],
+                           self.detector_row_range[1],
+                           (self.detector_row_range[1] - self.detector_row_range[0]) / num_threads).astype(int)
+        ends = np.append(starts[1:], self.detector_row_range[1])
 
-        futures = []
-        executors = []
-        self.models = []
+        self.futures = {}
+        self.executors = []
         for chunk_index, (start, end) in enumerate(zip(starts, ends)):
-            executors.append(concurrent.futures.ThreadPoolExecutor(max_workers=1))
+            self.executors.append(concurrent.futures.ThreadPoolExecutor(max_workers=1))
             enet_model = ElasticNet(
                 alpha=alpha,
                 l1_ratio=rho,
@@ -488,149 +473,39 @@ class Inversion:
                 selection=model_config["selection"],
                 warm_start=model_config["warm_start"],
             )
-            self.models.append(enet_model)
+            self._models.append(enet_model)
 
-            new_futures = [executors[-1].submit(self._invert_image_row, row, chunk_index, score)
-                           for row in range(start, end)]
+            new_futures = {self.executors[-1].submit(self._invert_image_row, row, chunk_index): (row, chunk_index)
+                           for row in range(start, end)}
             for future in new_futures:
                 future.add_done_callback(self._progress_indicator)
 
-            futures.extend(new_futures)
+            self.futures.update(new_futures)
 
-        # Wait for all tasks to complete and retrieve the results
-        for future in concurrent.futures.as_completed(futures):
-            result = future.result()
-            for slit_num in range(self.num_slits):
-                if self.smooth_over == "dependence":
-                    slit_em = result[1][
-                        slit_num * self.num_deps : (slit_num + 1) * self.num_deps
-                    ]
-                else:
-                    slit_em = result[1][slit_num :: self.num_slits]
-                self.mp_em_data_cube[result[0], slit_num, :] = slit_em
+    def invert(
+        self,
+        model_config,
+        alpha,
+        rho,
+        num_threads: int = 1,
+        mode_switch_thread_count: int = 0,
+    ):
+        self._models = []
+        self.completed_row_count = 0
 
-            self.mp_inverted_data[result[0], :] = result[2]
-            if score:
-                self.mp_score_data[result[0]] = result[3]
+        self._em_cube = np.zeros((self.image_height, self.num_slits, self.num_deps), dtype=np.float32)
+        self._inversion_prediction = np.zeros((self.image_height, self.image_width), dtype=np.float32)
+        self._row_scores = np.zeros((self.image_height, 1), dtype=np.float32)
 
-            with self.thread_count_lock:
-                rows_remaining = self.total_row_count - self.completed_row_count
-                if rows_remaining < mode_switch_thread_count:
-                    print("switch mode")
+        self._start_chunk_inversion(model_config, alpha, rho, num_threads)
 
-        for executor in executors:
+        # Collect results during the chunk stage
+        self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
+
+        # Collect results during the row stage, if there is a mode change
+        self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
+
+        for executor in self.executors:
             executor.shutdown()
 
-        # Create output directory.
-        os.makedirs(output_dir, exist_ok=True)
-
-        # Save EM data cube.
-        base_filename = output_file_prefix
-        if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-            base_filename += "_"
-        base_filename += "em_data_cube"
-        if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-            base_filename += "_"
-        base_filename += output_file_postfix
-        em_data_cube_file = output_dir + base_filename + ".fits"
-        # Transpose data (wavelength, y, x).  Readable by ImageJ.
-        em_data_cube = np.transpose(self.mp_em_data_cube, axes=(2, 0, 1))
-        em_data_cube_header = self.image_hdul[0].header.copy()
-        em_data_cube_header["LEVEL"] = (level, "Level")
-        em_data_cube_header["UNITS"] = ("1e26 cm-5", "Units")
-        self.__add_fits_keywords(em_data_cube_header)
-        em_data_cube_header['INVMDL'] = ('Elastic Net', 'Inversion Model')
-        em_data_cube_header['ALPHA'] = (alpha, 'Inversion Model Alpha')
-        em_data_cube_header['RHO'] = (rho, 'Inversion Model Rho')
-        hdu = fits.PrimaryHDU(data=em_data_cube, header=em_data_cube_header)
-        # Add binary table.
-        col1 = fits.Column(name="index", format="1I", array=self.dep_index_list)
-        col2 = fits.Column(
-            name=self.rsp_dep_name, format=self.rsp_dep_desc_fmt, array=self.dep_list
-        )
-        table_hdu = fits.BinTableHDU.from_columns([col1, col2])
-        hdulist = fits.HDUList([hdu, table_hdu])
-        hdulist.writeto(em_data_cube_file, overwrite=True)
-
-        # Save model predicted data.
-        base_filename = output_file_prefix
-        if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-            base_filename += "_"
-        base_filename += "model_predicted_data"
-        if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-            base_filename += "_"
-        base_filename += output_file_postfix
-        data_file = output_dir + base_filename + ".fits"
-        model_predicted_data_hdul = self.image_hdul.copy()
-        model_predicted_data_hdul[0].data = self.mp_inverted_data
-        model_predicted_data_hdul[0].header["LEVEL"] = (level, "Level")
-        model_predicted_data_hdul[0].header["UNITS"] = "Electron s-1"
-        model_predicted_data_hdul[0].header['INVMDL'] = ('Elastic Net', 'Inversion Model')
-        model_predicted_data_hdul[0].header['ALPHA'] = (alpha, 'Inversion Model Alpha')
-        model_predicted_data_hdul[0].header['RHO'] = (rho, 'Inversion Model Rho')
-        self.__add_fits_keywords(model_predicted_data_hdul[0].header)
-        model_predicted_data_hdul.writeto(data_file, overwrite=True)
-
-        if score:
-            # Save score.
-            base_filename = output_file_prefix
-            if len(output_file_prefix) > 0 and output_file_prefix[-1] != "_":
-                base_filename += "_"
-            base_filename += "model_score_data"
-            if len(output_file_postfix) > 0 and output_file_postfix[0] != "_":
-                base_filename += "_"
-            base_filename += output_file_postfix
-            score_data_file = output_dir + base_filename + ".fits"
-            # print("score", data_file)
-            hdu = fits.PrimaryHDU(data=self.mp_score_data)
-            hdulist = fits.HDUList([hdu])
-            hdulist.writeto(score_data_file, overwrite=True)
-
-        return em_data_cube_file
-
-    def __add_fits_keywords(self, header):
-        """
-        Add FITS keywords to FITS header.
-
-        Parameters
-        ----------
-        header : class 'astropy.io.fits.hdu.image.PrimaryHDU'.
-            FITS header.
-
-        Returns
-        -------
-        None.
-
-        """
-        header["INV_DATE"] = (self.inv_date, "Inversion Date")
-        header["RSPFUNC"] = (self.rsp_func_date, "Response Functions Filename")
-        header["RSP_DATE"] = (
-            self.rsp_func_cube_filename,
-            "Response Functions Creation Date",
-        )
-        header["ABUNDANC"] = (self.abundance, "Abundance")
-        header["ELECDIST"] = (self.electron_distribution, "Electron Distribution")
-        header["CHIANT_V"] = (self.chianti_version, "Chianti Version")
-        header["INVIMG"] = (self.input_image, "Inversion Image Filename")
-        header["INVMASK"] = (self.image_mask_filename, "Inversion Mask Filename")
-        header["SLTNFOV"] = (self.solution_fov_width, "Solution FOV Width")
-        header["DEPNAME"] = (self.rsp_dep_name, "Dependence Name")
-        header["SMTHOVER"] = (self.smooth_over, "Smooth Over")
-        header["LOGT_MIN"] = (f"{self.dep_list[0]:.2f}", "Minimum Logt")
-        header["LOGT_DLT"] = (f"{self.max_dep_list_delta:.2f}", "Delta Logt")
-        header["LOGT_NUM"] = (len(self.dep_list), "Number Logts")
-        header["FA_MIN"] = (
-            f"{self.field_angle_range_list[0]:.3f}",
-            "Minimum Field Angle",
-        )
-        header["FA_DLT"] = (
-            f"{self.max_field_angle_list_delta:.3f}",
-            "Delta Field Angle",
-        )
-        header["FA_NUM"] = (self.num_field_angles, "Number Field Angles")
-        header["FA_CDELT"] = (
-            f"{self.solution_fov_width * self.max_field_angle_list_delta:.3f}",
-            "Field Angle CDELT",
-        )
-        header["DROW_MIN"] = (self.detector_row_min, "Minimum Detector Row")
-        header["DROW_MAX"] = (self.detector_row_max, "Maximum Detector Row")
+        return self._em_cube, self._inversion_prediction, self._row_scores, self.unconverged_rows

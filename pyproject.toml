@@ -36,7 +36,7 @@ classifiers = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff", "coverage"]
-docs = ["sphinx", "sphinx-automodapi"]
+docs = ["sphinx", "sphinx-autoapi", "sphinx-automodapi", "pydata-sphinx-theme"]
 
 [project.urls]
 Homepage = "https://example.com"

@@ -3,11 +3,12 @@ import os
 import numpy as np
 from astropy.io import fits
 
-__all__ = ["create_spectrally_pure_images", ]
+__all__ = [
+    "create_spectrally_pure_images",
+]
 
-def create_spectrally_pure_images(
-        image_list: list, gnt_file: str, rsp_dep_list: list, output_dir: str
-):
+
+def create_spectrally_pure_images(image_list: list, gnt_file: str, rsp_dep_list: list, output_dir: str):
     """
     Creates Level 2.x spectrally pure image from EM data cubes.
 
@@ -74,24 +75,16 @@ def create_spectrally_pure_images(
                     # print(em_dep_list)
                     if index == 0:
                         image_height, num_slits, num_logts = np.shape(em_data_cube)
-                        gnt_data_cube = np.zeros(
-                            (image_height, num_slits, num_gnts), dtype=np.float64
-                        )
+                        gnt_data_cube = np.zeros((image_height, num_slits, num_gnts), dtype=np.float64)
                     else:
-                        gnt_data_cube = np.transpose(
-                            gnt_data_cube.astype(np.float32), axes=(1, 2, 0)
-                        )
+                        gnt_data_cube = np.transpose(gnt_data_cube.astype(np.float32), axes=(1, 2, 0))
                         gnt_data_cube[:, :, :] = 0.0
                     for gnt_num in range(num_gnts):
                         gnt_image = (
-                                em_data_cube[:, :, 0:num_rsp_deps]
-                                * 10 ** 26
-                                * gnt_values[gnt_num, 0:num_rsp_deps]
+                            em_data_cube[:, :, 0:num_rsp_deps] * 10**26 * gnt_values[gnt_num, 0:num_rsp_deps]
                         ).sum(axis=2)
                         gnt_data_cube[:, :, gnt_num] = gnt_image
-                    basename = os.path.splitext(
-                        os.path.basename(image_list[index])
-                    )[0]
+                    basename = os.path.splitext(os.path.basename(image_list[index]))[0]
                     # print(type(basename))
                     slice_index = basename.find("_em_data_cube")
                     # print(type(basename))
@@ -99,14 +92,10 @@ def create_spectrally_pure_images(
                     postfix_val = postfix_val[1]
                     # print(postfix_val)
                     basename = basename[:slice_index]
-                    basename += (
-                            "_spectrally_pure_data_cube_x" + postfix_val + ".fits"
-                    )
+                    basename += "_spectrally_pure_data_cube_x" + postfix_val + ".fits"
                     gnt_data_cube_file = output_dir + basename
                     # Transpose data (wavelength, y, x).  Readable by ImageJ.
-                    gnt_data_cube = np.transpose(
-                        gnt_data_cube.astype(np.float32), axes=(2, 0, 1)
-                    )
+                    gnt_data_cube = np.transpose(gnt_data_cube.astype(np.float32), axes=(2, 0, 1))
                     em_hdul[0].data = gnt_data_cube
                     em_hdul[0].header["UNITS"] = "Ph s-1 sr-1 cm-2"
                     em_hdul[0].header["GNT"] = (gnt_filename, "GNT Filename")
@@ -117,9 +106,7 @@ def create_spectrally_pure_images(
                     )
                     # Add binary table.
                     gnt_index_list = list(range(len(ion_wavelength_values)))
-                    col1 = fits.Column(
-                        name="index", format="1I", array=gnt_index_list
-                    )
+                    col1 = fits.Column(name="index", format="1I", array=gnt_index_list)
                     col2 = fits.Column(
                         name=ion_wavelength_name,
                         format="15A",

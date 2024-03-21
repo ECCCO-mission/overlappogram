@@ -13,7 +13,7 @@ def load_overlappogram(image_path, weights_path) -> NDCube:
         wcs = WCS(image_hdul[0].header)
     with fits.open(weights_path) as weights_hdul:
         weights = weights_hdul[0].data
-    return NDCube(image, wcs=wcs, uncertainty=StdDevUncertainty(1/weights), meta=dict(header))
+    return NDCube(image, wcs=wcs, uncertainty=StdDevUncertainty(1 / weights), meta=dict(header))
 
 
 def load_response_cube(path) -> NDCube:
@@ -24,8 +24,9 @@ def load_response_cube(path) -> NDCube:
         temperatures = hdul[1].data
         field_angles = hdul[2].data
     meta = dict(header)
-    meta.update({'temperatures': temperatures, 'field_angles': field_angles})
+    meta.update({"temperatures": temperatures, "field_angles": field_angles})
     return NDCube(response, wcs=wcs, meta=meta)
+
 
 # # Create output directory.
 # os.makedirs(output_dir, exist_ok=True)

@@ -21,14 +21,15 @@ class InversionMode(Enum):
 
 
 class Inverter:
-    def __init__(self,
-                 response_cube: NDCube,
-                 solution_fov_width: int = 1,
-                 smooth_over: str = 'dependence',
-                 response_dependency_list: list = None,
-                 field_angle_range: list = None,
-                 detector_row_range: list = None):
-
+    def __init__(
+        self,
+        response_cube: NDCube,
+        solution_fov_width: int = 1,
+        smooth_over: str = "dependence",
+        response_dependency_list: list = None,
+        field_angle_range: list = None,
+        detector_row_range: list = None,
+    ):
         self._solution_fov_width = solution_fov_width
         self._smooth_over = smooth_over
         self._field_angle_range = field_angle_range
@@ -48,18 +49,23 @@ class Inverter:
 
         self._thread_count_lock = Lock()
 
-        self._response_function, self._num_slits, self._num_deps = prepare_response_function(response_cube,
-                                                                                             fov_width=solution_fov_width,
-                                                                                             field_angle_range=field_angle_range,
-                                                                                             response_dependency_list=response_dependency_list)
-        print("response func", self._response_function.shape)
+        self._response_function, self._num_slits, self._num_deps = prepare_response_function(
+            response_cube,
+            fov_width=solution_fov_width,
+            field_angle_range=field_angle_range,
+            response_dependency_list=response_dependency_list,
+        )
 
     @property
     def is_inverted(self) -> bool:
-        return not any([self._overlappogram is None,
-                        self._em_data is None,
-                        self._inversion_prediction is None,
-                        self._row_scores is None])
+        return not any(
+            [
+                self._overlappogram is None,
+                self._em_data is None,
+                self._inversion_prediction is None,
+                self._row_scores is None,
+            ]
+        )
 
     def _invert_image_row(self, row_index, chunk_index):
         model = self._models[chunk_index]
@@ -74,7 +80,7 @@ class Inverter:
                 masked_response_function[mask_pixels, :] = 0.0
 
         if self._overlappogram.uncertainty is not None:
-            sample_weights_row = 1.0/self._overlappogram.uncertainty[row_index, :].array
+            sample_weights_row = 1.0 / self._overlappogram.uncertainty[row_index, :].array
         else:
             sample_weights_row = None
 
@@ -126,7 +132,7 @@ class Inverter:
                 copy_X=False,
                 fit_intercept=False,
                 selection=model_config["selection"],
-                warm_start=False
+                warm_start=False,
             )
             self._models.append(enet_model)
             future = self.executors[-1].submit(self._invert_image_row, row_index, i)
@@ -138,9 +144,9 @@ class Inverter:
             row_index, em, data_out, score_data = future.result()
             for slit_num in range(self._num_slits):
                 if self._smooth_over == "dependence":
-                    slit_em = em[slit_num * self._num_deps: (slit_num + 1) * self._num_deps]
+                    slit_em = em[slit_num * self._num_deps : (slit_num + 1) * self._num_deps]
                 else:
-                    slit_em = em[slit_num:: self._num_slits]
+                    slit_em = em[slit_num :: self._num_slits]
                 self._em_data[row_index, slit_num, :] = slit_em
             self._inversion_prediction[row_index, :] = data_out
             self._row_scores[row_index] = score_data
@@ -152,9 +158,11 @@ class Inverter:
                 break
 
     def _start_chunk_inversion(self, model_config, alpha, rho, num_threads):
-        starts = np.arange(self._detector_row_range[0],
-                           self._detector_row_range[1],
-                           (self._detector_row_range[1] - self._detector_row_range[0]) / num_threads).astype(int)
+        starts = np.arange(
+            self._detector_row_range[0],
+            self._detector_row_range[1],
+            (self._detector_row_range[1] - self._detector_row_range[0]) / num_threads,
+        ).astype(int)
         ends = np.append(starts[1:], self._detector_row_range[1])
 
         self.futures = {}
@@ -175,8 +183,10 @@ class Inverter:
             )
             self._models.append(enet_model)
 
-            new_futures = {self.executors[-1].submit(self._invert_image_row, row, chunk_index): (row, chunk_index)
-                           for row in range(start, end)}
+            new_futures = {
+                self.executors[-1].submit(self._invert_image_row, row, chunk_index): (row, chunk_index)
+                for row in range(start, end)
+            }
             for future in new_futures:
                 future.add_done_callback(self._progress_indicator)
 
@@ -200,10 +210,8 @@ class Inverter:
 
         # initialize all result cubes
         self._overlappogram_height, self._overlappogram_width = self._overlappogram.data.shape
-        self._em_data = np.zeros((self._overlappogram_height, self._num_slits, self._num_deps),
-                                 dtype=np.float32)
-        self._inversion_prediction = np.zeros((self._overlappogram_height, self._overlappogram_width),
-                                              dtype=np.float32)
+        self._em_data = np.zeros((self._overlappogram_height, self._num_slits, self._num_deps), dtype=np.float32)
+        self._inversion_prediction = np.zeros((self._overlappogram_height, self._overlappogram_width), dtype=np.float32)
         self._row_scores = np.zeros((self._overlappogram_height, 1), dtype=np.float32)
 
         # TODO : add metadata to outputs

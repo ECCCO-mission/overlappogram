@@ -18,15 +18,15 @@ from overlappogram.io import load_response_cube  # noqa: E402
 @click.command()
 @click.argument("config")
 def unfold(config):
-    """ Unfold an overlappogram given a configuration toml file."""  # TODO improve message
+    """Unfold an overlappogram given a configuration toml file."""  # TODO improve message
 
     with open(config) as f:
         config = toml.load(f)
 
-    os.makedirs(config['output']['directory'], exist_ok=True)  # make sure output directory exists
+    os.makedirs(config["output"]["directory"], exist_ok=True)  # make sure output directory exists
 
-    overlappogram = load_overlappogram(config['paths']['overlappogram'],  config['paths']['weights'])
-    response_cube = load_response_cube(config['paths']['response'])
+    overlappogram = load_overlappogram(config["paths"]["overlappogram"], config["paths"]["weights"])
+    response_cube = load_response_cube(config["paths"]["response"])
 
     inversion = Inverter(
         response_cube,
@@ -40,13 +40,13 @@ def unfold(config):
         for rho in config["model"]["rhos"]:
             start = time.time()
             inversion.invert(
-                    overlappogram,
-                    config["model"],
-                    alpha,
-                    rho,
-                    num_threads=config["execution"]["num_threads"],
-                    mode_switch_thread_count=config['execution']['mode_switch_thread_count']
-                )
+                overlappogram,
+                config["model"],
+                alpha,
+                rho,
+                num_threads=config["execution"]["num_threads"],
+                mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
+            )
             end = time.time()
             print(f"Inversion Time for alpha={alpha}, rho={rho}:", end - start)
 
@@ -61,7 +61,7 @@ def unfold(config):
             #         + "_wpsf"
             # )
 
-            if config['output']['make_spectral']:
+            if config["output"]["make_spectral"]:
                 pass
-                #spectral_images = create_spectrally_pure_images(overlappogram, None, None, None)
+                # spectral_images = create_spectrally_pure_images(overlappogram, None, None, None)
                 # TODO write out spectral images

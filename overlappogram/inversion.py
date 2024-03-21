@@ -262,4 +262,9 @@ class Inverter:
         for executor in self.executors:
             executor.shutdown()
 
-        return self._em_data, self._inversion_prediction, self._row_scores, self._unconverged_rows
+        return (
+            np.transpose(self._em_data, (2, 0, 1)),
+            self._inversion_prediction,
+            self._row_scores,
+            self._unconverged_rows,
+        )

@@ -15,7 +15,8 @@ dependencies = ["numpy",
     "photutils",
     "scipy",
     "ndcube",
-    "toml"
+    "toml",
+    "click"
 ]
 requires-python = ">=3.9"
 authors = [
@@ -37,6 +38,9 @@ classifiers = [
 [project.optional-dependencies]
 test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff", "coverage"]
 docs = ["sphinx", "sphinx-autoapi", "sphinx-automodapi", "pydata-sphinx-theme"]
+
+[project.scripts]
+unfold = "overlappogram.cli:unfold"
 
 [project.urls]
 Homepage = "https://example.com"

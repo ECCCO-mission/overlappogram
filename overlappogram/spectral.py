@@ -3,8 +3,9 @@ import os
 import numpy as np
 from astropy.io import fits
 
+__all__ = ["create_spectrally_pure_images", ]
 
-def create_level2_0_spectrally_pure_images(
+def create_spectrally_pure_images(
         image_list: list, gnt_file: str, rsp_dep_list: list, output_dir: str
 ):
     """

@@ -5,9 +5,9 @@ response = "data/ECCCO_speedtest_runs/D27Feb2024_eccco_response_feldman_m_el_wit
 gnt = "data/ECCCO_speedtest_runs/master_gnt_eccco_inphotons_cm3persperpix_with_tables.fits"
 
 [output]
-prefix = ""
+prefix = "example"
 make_spectral = true
-directory = "output/test/"
+directory = "output/example/"
 
 [inversion]
 solution_fov_width = 2

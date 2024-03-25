@@ -2,11 +2,16 @@
 
 [![CI](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml/badge.svg)](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/jmbhughes/overlappogram/graph/badge.svg?token=u1qQvzybz4)](https://codecov.io/gh/jmbhughes/overlappogram)
+[![DOI](https://zenodo.org/badge/759222503.svg)](https://zenodo.org/doi/10.5281/zenodo.10869534)
 
 ![overlappogram example](overlappogram.png)
 
+🚧🚧🚧 **UNDER DEVELOPMENT** 🚧🚧🚧
+
 Overlappogram is a Python package for inverting overlappogram observations of the Sun,
 for examples MaGIXS, CubIXSS, or ECCCO observations.
+
+**The package is still being developed. Expect breaking changes.**
 
 # Install
 
@@ -22,11 +27,14 @@ The `config.toml` file should be structured similar to the [example_config.toml]
 
 
 ## Getting Help
+
 Please [open an issue](https://github.com/jmbhughes/overlappogram/issues/new)
 or [create a discussion](https://github.com/jmbhughes/overlappogram/discussions/new/choose).
 We prefer this over email so that other users can benefit from your questions.
 
 ## Cite
+
+[Please cite using Zenodo DOI.](https://zenodo.org/records/10869577)
 
 ## Contributors
 

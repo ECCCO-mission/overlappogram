@@ -18,6 +18,10 @@ __all__ = ["Inverter"]
 class InversionMode(Enum):
     ROW = 0
     CHUNKED = 1
+    HYBRID = 2
+
+
+MODE_MAPPING = {"row": InversionMode.ROW, "chunked": InversionMode.CHUNKED, "hybrid": InversionMode.HYBRID}
 
 
 class Inverter:
@@ -153,7 +157,7 @@ class Inverter:
 
             rows_remaining = self.total_row_count - self._completed_row_count
 
-            if rows_remaining < mode_switch_thread_count and self._mode == InversionMode.CHUNKED:
+            if rows_remaining < mode_switch_thread_count and self._mode == InversionMode.HYBRID:
                 self._switch_to_row_inversion(model_config, alpha, rho)
                 break
 
@@ -245,19 +249,32 @@ class Inverter:
         rho,
         num_threads: int = 1,
         mode_switch_thread_count: int = 0,
+            mode: InversionMode = InversionMode.HYBRID,
     ) -> (NDCube, NDCube, np.ndarray, list[int]):
         self._initialize_with_overlappogram(overlappogram)
+
+        self._mode = mode
 
         self._models = []
         self._completed_row_count = 0
 
-        self._start_chunk_inversion(model_config, alpha, rho, num_threads)
-
-        # Collect results during the chunk stage
-        self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
-
-        # Collect results during the row stage, if there is a mode change
-        self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
+        if self._mode == InversionMode.HYBRID:
+            self._start_chunk_inversion(model_config, alpha, rho, num_threads)
+            # Collect results during the chunk stage
+            self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
+            # Collect results during the row stage, if there is a mode change
+            self._collect_results(mode_switch_thread_count, model_config, alpha, rho)
+        elif self._mode == InversionMode.CHUNKED:
+            self._start_chunk_inversion(model_config, alpha, rho, num_threads)
+            # mode never switches since count=0
+            self._collect_results(0, model_config, alpha, rho)
+        elif self._mode == InversionMode.ROW:
+            self._start_chunk_inversion(model_config, alpha, rho, num_threads)
+            # TODO: it would be better to have a mode to start in row but right now we fake it with a fast mode switch
+            self._collect_results(np.inf, model_config, alpha, rho)  # immediately switch mode
+            self._collect_results(np.inf, model_config, alpha, rho)
+        else:
+            raise ValueError("Invalid InversionMode.")
 
         for executor in self.executors:
             executor.shutdown()

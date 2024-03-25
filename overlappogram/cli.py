@@ -10,7 +10,7 @@ import time  # noqa: E402
 import click  # noqa: E402
 import toml  # noqa: E402
 
-from overlappogram.inversion import Inverter  # noqa: E402
+from overlappogram.inversion import MODE_MAPPING, Inverter  # noqa: E402
 from overlappogram.io import load_overlappogram  # noqa: E402
 from overlappogram.io import save_em_cube  # noqa: E402
 from overlappogram.io import save_spectral_cube  # noqa: E402
@@ -50,6 +50,7 @@ def unfold(config):
                 rho,
                 num_threads=config["execution"]["num_threads"],
                 mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
+                mode=MODE_MAPPING.get(config['execution']['mode'], 'invalid')
             )
             end = time.time()
             print(

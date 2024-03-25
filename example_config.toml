@@ -27,5 +27,6 @@ max_iter = 1_000
 selection = 'cyclic'
 
 [execution]
-num_threads = 11
+num_threads = 32
 mode_switch_thread_count = 0
+mode = "row"

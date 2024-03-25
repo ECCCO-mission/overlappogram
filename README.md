@@ -8,12 +8,15 @@
 Overlappogram is a Python package for inverting overlappogram observations of the Sun,
 for examples MaGIXS, CubIXSS, or ECCCO observations.
 
+# Install
+
+`pip install overlappogram`
 
 ## How to Use
 
 `overlappogram` comes with an executable main that you can run:
 
-`python -m overlappogram ./path/to/config.toml`
+`unfold ./path/to/config.toml`
 
 The `config.toml` file should be structured similar to the [example_config.toml](example_config.toml).
 
@@ -24,8 +27,6 @@ or [create a discussion](https://github.com/jmbhughes/overlappogram/discussions/
 We prefer this over email so that other users can benefit from your questions.
 
 ## Cite
-
-## Code of Conduct
 
 ## Contributors
 

@@ -249,7 +249,7 @@ class Inverter:
         rho,
         num_threads: int = 1,
         mode_switch_thread_count: int = 0,
-            mode: InversionMode = InversionMode.HYBRID,
+        mode: InversionMode = InversionMode.HYBRID,
     ) -> (NDCube, NDCube, np.ndarray, list[int]):
         self._initialize_with_overlappogram(overlappogram)
 

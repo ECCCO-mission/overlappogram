@@ -28,5 +28,5 @@ selection = 'cyclic'
 
 [execution]
 num_threads = 32
-mode_switch_thread_count = 0
+mode_switch_thread_count = 0  # only used in hybrid mode
 mode = "row"

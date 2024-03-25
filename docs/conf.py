@@ -31,7 +31,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/jmbhughes/overlappogram",
+            "url": "https://github.com/eccco-mission/overlappogram",
             "icon": "fa-brands fa-github",
             "type": "fontawesome",
         }
@@ -41,7 +41,7 @@ html_theme_options = {
 }
 html_context = {
     # "github_url": "https://github.com", # or your GitHub Enterprise site
-    "github_user": "jmbhughes",
+    "github_user": "eccco-mission",
     "github_repo": "overlappogram",
     "github_version": "main",
     "doc_path": "docs/",

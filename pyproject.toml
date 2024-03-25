@@ -15,12 +15,13 @@ dependencies = ["numpy",
     "photutils",
     "scipy",
     "ndcube",
-    "toml"
+    "toml",
+    "click"
 ]
 requires-python = ">=3.9"
 authors = [
-  {name = "Dyana Beabout", email = "dyana.l.beabout@nasa.gov"},
-  {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"}
+    {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"},
+    {name = "Dyana Beabout", email = "dyana.l.beabout@nasa.gov"},
 ]
 maintainers = [
   {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"}
@@ -36,14 +37,17 @@ classifiers = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-doctestplus", "pytest-cov", "ruff", "coverage"]
-docs = ["sphinx", "sphinx-automodapi"]
+docs = ["sphinx", "sphinx-autoapi", "sphinx-automodapi", "pydata-sphinx-theme"]
+
+[project.scripts]
+unfold = "overlappogram.cli:unfold"
 
 [project.urls]
 Homepage = "https://example.com"
 Documentation = "https://readthedocs.org"
-Repository = "https://github.com/jmbhughes/overlappogram.git"
-"Bug Tracker" = "https://github.com/jmbhughes/overlappogram/issues"
-Changelog = "https://github.com/jmbhughes/overlappogram/blob/main/CHANGELOG.md"
+Repository = "https://github.com/eccco-mission/overlappogram.git"
+"Bug Tracker" = "https://github.com/eccco-mission/overlappogram/issues"
+Changelog = "https://github.com/eccco-mission/overlappogram/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 packages = ["overlappogram"]

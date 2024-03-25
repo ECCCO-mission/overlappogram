@@ -1,0 +1,37 @@
+:py:mod:`overlappogram.cli`
+===========================
+
+.. py:module:: overlappogram.cli
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   overlappogram.cli.unfold
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   overlappogram.cli.NUMPY_THREAD_COUNT
+
+
+.. py:data:: NUMPY_THREAD_COUNT
+   :value: 1
+
+   
+
+.. py:function:: unfold(config)
+
+   Unfold an overlappogram given a configuration toml file.
+
+

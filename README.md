@@ -13,7 +13,7 @@ for examples MaGIXS, CubIXSS, or ECCCO observations.
 
 **The package is still being developed. Expect breaking changes.**
 
-# Install
+## Install
 
 `pip install overlappogram` or clone the repository and install manually
 

@@ -10,7 +10,7 @@ for examples MaGIXS, CubIXSS, or ECCCO observations.
 
 # Install
 
-`pip install overlappogram`
+`pip install overlappogram` or clone the repository and install manually
 
 ## How to Use
 

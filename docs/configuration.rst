@@ -30,8 +30,9 @@ There are four configurables for this section:
 **output** section
 --------------------
 
-There are three configurables for this section:
+There are four configurables for this section:
 
+- *prefix*: the string that output files begin with
 - *make_spectral*: if true, makes spectrally pure images as output. otherwise, these files are not made.
 - *directory*: path to the directory where output files are written.
 - *overwrite*: if true, output files will be overwritten. otherwise, the program will fail writing if a file already exists.

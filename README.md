@@ -8,10 +8,11 @@
 
 🚧🚧🚧 **UNDER DEVELOPMENT** 🚧🚧🚧
 
+**The package is still being developed. Expect breaking changes.**
+
 Overlappogram is a Python package for inverting overlappogram observations of the Sun,
 for examples MaGIXS, CubIXSS, or ECCCO observations.
 
-**The package is still being developed. Expect breaking changes.**
 
 ## Install
 
@@ -24,7 +25,7 @@ for examples MaGIXS, CubIXSS, or ECCCO observations.
 `unfold ./path/to/config.toml`
 
 The `config.toml` file should be structured similar to the [example_config.toml](example_config.toml).
-
+We provide more description of the config file [in the documentation](https://eccco-mission.github.io/overlappogram/configuration.html). 
 
 ## Getting Help
 
@@ -34,7 +35,7 @@ We prefer this over email so that other users can benefit from your questions.
 
 ## Cite
 
-[Please cite using Zenodo DOI.](https://zenodo.org/records/10869577)
+[Please cite using the Zenodo DOI.](https://zenodo.org/records/10869577)
 
 ## Contributors
 

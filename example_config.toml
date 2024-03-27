@@ -5,7 +5,6 @@ response = "data/ECCCO_speedtest_runs/D27Feb2024_eccco_response_feldman_m_el_wit
 gnt = "data/ECCCO_speedtest_runs/master_gnt_eccco_inphotons_cm3persperpix_with_tables.fits"
 
 [output]
-prefix = "example"
 make_spectral = true
 directory = "output/example/"
 overwrite = true

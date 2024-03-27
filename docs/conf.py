@@ -9,7 +9,7 @@
 project = "overlappogram"
 copyright = "2024, J. Marcus Hughes, Dyana Beabout"
 author = "J. Marcus Hughes, Dyana Beabout"
-release = "0.0.1"
+release = "0.0.2"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

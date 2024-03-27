@@ -73,6 +73,12 @@ def unfold(config):
                 os.path.join(config["output"]["directory"], f"{config['output']['prefix']}_prediction_{postfix}.fits"),
                 overwrite=config["output"]["overwrite"],
             )
+
+            scores_path = os.path.join(config["output"]["directory"],
+                                       f"{config['output']['prefix']}_scores_{postfix}.txt")
+            with open(scores_path, 'w') as f:
+                f.write("\n".join(scores.flatten().astype(str).tolist()))
+
             if config["output"]["make_spectral"]:
                 spectral_images = create_spectrally_pure_images(
                     [em_cube], config["paths"]["gnt"], config["inversion"]["response_dependency_list"]

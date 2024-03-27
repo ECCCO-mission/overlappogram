@@ -3,11 +3,18 @@
 Welcome to overlappogram's documentation!
 =========================================
 
-Coming soon!
+Overlappogram is a Python package for inverting overlappogram observations
+of the Sun, for examples MaGIXS, CubIXSS, or ECCCO observations.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   overview
+   configuration
+   examples
+   help
+   development
 
 
 

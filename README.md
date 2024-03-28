@@ -16,7 +16,7 @@ for examples MaGIXS, CubIXSS, or ECCCO observations.
 
 ## Install
 
-`pip install overlappogram` or clone the repository and install manually
+`pip install overlappogram` or clone the repository and install manually.
 
 ## How to Use
 
@@ -25,7 +25,7 @@ for examples MaGIXS, CubIXSS, or ECCCO observations.
 `unfold ./path/to/config.toml`
 
 The `config.toml` file should be structured similar to the [example_config.toml](example_config.toml).
-We provide more description of the config file [in the documentation](https://eccco-mission.github.io/overlappogram/configuration.html). 
+We provide more description of the config file [in the documentation](https://eccco-mission.github.io/overlappogram/configuration.html).
 
 ## Getting Help
 

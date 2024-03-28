@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/jmbhughes/overlappogram/graph/badge.svg?token=u1qQvzybz4)](https://codecov.io/gh/jmbhughes/overlappogram)
 [![DOI](https://zenodo.org/badge/759222503.svg)](https://zenodo.org/doi/10.5281/zenodo.10869534)
 
-![overlappogram example](overlappogram.png)
+![overlappogram example](https://raw.githubusercontent.com/ECCCO-mission/overlappogram/main/overlappogram.png)
 
 🚧🚧🚧 **UNDER DEVELOPMENT** 🚧🚧🚧
 

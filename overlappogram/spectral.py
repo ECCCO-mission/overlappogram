@@ -47,12 +47,8 @@ def create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list:
             for index in range(len(image_list)):
                 # Create spectrally pure data cube.
                 for em_data in image_list:
-                    # with fits.open(image_list[index]) as em_hdul:
-                    # em_data_cube = em_hdul[0].data.astype(np.float64)
                     em_data_cube = em_data.astype(np.float64)
                     em_data_cube = np.transpose(em_data_cube, axes=(1, 2, 0))
-                    # em_dep_list = em_hdul[1].data['logt']
-                    # print(em_dep_list)
                     if index == 0:
                         image_height, num_slits, num_logts = np.shape(em_data_cube)
                         gnt_data_cube = np.zeros((image_height, num_slits, num_gnts), dtype=np.float64)

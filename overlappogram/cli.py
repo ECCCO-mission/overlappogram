@@ -21,7 +21,10 @@ from overlappogram.spectral import create_spectrally_pure_images  # noqa: E402
 @click.command()
 @click.argument("config")
 def unfold(config):
-    """Unfold an overlappogram given a configuration toml file."""  # TODO improve message
+    """Unfold an overlappogram given a configuration toml file.
+
+    See https://eccco-mission.github.io/overlappogram/configuration.html for the configuration file format.
+    """
 
     with open(config) as f:
         config = toml.load(f)
@@ -42,6 +45,8 @@ def unfold(config):
 
     for alpha in config["model"]["alphas"]:
         for rho in config["model"]["rhos"]:
+            print(80*"-")
+            print(f"Beginning inversion for alpha={alpha}, rho={rho}.")
             start = time.time()
             em_cube, prediction, scores, unconverged_rows = inversion.invert(
                 overlappogram,
@@ -54,9 +59,9 @@ def unfold(config):
             )
             end = time.time()
             print(
-                f"Inversion Time for alpha={alpha}, rho={rho}:",
-                end - start,
-                f"; {len(unconverged_rows)} unconverged rows",
+                f"Inversion for alpha={alpha}, rho={rho} took",
+                int(end - start),
+                f"seconds; {len(unconverged_rows)} unconverged rows",
             )
 
             postfix = (

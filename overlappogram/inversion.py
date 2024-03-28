@@ -9,6 +9,7 @@ import numpy as np
 from ndcube import NDCube
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import ElasticNet
+from tqdm import tqdm
 
 from overlappogram.response import prepare_response_function
 
@@ -60,6 +61,8 @@ class Inverter:
             response_dependency_list=response_dependency_list,
         )
 
+        self._progress_bar = None  # initialized in invert call
+
     @property
     def is_inverted(self) -> bool:
         return not any(
@@ -107,7 +110,8 @@ class Inverter:
         with self._thread_count_lock:
             if not future.cancelled():
                 self._completed_row_count += 1
-                print(f"{self._completed_row_count / self.total_row_count * 100:3.0f}% complete", end="\r")
+                #print(f"{self._completed_row_count / self.total_row_count * 100:3.0f}% complete", end="\r")
+                self._progress_bar.update(1)
 
     def _switch_to_row_inversion(self, model_config, alpha, rho, num_row_threads=50):
         self._mode = InversionMode.ROW
@@ -160,6 +164,29 @@ class Inverter:
             if rows_remaining < mode_switch_thread_count and self._mode == InversionMode.HYBRID:
                 self._switch_to_row_inversion(model_config, alpha, rho)
                 break
+
+    def _start_row_inversion(self, model_config, alpha, rho, num_threads):
+        self.executors = [concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)]
+
+        self.futures = {}
+        self._models = []
+        for i, row_index in enumerate(range(self._detector_row_range[0], self._detector_row_range[1])):
+            enet_model = ElasticNet(
+                alpha=alpha,
+                l1_ratio=rho,
+                tol=model_config["tol"],
+                max_iter=model_config["max_iter"],
+                precompute=False,  # setting this to true slows down performance dramatically
+                positive=True,
+                copy_X=False,
+                fit_intercept=False,
+                selection=model_config["selection"],
+                warm_start=False,  # warm start doesn't make sense in the row version
+            )
+            self._models.append(enet_model)
+            future = self.executors[-1].submit(self._invert_image_row, row_index, i)
+            future.add_done_callback(self._progress_indicator)
+            self.futures[future] = (row_index, i)
 
     def _start_chunk_inversion(self, model_config, alpha, rho, num_threads):
         starts = np.arange(
@@ -255,6 +282,8 @@ class Inverter:
 
         self._mode = mode
 
+        self._progress_bar = tqdm(total=self.total_row_count, unit='row', delay=1, leave=False)
+
         self._models = []
         self._completed_row_count = 0
 
@@ -269,15 +298,15 @@ class Inverter:
             # mode never switches since count=0
             self._collect_results(0, model_config, alpha, rho)
         elif self._mode == InversionMode.ROW:
-            self._start_chunk_inversion(model_config, alpha, rho, num_threads)
-            # TODO: it would be better to have a mode to start in row but right now we fake it with a fast mode switch
-            self._collect_results(np.inf, model_config, alpha, rho)  # immediately switch mode
+            self._start_row_inversion(model_config, alpha, rho, num_threads)
             self._collect_results(np.inf, model_config, alpha, rho)
         else:
             raise ValueError("Invalid InversionMode.")
 
         for executor in self.executors:
             executor.shutdown()
+
+        self._progress_bar.close()
 
         return (
             np.transpose(self._em_data, (2, 0, 1)),

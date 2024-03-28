@@ -3,7 +3,7 @@
 Configuration
 ==============
 
-Each run of `unfold` requires a configuration file in the `TOML format <https://toml.io/en/>`. The configuration file
+Each run of `unfold` requires a configuration file in the `TOML format <https://toml.io/en/>`_. The configuration file
 is divided into sections:
 
 - **paths**: provides the input file paths.
@@ -15,7 +15,7 @@ is divided into sections:
 .. note::
     All sections and parameters are expected in the configuration file. There are no optional parameters with defaults.
 
-`We provide an example configuration file here. <https://github.com/ECCCO-mission/overlappogram/blob/main/example_config.toml>`
+`We provide an example configuration file here. <https://github.com/ECCCO-mission/overlappogram/blob/main/example_config.toml>`_
 
 **paths** section
 ------------------
@@ -47,12 +47,12 @@ There are six configurables for this section:
 - *field_angle_range*: a list of two integers defining the range of field angles to use in inversion. Units are arc seconds.
 - *response_dependency_name*: for now, only "logt" is supported.
 - *response_dependency_list*: a list of floats defining the logarithm of the temperature used in the response dependency.
-- *smooth_over*: ?
+- *smooth_over*: the method of smoothing, currently only supports "dependence"
 
 **model** section
 -------------------
 
-This section defines the parameters used by `Scikit-Learn's ElasticNet <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html>`.
+This section defines the parameters used by `Scikit-Learn's ElasticNet <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html>`_.
 You can find more exhaustive descriptions of the parameters at that link in the `sklearn` documentation.
 
 There are six configurables for this section:

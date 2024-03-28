@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview &#8212; overlappogram 0.0.2 documentation</title>
+    <title>Overview &#8212; overlappogram 0.0.3 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="_static/documentation_options.js?v=47de8214"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'overview';</script>
@@ -116,7 +116,7 @@
   
   
   
-    <p class="title logo__title">overlappogram 0.0.2 documentation</p>
+    <p class="title logo__title">overlappogram 0.0.3 documentation</p>
   
 </a></div>
     
@@ -447,9 +447,14 @@ defined according to <a class="reference internal" href="configuration.html#conf
 <section id="optimization-modes">
 <span id="modes"></span><h2>Optimization modes<a class="headerlink" href="#optimization-modes" title="Link to this heading">#</a></h2>
 <p>There are three possible optimization modes: “row,”, “chunked,” and “hybrid.”</p>
+<section id="row-mode">
+<h3>Row mode<a class="headerlink" href="#row-mode" title="Link to this heading">#</a></h3>
 <p>“row” is the simplest optimization mode and is recommended for newcomers. In this optimization mode, the overlappogram
 is divided into rows. Each row gets its own ElasticNet model to use when carrying out the inversion. Thus, each row is
 inverted independently.</p>
+</section>
+<section id="chunked-mode">
+<h3>Chunked mode<a class="headerlink" href="#chunked-mode" title="Link to this heading">#</a></h3>
 <p>“chunked” is the next simplest optimization row. The image is divided into a number of <em>chunks</em>
 or sets of contiguous, non-overlapping rows.
 The number of chunks is set by the <em>num_threads</em> parameter in the <strong>execution</strong> section of the configuration file.
@@ -464,6 +469,9 @@ These appear as discontinuous boundaries in the output spectrally pure images.
 We do not yet understand when this happens and doesn’t happen.
 Thus, it is recommended to avoid chunked optimization unless you are confident.</p>
 </div>
+</section>
+<section id="hybrid-mode">
+<h3>Hybrid mode<a class="headerlink" href="#hybrid-mode" title="Link to this heading">#</a></h3>
 <p>“hybrid” is a combination of the “chunked” and “row” optimization modes. The optimization begins in chunked mode but
 switches to the row mode to optimize CPU performance. When inverting an overlappogram, some rows are harder to invert
 than others and thus take more time. These rows tend to be adjacent and thus in the same chunk. Consequently, we noticed
@@ -472,6 +480,7 @@ Because chunks are done sequentially, there may only be a few rows left to inver
 Thus, the “hybrid” mode will stop doing chunked inversion and instead use row-based inversion when fewer than a set number
 of rows remain to invert.
 This number is defined in the “mode_switch_thread_count” parameter of the <strong>execution</strong> section of the configuration file.</p>
+</section>
 </section>
 </section>
 
@@ -523,7 +532,12 @@ This number is defined in the “mode_switch_thread_count” parameter of the <s
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running">Running</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-modes">Optimization modes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-modes">Optimization modes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#row-mode">Row mode</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chunked-mode">Chunked mode</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hybrid-mode">Hybrid mode</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

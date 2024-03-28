@@ -35,10 +35,15 @@ Optimization modes
 
 There are three possible optimization modes: "row,", "chunked," and "hybrid."
 
+Row mode
++++++++++
 "row" is the simplest optimization mode and is recommended for newcomers. In this optimization mode, the overlappogram
 is divided into rows. Each row gets its own ElasticNet model to use when carrying out the inversion. Thus, each row is
 inverted independently.
 
+
+Chunked mode
++++++++++++++
 "chunked" is the next simplest optimization row. The image is divided into a number of *chunks*
 or sets of contiguous, non-overlapping rows.
 The number of chunks is set by the *num_threads* parameter in the **execution** section of the configuration file.
@@ -53,6 +58,8 @@ parameter in the **model** section of the configuration to true when used the "c
     We do not yet understand when this happens and doesn't happen.
     Thus, it is recommended to avoid chunked optimization unless you are confident.
 
+Hybrid mode
+++++++++++++
 "hybrid" is a combination of the "chunked" and "row" optimization modes. The optimization begins in chunked mode but
 switches to the row mode to optimize CPU performance. When inverting an overlappogram, some rows are harder to invert
 than others and thus take more time. These rows tend to be adjacent and thus in the same chunk. Consequently, we noticed

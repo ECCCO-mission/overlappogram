@@ -34,4 +34,6 @@ Attributes
 
    Unfold an overlappogram given a configuration toml file.
 
+   See https://eccco-mission.github.io/overlappogram/configuration.html for the configuration file format.
+
 

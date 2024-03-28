@@ -60,6 +60,9 @@ Functions
    .. py:method:: _collect_results(mode_switch_thread_count, model_config, alpha, rho)
 
 
+   .. py:method:: _start_row_inversion(model_config, alpha, rho, num_threads)
+
+
    .. py:method:: _start_chunk_inversion(model_config, alpha, rho, num_threads)
 
 

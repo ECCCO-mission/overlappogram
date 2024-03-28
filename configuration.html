@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Configuration &#8212; overlappogram 0.0.2 documentation</title>
+    <title>Configuration &#8212; overlappogram 0.0.3 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="_static/documentation_options.js?v=e3a6060d"></script>
+    <script src="_static/documentation_options.js?v=47de8214"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'configuration';</script>
@@ -116,7 +116,7 @@
   
   
   
-    <p class="title logo__title">overlappogram 0.0.2 documentation</p>
+    <p class="title logo__title">overlappogram 0.0.3 documentation</p>
   
 </a></div>
     
@@ -427,7 +427,7 @@ document.write(`
                   
   <section id="configuration">
 <span id="config"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h1>
-<p>Each run of <cite>unfold</cite> requires a configuration file in the <cite>TOML format &lt;https://toml.io/en/&gt;</cite>. The configuration file
+<p>Each run of <cite>unfold</cite> requires a configuration file in the <a class="reference external" href="https://toml.io/en/">TOML format</a>. The configuration file
 is divided into sections:</p>
 <ul class="simple">
 <li><p><strong>paths</strong>: provides the input file paths.</p></li>
@@ -440,7 +440,7 @@ is divided into sections:</p>
 <p class="admonition-title">Note</p>
 <p>All sections and parameters are expected in the configuration file. There are no optional parameters with defaults.</p>
 </div>
-<p><cite>We provide an example configuration file here. &lt;https://github.com/ECCCO-mission/overlappogram/blob/main/example_config.toml&gt;</cite></p>
+<p><a class="reference external" href="https://github.com/ECCCO-mission/overlappogram/blob/main/example_config.toml">We provide an example configuration file here.</a></p>
 <section id="paths-section">
 <h2><strong>paths</strong> section<a class="headerlink" href="#paths-section" title="Link to this heading">#</a></h2>
 <p>There are four configurables for this section:</p>
@@ -470,12 +470,12 @@ is divided into sections:</p>
 <li><p><em>field_angle_range</em>: a list of two integers defining the range of field angles to use in inversion. Units are arc seconds.</p></li>
 <li><p><em>response_dependency_name</em>: for now, only “logt” is supported.</p></li>
 <li><p><em>response_dependency_list</em>: a list of floats defining the logarithm of the temperature used in the response dependency.</p></li>
-<li><p><em>smooth_over</em>: ?</p></li>
+<li><p><em>smooth_over</em>: the method of smoothing, currently only supports “dependence”</p></li>
 </ul>
 </section>
 <section id="model-section">
 <h2><strong>model</strong> section<a class="headerlink" href="#model-section" title="Link to this heading">#</a></h2>
-<p>This section defines the parameters used by <cite>Scikit-Learn’s ElasticNet &lt;https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html&gt;</cite>.
+<p>This section defines the parameters used by <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html">Scikit-Learn’s ElasticNet</a>.
 You can find more exhaustive descriptions of the parameters at that link in the <cite>sklearn</cite> documentation.</p>
 <p>There are six configurables for this section:</p>
 <ul class="simple">

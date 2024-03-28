@@ -29,7 +29,7 @@ We provide more description of the config file [in the documentation](https://ec
 
 ## Getting Help
 
-Please [open an issue](https://github.com/jmbhughes/overlappogram/issues/new)
+Please [open an issue](https://github.com/ECCCO-mission/overlappogram/issues/new/choose)
 or [create a discussion](https://github.com/jmbhughes/overlappogram/discussions/new/choose).
 We prefer this over email so that other users can benefit from your questions.
 

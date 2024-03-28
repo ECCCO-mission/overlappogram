@@ -12,14 +12,14 @@ overwrite = true
 
 [inversion]
 solution_fov_width = 2
-detector_row_range = [300, 400] #[0, 792]
+detector_row_range = [0, 50]
 field_angle_range = [-1227, 1227]
 response_dependency_name = "logt"
 response_dependency_list = [5.7, 5.8, 5.9, 6.0 , 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8]
 smooth_over = 'dependence'
 
 [model]
-alphas = [3E-5] #[0.2, 0.1, 0.01, 0.005]
+alphas = [3E-5, 4E-5, 0.1] #[0.2, 0.1, 0.01, 0.005]
 rhos = [0.1]
 warm_start = false
 tol = 1E-2

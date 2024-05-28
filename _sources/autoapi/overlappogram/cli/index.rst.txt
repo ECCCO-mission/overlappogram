@@ -1,34 +1,94 @@
-:py:mod:`overlappogram.cli`
-===========================
+overlappogram.cli
+=================
 
 .. py:module:: overlappogram.cli
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   overlappogram.cli.NUMPY_THREAD_COUNT
+   overlappogram.cli.MODE_MAPPING
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   overlappogram.cli.Inverter
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   overlappogram.cli.load_overlappogram
+   overlappogram.cli.save_em_cube
+   overlappogram.cli.save_spectral_cube
+   overlappogram.cli.load_response_cube
+   overlappogram.cli.save_prediction
+   overlappogram.cli.create_spectrally_pure_images
+   overlappogram.cli.unfold
 
 
 Module Contents
 ---------------
 
-
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   overlappogram.cli.unfold
-
-
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   overlappogram.cli.NUMPY_THREAD_COUNT
-
-
 .. py:data:: NUMPY_THREAD_COUNT
    :value: 1
 
-   
+
+.. py:data:: MODE_MAPPING
+
+.. py:class:: Inverter(response_cube: ndcube.NDCube, solution_fov_width: int = 1, smooth_over: str = 'dependence', response_dependency_list: list = None, field_angle_range: list = None, detector_row_range: list = None)
+
+   .. py:property:: is_inverted
+      :type: bool
+
+
+
+   .. py:method:: _invert_image_row(row_index, chunk_index)
+
+
+   .. py:method:: _progress_indicator(future)
+
+      used in multithreading to track progress of inversion
+
+
+
+   .. py:method:: _switch_to_row_inversion(model_config, alpha, rho, num_row_threads=50)
+
+
+   .. py:method:: _collect_results(mode_switch_thread_count, model_config, alpha, rho)
+
+
+   .. py:method:: _start_row_inversion(model_config, alpha, rho, num_threads)
+
+
+   .. py:method:: _start_chunk_inversion(model_config, alpha, rho, num_threads)
+
+
+   .. py:method:: _initialize_with_overlappogram(overlappogram)
+
+
+   .. py:method:: invert(overlappogram: ndcube.NDCube, model_config, alpha, rho, num_threads: int = 1, mode_switch_thread_count: int = 0, mode: InversionMode = InversionMode.HYBRID) -> (ndcube.NDCube, ndcube.NDCube, numpy.ndarray, list[int])
+
+
+.. py:function:: load_overlappogram(image_path, weights_path) -> ndcube.NDCube
+
+.. py:function:: save_em_cube(cube, path, overwrite=True) -> None
+
+.. py:function:: save_spectral_cube(spectral_cube, path, overwrite=True) -> None
+
+.. py:function:: load_response_cube(path) -> ndcube.NDCube
+
+.. py:function:: save_prediction(prediction, path, overwrite=True) -> None
+
+.. py:function:: create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list)
 
 .. py:function:: unfold(config)
 

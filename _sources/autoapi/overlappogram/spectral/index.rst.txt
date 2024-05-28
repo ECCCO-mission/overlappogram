@@ -1,22 +1,19 @@
-:py:mod:`overlappogram.spectral`
-================================
+overlappogram.spectral
+======================
 
 .. py:module:: overlappogram.spectral
 
 
-Module Contents
----------------
-
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    overlappogram.spectral.create_spectrally_pure_images
 
 
+Module Contents
+---------------
 
 .. py:function:: create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list)
-
 

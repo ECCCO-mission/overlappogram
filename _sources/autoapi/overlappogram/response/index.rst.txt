@@ -1,22 +1,19 @@
-:py:mod:`overlappogram.response`
-================================
+overlappogram.response
+======================
 
 .. py:module:: overlappogram.response
 
 
-Module Contents
----------------
-
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    overlappogram.response.prepare_response_function
 
 
+Module Contents
+---------------
 
 .. py:function:: prepare_response_function(response_cube: ndcube.NDCube, field_angle_range=None, response_dependency_list=None, fov_width=2) -> (numpy.ndarray, float, float)
-
 

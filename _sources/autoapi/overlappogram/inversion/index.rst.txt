@@ -1,27 +1,25 @@
-:py:mod:`overlappogram.inversion`
-=================================
+overlappogram.inversion
+=======================
 
 .. py:module:: overlappogram.inversion
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    overlappogram.inversion.Inverter
 
 
-
+Module Contents
+---------------
 
 .. py:class:: Inverter(response_cube: ndcube.NDCube, solution_fov_width: int = 1, smooth_over: str = 'dependence', response_dependency_list: list = None, field_angle_range: list = None, detector_row_range: list = None)
 
-
    .. py:property:: is_inverted
       :type: bool
+
 
 
    .. py:method:: _invert_image_row(row_index, chunk_index)
@@ -30,6 +28,7 @@ Classes
    .. py:method:: _progress_indicator(future)
 
       used in multithreading to track progress of inversion
+
 
 
    .. py:method:: _switch_to_row_inversion(model_config, alpha, rho, num_row_threads=50)
@@ -48,6 +47,5 @@ Classes
 
 
    .. py:method:: invert(overlappogram: ndcube.NDCube, model_config, alpha, rho, num_threads: int = 1, mode_switch_thread_count: int = 0, mode: InversionMode = InversionMode.HYBRID) -> (ndcube.NDCube, ndcube.NDCube, numpy.ndarray, list[int])
-
 
 

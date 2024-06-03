@@ -11,6 +11,7 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import ElasticNet
 from tqdm import tqdm
 
+from overlappogram.error import NoWeightsWarnings
 from overlappogram.response import prepare_response_function
 
 __all__ = ["Inverter"]
@@ -226,6 +227,9 @@ class Inverter:
     def _initialize_with_overlappogram(self, overlappogram):
         self._overlappogram = overlappogram
 
+        if self._overlappogram.uncertainty is None:
+            warnings.warn("Running in weightless mode since no weights array was provided.", NoWeightsWarnings)
+
         if self._detector_row_range is None:
             self._detector_row_range = (0, overlappogram.data.shape[0])
         self.total_row_count = self._detector_row_range[1] - self._detector_row_range[0]
@@ -239,7 +243,7 @@ class Inverter:
 
         self._overlappogram.data[np.where(self._overlappogram.data < 0.0)] = 0.0
 
-        # initialize all result cubes
+        # initialize all results cubes
         self._overlappogram_height, self._overlappogram_width = self._overlappogram.data.shape
         self._em_data = np.zeros((self._overlappogram_height, self._num_slits, self._num_deps), dtype=np.float32)
         self._inversion_prediction = np.zeros((self._overlappogram_height, self._overlappogram_width), dtype=np.float32)

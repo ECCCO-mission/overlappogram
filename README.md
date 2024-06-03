@@ -6,10 +6,6 @@
 
 ![overlappogram example](https://raw.githubusercontent.com/ECCCO-mission/overlappogram/main/overlappogram.png)
 
-🚧🚧🚧 **UNDER DEVELOPMENT** 🚧🚧🚧
-
-**The package is still being developed. Expect breaking changes.**
-
 Overlappogram is a Python package for inverting overlappogram observations of the Sun,
 for examples MaGIXS, CubIXSS, or ECCCO observations.
 

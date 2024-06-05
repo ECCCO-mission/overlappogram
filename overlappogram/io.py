@@ -6,17 +6,23 @@ from ndcube import NDCube
 __all__ = ["load_overlappogram", "load_response_cube", "save_em_cube", "save_spectral_cube", "save_prediction"]
 
 
-def load_overlappogram(image_path, weights_path) -> NDCube:
+def load_overlappogram(image_path: str, weights_path: str | None) -> NDCube:
     with fits.open(image_path) as image_hdul:
         image = image_hdul[0].data
         header = image_hdul[0].header
         wcs = WCS(image_hdul[0].header)
-    with fits.open(weights_path) as weights_hdul:
-        weights = weights_hdul[0].data
-    return NDCube(image, wcs=wcs, uncertainty=StdDevUncertainty(1 / weights), meta=dict(header))
+
+    if weights_path is None:
+        uncertainty = None
+    else:
+        with fits.open(weights_path) as weights_hdul:
+            weights = weights_hdul[0].data
+            uncertainty = StdDevUncertainty(1 / weights)
+
+    return NDCube(image, wcs=wcs, uncertainty=uncertainty, meta=dict(header))
 
 
-def load_response_cube(path) -> NDCube:
+def load_response_cube(path: str) -> NDCube:
     with fits.open(path) as hdul:
         response = hdul[0].data
         header = hdul[0].header
@@ -28,13 +34,13 @@ def load_response_cube(path) -> NDCube:
     return NDCube(response, wcs=wcs, meta=meta)
 
 
-def save_em_cube(cube, path, overwrite=True) -> None:
+def save_em_cube(cube, path: str, overwrite: bool = True) -> None:
     fits.writeto(path, cube, overwrite=overwrite)
 
 
-def save_prediction(prediction, path, overwrite=True) -> None:
+def save_prediction(prediction, path: str, overwrite: bool = True) -> None:
     fits.writeto(path, prediction, overwrite=overwrite)
 
 
-def save_spectral_cube(spectral_cube, path, overwrite=True) -> None:
+def save_spectral_cube(spectral_cube, path: str, overwrite: bool = True) -> None:
     fits.writeto(path, spectral_cube, overwrite=overwrite)

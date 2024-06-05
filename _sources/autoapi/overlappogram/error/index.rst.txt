@@ -1,0 +1,34 @@
+overlappogram.error
+===================
+
+.. py:module:: overlappogram.error
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   overlappogram.error.OverlappogramWarning
+   overlappogram.error.NoWeightsWarnings
+
+
+Module Contents
+---------------
+
+.. py:exception:: OverlappogramWarning
+
+   Bases: :py:obj:`Warning`
+
+
+   Base class for warning categories.
+
+
+.. py:exception:: NoWeightsWarnings
+
+   Bases: :py:obj:`OverlappogramWarning`
+
+
+   There are no weights passed to unfold.
+
+

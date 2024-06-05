@@ -42,7 +42,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/overlappogram/cli/index';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="overlappogram.inversion" href="../inversion/index.html" />
+    <link rel="next" title="overlappogram.error" href="../error/index.html" />
     <link rel="prev" title="overlappogram" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -371,6 +371,7 @@ document.write(`
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">overlappogram</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">overlappogram.cli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../error/index.html">overlappogram.error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../inversion/index.html">overlappogram.inversion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../io/index.html">overlappogram.io</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../response/index.html">overlappogram.response</a></li>
@@ -558,27 +559,27 @@ document.write(`
 
 <dl class="py function">
 <dt class="sig sig-object py" id="overlappogram.cli.load_overlappogram">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">load_overlappogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndcube.NDCube</span></span></span><a class="headerlink" href="#overlappogram.cli.load_overlappogram" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">load_overlappogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndcube.NDCube</span></span></span><a class="headerlink" href="#overlappogram.cli.load_overlappogram" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="overlappogram.cli.save_em_cube">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_em_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_em_cube" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_em_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_em_cube" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="overlappogram.cli.save_spectral_cube">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_spectral_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectral_cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_spectral_cube" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_spectral_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spectral_cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_spectral_cube" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="overlappogram.cli.load_response_cube">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">load_response_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndcube.NDCube</span></span></span><a class="headerlink" href="#overlappogram.cli.load_response_cube" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">load_response_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndcube.NDCube</span></span></span><a class="headerlink" href="#overlappogram.cli.load_response_cube" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="overlappogram.cli.save_prediction">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_prediction" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">overlappogram.cli.</span></span><span class="sig-name descname"><span class="pre">save_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#overlappogram.cli.save_prediction" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -616,11 +617,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="../inversion/index.html"
+       href="../error/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">overlappogram.inversion</p>
+        <p class="prev-next-title">overlappogram.error</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

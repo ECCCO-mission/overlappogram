@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>overlappogram.response &#8212; overlappogram 0.0.3 documentation</title>
+    <title>overlappogram.error &#8212; overlappogram 0.0.3 documentation</title>
   
   
   
@@ -39,11 +39,11 @@
     <script src="../../../_static/documentation_options.js?v=47de8214"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/overlappogram/response/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/overlappogram/error/index';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="overlappogram.spectral" href="../spectral/index.html" />
-    <link rel="prev" title="overlappogram.io" href="../io/index.html" />
+    <link rel="next" title="overlappogram.inversion" href="../inversion/index.html" />
+    <link rel="prev" title="overlappogram.cli" href="../cli/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -371,10 +371,10 @@ document.write(`
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">overlappogram</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../cli/index.html">overlappogram.cli</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../error/index.html">overlappogram.error</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">overlappogram.error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../inversion/index.html">overlappogram.inversion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../io/index.html">overlappogram.io</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">overlappogram.response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../response/index.html">overlappogram.response</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../spectral/index.html">overlappogram.spectral</a></li>
 </ul>
 </details></li>
@@ -421,7 +421,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">overlappogram</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">overlappogra...</li>
+    <li class="breadcrumb-item active" aria-current="page">overlappogram.error</li>
   </ul>
 </nav>
 </div>
@@ -438,14 +438,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-overlappogram.response">
-<span id="overlappogram-response"></span><h1>overlappogram.response<a class="headerlink" href="#module-overlappogram.response" title="Link to this heading">#</a></h1>
-<section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+  <section id="module-overlappogram.error">
+<span id="overlappogram-error"></span><h1>overlappogram.error<a class="headerlink" href="#module-overlappogram.error" title="Link to this heading">#</a></h1>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#overlappogram.response.prepare_response_function" title="overlappogram.response.prepare_response_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_response_function</span></code></a>(response_cube[, ...])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#overlappogram.error.OverlappogramWarning" title="overlappogram.error.OverlappogramWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramWarning</span></code></a></p></td>
+<td><p>Base class for warning categories.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#overlappogram.error.NoWeightsWarnings" title="overlappogram.error.NoWeightsWarnings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoWeightsWarnings</span></code></a></p></td>
+<td><p>There are no weights passed to unfold.</p></td>
 </tr>
 </tbody>
 </table>
@@ -453,10 +456,19 @@ document.write(`
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="overlappogram.response.prepare_response_function">
-<span class="sig-prename descclassname"><span class="pre">overlappogram.response.</span></span><span class="sig-name descname"><span class="pre">prepare_response_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_cube</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndcube.NDCube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_angle_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_dependency_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#overlappogram.response.prepare_response_function" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dl class="py exception">
+<dt class="sig sig-object py" id="overlappogram.error.OverlappogramWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">OverlappogramWarning</span></span><a class="headerlink" href="#overlappogram.error.OverlappogramWarning" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Warning</span></code></p>
+<p>Base class for warning categories.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="overlappogram.error.NoWeightsWarnings">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">NoWeightsWarnings</span></span><a class="headerlink" href="#overlappogram.error.NoWeightsWarnings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#overlappogram.error.OverlappogramWarning" title="overlappogram.error.OverlappogramWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramWarning</span></code></a></p>
+<p>There are no weights passed to unfold.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -472,20 +484,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../io/index.html"
+       href="../cli/index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">overlappogram.io</p>
+        <p class="prev-next-title">overlappogram.cli</p>
       </div>
     </a>
     <a class="right-next"
-       href="../spectral/index.html"
+       href="../inversion/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">overlappogram.spectral</p>
+        <p class="prev-next-title">overlappogram.inversion</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -507,9 +519,10 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.response.prepare_response_function"><code class="docutils literal notranslate"><span class="pre">prepare_response_function()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.OverlappogramWarning"><code class="docutils literal notranslate"><span class="pre">OverlappogramWarning</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.NoWeightsWarnings"><code class="docutils literal notranslate"><span class="pre">NoWeightsWarnings</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -519,7 +532,7 @@ document.write(`
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eccco-mission/overlappogram/edit/main/docs/autoapi/overlappogram/response/index.rst">
+    <a href="https://github.com/eccco-mission/overlappogram/edit/main/docs/autoapi/overlappogram/error/index.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

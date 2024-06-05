@@ -11,6 +11,7 @@ Submodules
    :maxdepth: 1
 
    /autoapi/overlappogram/cli/index
+   /autoapi/overlappogram/error/index
    /autoapi/overlappogram/inversion/index
    /autoapi/overlappogram/io/index
    /autoapi/overlappogram/response/index
@@ -71,7 +72,7 @@ Package Contents
    .. py:method:: invert(overlappogram: ndcube.NDCube, model_config, alpha, rho, num_threads: int = 1, mode_switch_thread_count: int = 0, mode: InversionMode = InversionMode.HYBRID) -> (ndcube.NDCube, ndcube.NDCube, numpy.ndarray, list[int])
 
 
-.. py:function:: load_overlappogram(image_path, weights_path) -> ndcube.NDCube
+.. py:function:: load_overlappogram(image_path: str, weights_path: str | None) -> ndcube.NDCube
 
-.. py:function:: load_response_cube(path) -> ndcube.NDCube
+.. py:function:: load_response_cube(path: str) -> ndcube.NDCube
 

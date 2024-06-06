@@ -26,6 +26,7 @@ repos:
       - id: check-yaml
       - id: debug-statements
       - id: check-added-large-files
+        args: [ '--enforce-all','--maxkb=1000' ]
       - id: end-of-file-fixer
         exclude: ".*(.fits|.fts|.fit|.txt|.pro|.asdf|.bib|tca.*)"
       - id: mixed-line-ending

@@ -1,17 +1,22 @@
 
+import astropy.wcs as wcs
 import numpy as np
 from astropy.io import fits
+from ndcube import NDCube
 
 __all__ = [
     "create_spectrally_pure_images",
 ]
 
 
-def create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list):
-    # Create output directory.
+def create_spectrally_pure_images(image_list: list[NDCube],
+                                  gnt_path: str,
+                                  rsp_dep_list: list | None) -> NDCube:
+    # from Dyana Beabout
     num_images = len(image_list)
     if num_images > 0:
         with fits.open(gnt_path) as gnt_hdul:
+            ions = gnt_hdul[2].data
             gnt_data_values = gnt_hdul[0].data.astype(np.float64)
             num_gnts, num_gnt_deps = np.shape(gnt_data_values)
             gnt_dep_list = gnt_hdul[1].data["logt"]
@@ -47,7 +52,7 @@ def create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list:
             for index in range(len(image_list)):
                 # Create spectrally pure data cube.
                 for em_data in image_list:
-                    em_data_cube = em_data.astype(np.float64)
+                    em_data_cube = em_data.data.astype(np.float64)
                     em_data_cube = np.transpose(em_data_cube, axes=(1, 2, 0))
                     if index == 0:
                         image_height, num_slits, num_logts = np.shape(em_data_cube)
@@ -60,4 +65,13 @@ def create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list:
                             em_data_cube[:, :, 0:num_rsp_deps] * 10**26 * gnt_values[gnt_num, 0:num_rsp_deps]
                         ).sum(axis=2)
                         gnt_data_cube[:, :, gnt_num] = gnt_image
-    return np.transpose(gnt_data_cube, (2, 0, 1))
+
+    out_wcs = wcs.WCS(naxis=2)
+    out = NDCube(data=np.transpose(gnt_data_cube, (2, 0, 1)),
+                 wcs=out_wcs,
+                 meta={
+                     "temperatures": image_list[0].meta["temperatures"],
+                     "ions": ions})
+    out.meta.update(image_list[0].meta)
+
+    return out

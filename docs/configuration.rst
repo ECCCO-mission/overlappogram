@@ -23,7 +23,7 @@ is divided into sections:
 There are four configurables for this section:
 
 - *overlappogram*: path to the overlappogram image to be inverted.
-- *weights*: path to the accompanying weights used in the inversion.
+- *weights*: path to the accompanying weights used in the inversion. Weights should be in units of :math:`\frac{1}{\sigma}` where :math:`\sigma` is the uncertainty or standard deviation
 - *response*: path to the instrument response.
 - *gnt*: path to the file containing atomic physics values from Chianti, the *G(n, t)* function.
 

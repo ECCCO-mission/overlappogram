@@ -4,7 +4,8 @@ import numpy as np
 from astropy.nddata import StdDevUncertainty
 from ndcube import NDCube
 
-from overlappogram.io import load_overlappogram
+from overlappogram.io import (RESPONSE_HEADER_KEYS, load_overlappogram,
+                              load_response_cube)
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -27,4 +28,12 @@ def test_load_overlappogram_without_weights():
 
 
 def test_load_response_cube():
-    pass
+    path = os.path.join(TEST_PATH, "test_response.fits")
+    response = load_response_cube(path)
+    assert isinstance(response, NDCube)
+    assert isinstance(response.data, np.ndarray)
+    assert response.uncertainty is None
+    for key in RESPONSE_HEADER_KEYS:
+        assert key in response.meta
+    assert "temperatures" in response.meta
+    assert "field_angles" in response.meta

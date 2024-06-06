@@ -12,7 +12,7 @@ from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import ElasticNet
 from tqdm import tqdm
 
-from overlappogram.error import NoWeightsWarnings
+from overlappogram.error import InvalidInversionModeError, NoWeightsWarnings
 from overlappogram.response import prepare_response_function
 
 __all__ = ["Inverter"]
@@ -283,7 +283,7 @@ class Inverter:
             self._start_row_inversion(model_config, alpha, rho, num_threads)
             self._collect_results(np.inf, model_config, alpha, rho)
         else:
-            raise ValueError("Invalid InversionMode.")
+            raise InvalidInversionModeError("Invalid InversionMode.")
 
         for executor in self.executors:
             executor.shutdown()

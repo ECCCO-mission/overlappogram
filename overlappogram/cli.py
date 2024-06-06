@@ -50,13 +50,13 @@ def unfold(config):
             print(f"Beginning inversion for alpha={alpha}, rho={rho}.")
             start = time.time()
             em_cube, prediction, scores, unconverged_rows = inversion.invert(
-                overlappogram,
-                config["model"],
-                alpha,
-                rho,
-                num_threads=config["execution"]["num_threads"],
-                mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
-                mode=MODE_MAPPING.get(config['execution']['mode'], 'invalid')
+                    overlappogram,
+                    config["model"],
+                    alpha,
+                    rho,
+                    num_threads=config["execution"]["num_threads"],
+                    mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
+                    mode=MODE_MAPPING.get(config['execution']['mode'], 'invalid')
             )
             end = time.time()
             print(
@@ -70,13 +70,15 @@ def unfold(config):
             )
             save_em_cube(
                 em_cube,
-                os.path.join(config["output"]["directory"], f"{config['output']['prefix']}_emcube_{postfix}.fits"),
+                os.path.join(config["output"]["directory"],
+                             f"{config['output']['prefix']}_emcube_{postfix}.fits"),
                 config["output"]["overwrite"],
             )
 
             save_prediction(
                 prediction,
-                os.path.join(config["output"]["directory"], f"{config['output']['prefix']}_prediction_{postfix}.fits"),
+                os.path.join(config["output"]["directory"],
+                             f"{config['output']['prefix']}_prediction_{postfix}.fits"),
                 overwrite=config["output"]["overwrite"],
             )
 

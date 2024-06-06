@@ -1,9 +1,22 @@
+from datetime import datetime
+
 from astropy.io import fits
 from astropy.nddata import StdDevUncertainty
 from astropy.wcs import WCS
 from ndcube import NDCube
 
+from .error import InvalidDataFormatError
+
 __all__ = ["load_overlappogram", "load_response_cube", "save_em_cube", "save_spectral_cube", "save_prediction"]
+
+
+RESPONSE_HEADER_KEYS = ['DATE',
+                        'VALUE',
+                        'FIELDANG',
+                        'RSP_DATE',
+                        'DEPNAME',
+                        'ABUNDANC',
+                        'ELECDIST']
 
 
 def load_overlappogram(image_path: str, weights_path: str | None) -> NDCube:
@@ -31,16 +44,52 @@ def load_response_cube(path: str) -> NDCube:
         field_angles = hdul[2].data
     meta = dict(header)
     meta.update({"temperatures": temperatures, "field_angles": field_angles})
+    for key in RESPONSE_HEADER_KEYS:
+        meta[key] = header[key]
     return NDCube(response, wcs=wcs, meta=meta)
 
 
-def save_em_cube(cube, path: str, overwrite: bool = True) -> None:
-    fits.writeto(path, cube, overwrite=overwrite)
+def save_em_cube(cube: NDCube, path: str, overwrite: bool = True) -> None:
+    if "temperatures" not in cube.meta:
+        raise InvalidDataFormatError("Temperatures are missing form the EM cube's metadata.")
+
+    hdul = fits.HDUList([fits.PrimaryHDU(cube.data),
+                         fits.BinTableHDU(cube.meta['temperatures']),
+                         # todo : make sure this is the right temperatures and not just a pass through
+                         ])
+    for key in RESPONSE_HEADER_KEYS:
+        hdul[0].header[key] = cube.meta[key]
+    hdul[0].header['DATE'] = datetime.now().isoformat()
+    hdul.writeto(path, overwrite=overwrite)
 
 
-def save_prediction(prediction, path: str, overwrite: bool = True) -> None:
-    fits.writeto(path, prediction, overwrite=overwrite)
+def save_prediction(prediction: NDCube, path: str, overwrite: bool = True) -> None:
+    if "temperatures" not in prediction.meta:
+        raise InvalidDataFormatError("Temperatures are missing form the prediction cube's metadata.")
+
+    hdul = fits.HDUList([fits.PrimaryHDU(prediction.data),
+                         fits.BinTableHDU(prediction.meta['temperatures']),
+                         # todo : make sure this is the right temperatures and not just a pass through
+                         ])
+    for key in RESPONSE_HEADER_KEYS:
+        hdul[0].header[key] = prediction.meta[key]
+    hdul[0].header['DATE'] = datetime.now().isoformat()
+    hdul.writeto(path, overwrite=overwrite)
 
 
-def save_spectral_cube(spectral_cube, path: str, overwrite: bool = True) -> None:
-    fits.writeto(path, spectral_cube, overwrite=overwrite)
+def save_spectral_cube(spectral_cube: NDCube, path: str, overwrite: bool = True) -> None:
+    if "temperatures" not in spectral_cube.meta:
+        raise InvalidDataFormatError("Temperatures are missing form the spectral cube's metadata.")
+
+    if "ions" not in spectral_cube.meta:
+        raise InvalidDataFormatError("Ions are missing form the spectral cube's metadata.")
+
+    hdul = fits.HDUList([fits.PrimaryHDU(spectral_cube.data),
+                         fits.BinTableHDU(spectral_cube.meta['temperatures']),
+                         fits.BinTableHDU(spectral_cube.meta['ions']),
+                         # todo : make sure this is the right temperatures and not just a pass through
+                         ])
+    for key in RESPONSE_HEADER_KEYS:
+        hdul[0].header[key] = spectral_cube.meta[key]
+    hdul[0].header['DATE'] = datetime.now().isoformat()
+    hdul.writeto(path, overwrite=overwrite)

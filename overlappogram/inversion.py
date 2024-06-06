@@ -5,6 +5,7 @@ import warnings
 from enum import Enum
 from threading import Lock
 
+import astropy.wcs as wcs
 import numpy as np
 from ndcube import NDCube
 from sklearn.exceptions import ConvergenceWarning
@@ -47,8 +48,8 @@ class Inverter:
         self._unconverged_rows = []
 
         self._overlappogram: NDCube | None = None
-        self._em_data: NDCube | None = None
-        self._inversion_prediction: NDCube | None = None
+        self._em_data: np.ndarray | None = None
+        self._inversion_prediction: np.ndarray | None = None
         self._row_scores: np.ndarray | None = None
         self._overlappogram_width: int | None = None
         self._overlappogram_height: int | None = None
@@ -61,6 +62,7 @@ class Inverter:
             field_angle_range=field_angle_range,
             response_dependency_list=response_dependency_list,
         )
+        self._response_meta = response_cube.meta
 
         self._progress_bar = None  # initialized in invert call
 
@@ -111,7 +113,6 @@ class Inverter:
         with self._thread_count_lock:
             if not future.cancelled():
                 self._completed_row_count += 1
-                #print(f"{self._completed_row_count / self.total_row_count * 100:3.0f}% complete", end="\r")
                 self._progress_bar.update(1)
 
     def _switch_to_row_inversion(self, model_config, alpha, rho, num_row_threads=50):
@@ -249,29 +250,6 @@ class Inverter:
         self._inversion_prediction = np.zeros((self._overlappogram_height, self._overlappogram_width), dtype=np.float32)
         self._row_scores = np.zeros((self._overlappogram_height, 1), dtype=np.float32)
 
-        # TODO : add metadata to outputs
-        # self.inv_date = (
-        #     datetime.datetime.now()
-        #     .isoformat(timespec="milliseconds")
-        #     .replace("+00:00", "Z")
-        # )
-        # # try:
-        #     self.rsp_func_date = rsp_func_hdul[0].header["DATE"]
-        # except KeyError:
-        #     self.rsp_func_date = ""
-        # try:
-        #     self.abundance = rsp_func_hdul[0].header["ABUNDANC"]
-        # except KeyError:
-        #     self.abundance = ""
-        # try:
-        #     self.electron_distribution = rsp_func_hdul[0].header["ELECDIST"]
-        # except KeyError:
-        #     self.electron_distribution = ""
-        # try:
-        #     self.chianti_version = rsp_func_hdul[0].header["CHIANT_V"]
-        # except KeyError:
-        #     self.chianti_version = ""
-
     def invert(
         self,
         overlappogram: NDCube,
@@ -312,9 +290,11 @@ class Inverter:
 
         self._progress_bar.close()
 
+        out_wcs = wcs.WCS(naxis=2)
+
         return (
-            np.transpose(self._em_data, (2, 0, 1)),
-            self._inversion_prediction,
+            NDCube(data=np.transpose(self._em_data, (2, 0, 1)), wcs=out_wcs, meta=self._response_meta),
+            NDCube(data=self._inversion_prediction, wcs=out_wcs, meta=self._response_meta),
             self._row_scores,
             self._unconverged_rows,
         )

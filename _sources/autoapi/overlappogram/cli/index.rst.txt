@@ -80,15 +80,15 @@ Module Contents
 
 .. py:function:: load_overlappogram(image_path: str, weights_path: str | None) -> ndcube.NDCube
 
-.. py:function:: save_em_cube(cube, path: str, overwrite: bool = True) -> None
+.. py:function:: save_em_cube(cube: ndcube.NDCube, path: str, overwrite: bool = True) -> None
 
-.. py:function:: save_spectral_cube(spectral_cube, path: str, overwrite: bool = True) -> None
+.. py:function:: save_spectral_cube(spectral_cube: ndcube.NDCube, path: str, overwrite: bool = True) -> None
 
 .. py:function:: load_response_cube(path: str) -> ndcube.NDCube
 
-.. py:function:: save_prediction(prediction, path: str, overwrite: bool = True) -> None
+.. py:function:: save_prediction(prediction: ndcube.NDCube, path: str, overwrite: bool = True) -> None
 
-.. py:function:: create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list)
+.. py:function:: create_spectrally_pure_images(image_list: list[ndcube.NDCube], gnt_path: str, rsp_dep_list: list | None) -> ndcube.NDCube
 
 .. py:function:: unfold(config)
 

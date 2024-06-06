@@ -15,5 +15,5 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list)
+.. py:function:: create_spectrally_pure_images(image_list: list[ndcube.NDCube], gnt_path: str, rsp_dep_list: list | None) -> ndcube.NDCube
 

@@ -11,6 +11,9 @@ Exceptions
 
    overlappogram.error.OverlappogramWarning
    overlappogram.error.NoWeightsWarnings
+   overlappogram.error.OverlappogramError
+   overlappogram.error.InvalidDataFormatError
+   overlappogram.error.InvalidInversionModeError
 
 
 Module Contents
@@ -30,5 +33,29 @@ Module Contents
 
 
    There are no weights passed to unfold.
+
+
+.. py:exception:: OverlappogramError
+
+   Bases: :py:obj:`Exception`
+
+
+   Common base class for all non-exit exceptions.
+
+
+.. py:exception:: InvalidDataFormatError
+
+   Bases: :py:obj:`OverlappogramError`
+
+
+   The data file has an error that prevents processing.
+
+
+.. py:exception:: InvalidInversionModeError
+
+   Bases: :py:obj:`OverlappogramError`
+
+
+   The inversion mode is not allowed.
 
 

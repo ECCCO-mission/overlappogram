@@ -39,6 +39,7 @@
     <script src="_static/documentation_options.js?v=47de8214"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'configuration';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -442,7 +443,7 @@ is divided into sections:</p>
 <p>There are four configurables for this section:</p>
 <ul class="simple">
 <li><p><em>overlappogram</em>: path to the overlappogram image to be inverted.</p></li>
-<li><p><em>weights</em>: path to the accompanying weights used in the inversion.</p></li>
+<li><p><em>weights</em>: path to the accompanying weights used in the inversion. Weights should be in units of <span class="math notranslate nohighlight">\(\frac{1}{\sigma}\)</span> where <span class="math notranslate nohighlight">\(\sigma\)</span> is the uncertainty or standard deviation</p></li>
 <li><p><em>response</em>: path to the instrument response.</p></li>
 <li><p><em>gnt</em>: path to the file containing atomic physics values from Chianti, the <em>G(n, t)</em> function.</p></li>
 </ul>

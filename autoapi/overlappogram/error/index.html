@@ -450,6 +450,15 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#overlappogram.error.NoWeightsWarnings" title="overlappogram.error.NoWeightsWarnings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoWeightsWarnings</span></code></a></p></td>
 <td><p>There are no weights passed to unfold.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#overlappogram.error.OverlappogramError" title="overlappogram.error.OverlappogramError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramError</span></code></a></p></td>
+<td><p>Common base class for all non-exit exceptions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#overlappogram.error.InvalidDataFormatError" title="overlappogram.error.InvalidDataFormatError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidDataFormatError</span></code></a></p></td>
+<td><p>The data file has an error that prevents processing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#overlappogram.error.InvalidInversionModeError" title="overlappogram.error.InvalidInversionModeError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidInversionModeError</span></code></a></p></td>
+<td><p>The inversion mode is not allowed.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -468,6 +477,27 @@ document.write(`
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">NoWeightsWarnings</span></span><a class="headerlink" href="#overlappogram.error.NoWeightsWarnings" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#overlappogram.error.OverlappogramWarning" title="overlappogram.error.OverlappogramWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramWarning</span></code></a></p>
 <p>There are no weights passed to unfold.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="overlappogram.error.OverlappogramError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">OverlappogramError</span></span><a class="headerlink" href="#overlappogram.error.OverlappogramError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Common base class for all non-exit exceptions.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="overlappogram.error.InvalidDataFormatError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">InvalidDataFormatError</span></span><a class="headerlink" href="#overlappogram.error.InvalidDataFormatError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#overlappogram.error.OverlappogramError" title="overlappogram.error.OverlappogramError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramError</span></code></a></p>
+<p>The data file has an error that prevents processing.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="overlappogram.error.InvalidInversionModeError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.error.</span></span><span class="sig-name descname"><span class="pre">InvalidInversionModeError</span></span><a class="headerlink" href="#overlappogram.error.InvalidInversionModeError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#overlappogram.error.OverlappogramError" title="overlappogram.error.OverlappogramError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OverlappogramError</span></code></a></p>
+<p>The inversion mode is not allowed.</p>
 </dd></dl>
 
 </section>
@@ -523,6 +553,9 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.OverlappogramWarning"><code class="docutils literal notranslate"><span class="pre">OverlappogramWarning</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.NoWeightsWarnings"><code class="docutils literal notranslate"><span class="pre">NoWeightsWarnings</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.OverlappogramError"><code class="docutils literal notranslate"><span class="pre">OverlappogramError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.InvalidDataFormatError"><code class="docutils literal notranslate"><span class="pre">InvalidDataFormatError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.error.InvalidInversionModeError"><code class="docutils literal notranslate"><span class="pre">InvalidInversionModeError</span></code></a></li>
 </ul>
 </li>
 </ul>

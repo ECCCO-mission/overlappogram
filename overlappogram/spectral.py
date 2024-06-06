@@ -8,6 +8,8 @@ __all__ = [
 
 
 def create_spectrally_pure_images(image_list: list, gnt_path: str, rsp_dep_list: list):
+    # from Dyana Beabout
+
     # Create output directory.
     num_images = len(image_list)
     if num_images > 0:

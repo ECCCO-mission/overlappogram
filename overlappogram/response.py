@@ -7,6 +7,8 @@ __all__ = ["prepare_response_function"]
 def prepare_response_function(
     response_cube: NDCube, field_angle_range=None, response_dependency_list=None, fov_width=2
 ) -> (np.ndarray, float, float):
+    # from Dyana Beabout
+
     num_dep, num_field_angles, rsp_func_width = np.shape(response_cube.data)
 
     dependency_list = [t for (_, t) in response_cube.meta["temperatures"]]

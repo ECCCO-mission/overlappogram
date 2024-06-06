@@ -4,13 +4,14 @@ import toml
 from ndcube import NDCube
 
 from overlappogram.inversion import MODE_MAPPING, Inverter
-from overlappogram.io import load_overlappogram, load_response_cube
+from overlappogram.io import (load_overlappogram, load_response_cube,
+                              save_spectral_cube)
 from overlappogram.spectral import create_spectrally_pure_images
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_create_spectrally_pure_images():
+def test_create_spectrally_pure_images(tmp_path):
     response_path = os.path.join(TEST_PATH, "test_response.fits")
     overlappogram_path = os.path.join(TEST_PATH, "test_overlappogram.fits")
     weights_path = os.path.join(TEST_PATH, "test_weights.fits")
@@ -45,6 +46,10 @@ def test_create_spectrally_pure_images():
                                                           gnt_path,
                                                           config["inversion"]["response_dependency_list"])
     assert isinstance(spectrally_pure_image, NDCube)
+
+    save_spectral_cube(spectrally_pure_image, str(tmp_path / "spectrally_pure.fits"))
+
+    assert os.path.isfile(tmp_path / "spectrally_pure.fits")
 
 
 def test_create_spectrally_pure_images_dep_none():

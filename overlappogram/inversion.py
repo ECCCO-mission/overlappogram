@@ -64,6 +64,10 @@ class Inverter:
         )
         self._response_meta = response_cube.meta
 
+        if response_dependency_list is not None:
+            self._response_meta['temperatures'] = np.array([(i, t) for i, t in enumerate(response_dependency_list)],
+                                                           dtype=[('index', '>i2'), ('logt', '>f4')])
+
         self._progress_bar = None  # initialized in invert call
 
     @property

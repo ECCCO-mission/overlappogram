@@ -7,7 +7,8 @@ from ndcube import NDCube
 
 from overlappogram.error import InvalidInversionModeError
 from overlappogram.inversion import InversionMode, Inverter
-from overlappogram.io import load_overlappogram, load_response_cube
+from overlappogram.io import (load_overlappogram, load_response_cube,
+                              save_em_cube, save_prediction)
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -22,7 +23,7 @@ def test_create_inverter():
 
 @pytest.mark.parametrize("inversion_mode", [InversionMode.ROW, InversionMode.CHUNKED, InversionMode.HYBRID])
 @pytest.mark.parametrize("is_weighted", [True, False])
-def test_inversion_runs(inversion_mode, is_weighted):
+def test_inversion_runs(tmp_path, inversion_mode, is_weighted):
     response_path = os.path.join(TEST_PATH, "test_response.fits")
     overlappogram_path = os.path.join(TEST_PATH, "test_overlappogram.fits")
     weights_path = os.path.join(TEST_PATH, "test_weights.fits") if is_weighted else None
@@ -56,6 +57,12 @@ def test_inversion_runs(inversion_mode, is_weighted):
     assert isinstance(prediction, NDCube)
     assert isinstance(scores, np.ndarray)
     assert isinstance(unconverged_rows, list)
+
+    save_em_cube(em_cube, str(tmp_path / "em.fits"))
+    save_prediction(prediction, str(tmp_path / "prediction.fits"))
+
+    assert os.path.isfile(tmp_path / "em.fits")
+    assert os.path.isfile(tmp_path / "prediction.fits")
 
 
 def test_inversion_invalid_inversion_mode_fails():

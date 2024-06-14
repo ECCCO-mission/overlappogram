@@ -1,7 +1,7 @@
 # overlappogram
 
-[![CI](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml/badge.svg)](https://github.com/jmbhughes/overlappogram/actions/workflows/CI.yml)
-[![codecov](https://codecov.io/gh/eccco-mission/overlappogram/graph/badge.svg?token=u1qQvzybz4)](https://codecov.io/gh/jmbhughes/overlappogram)
+[![CI](https://github.com/eccco-mission/overlappogram/actions/workflows/CI.yml/badge.svg)](https://github.com/eccco-mission/overlappogram/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/eccco-mission/overlappogram/graph/badge.svg?token=u1qQvzybz4)](https://codecov.io/gh/eccco-mission/overlappogram)
 [![DOI](https://zenodo.org/badge/759222503.svg)](https://zenodo.org/doi/10.5281/zenodo.10869534)
 
 ![overlappogram example](https://raw.githubusercontent.com/ECCCO-mission/overlappogram/main/overlappogram.png)
@@ -26,7 +26,7 @@ We provide more description of the config file [in the documentation](https://ec
 ## Getting Help
 
 Please [open an issue](https://github.com/ECCCO-mission/overlappogram/issues/new/choose)
-or [create a discussion](https://github.com/jmbhughes/overlappogram/discussions/new/choose).
+or [create a discussion](https://github.com/eccco-mission/overlappogram/discussions/new/choose).
 We prefer this over email so that other users can benefit from your questions.
 
 ## Cite

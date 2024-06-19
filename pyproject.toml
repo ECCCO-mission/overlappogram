@@ -5,8 +5,8 @@ requires = ["setuptools",
 
 [project]
 name = "overlappogram"
-version = "0.0.5"
-dependencies = ["numpy",
+version = "0.0.6"
+dependencies = ["numpy<2.0.0",
     "astropy",
     "scikit-learn",
     "pandas",

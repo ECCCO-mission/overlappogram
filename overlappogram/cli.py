@@ -32,7 +32,8 @@ def unfold(config):
     os.makedirs(config["output"]["directory"], exist_ok=True)  # make sure output directory exists
 
     overlappogram = load_overlappogram(config["paths"]["overlappogram"],
-                                       config["paths"]["weights"] if 'weights' in config['paths'] else None)
+                                       config["paths"]["weights"] if 'weights' in config['paths'] else None,
+                                       config["paths"]["mask"] if 'mask' in config['paths'] else None)
     response_cube = load_response_cube(config["paths"]["response"])
 
     inversion = Inverter(

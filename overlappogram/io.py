@@ -19,7 +19,7 @@ RESPONSE_HEADER_KEYS = ['DATE',
                         'ELECDIST']
 
 
-def load_overlappogram(image_path: str, weights_path: str | None) -> NDCube:
+def load_overlappogram(image_path: str, weights_path: str | None = None, mask_path: str | None = None) -> NDCube:
     with fits.open(image_path) as image_hdul:
         image = image_hdul[0].data
         header = image_hdul[0].header
@@ -32,7 +32,13 @@ def load_overlappogram(image_path: str, weights_path: str | None) -> NDCube:
             weights = weights_hdul[0].data
             uncertainty = StdDevUncertainty(1 / weights)
 
-    return NDCube(image, wcs=wcs, uncertainty=uncertainty, meta=dict(header))
+    if mask_path is None:
+        mask = None
+    else:
+        with fits.open(mask_path) as mask_hdul:
+            mask = mask_hdul[0].data
+
+    return NDCube(image, wcs=wcs, uncertainty=uncertainty, mask=mask, meta=dict(header))
 
 
 def load_response_cube(path: str) -> NDCube:

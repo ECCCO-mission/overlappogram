@@ -1,6 +1,7 @@
 [paths]
 overlappogram = "./data/ECCCO_speedtest_runs/combined_ECCCO_trim_sw_lw_s_i_scaled.fits"
-weights = "data/ECCCO_speedtest_runs/combined_ECCCO_weights_trim_sw_lw_s_i_scaled.fits"
+weights = "data/ECCCO_speedtest_runs/combined_ECCCO_weights_trim_sw_lw_s_i_scaled.fits"  # optional, omit keyword to skip
+#mask = "no example" # mask has been commented out since we do not use it in this example
 response = "data/ECCCO_speedtest_runs/D27Feb2024_eccco_response_feldman_m_el_with_tables_trim_sw_lw_s_i_scaled.fits"
 gnt = "data/ECCCO_speedtest_runs/master_gnt_eccco_inphotons_cm3persperpix_with_tables.fits"
 

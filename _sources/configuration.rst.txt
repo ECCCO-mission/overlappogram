@@ -20,10 +20,11 @@ is divided into sections:
 **paths** section
 ------------------
 
-There are four configurables for this section:
+There are five configurables for this section:
 
 - *overlappogram*: path to the overlappogram image to be inverted.
-- *weights*: path to the accompanying weights used in the inversion. Weights should be in units of :math:`\frac{1}{\sigma}` where :math:`\sigma` is the uncertainty or standard deviation
+- *weights*: path to the accompanying weights used in the inversion. Weights should be in units of :math:`\frac{1}{\sigma}` where :math:`\sigma` is the uncertainty or standard deviation. Weights are optional and the keyword can be omitted to run in weightless mode.
+- *mask*: path to the accompanying mask used in the inversion. This mask is optional and the keyword can be omitted to run without a mask.
 - *response*: path to the instrument response.
 - *gnt*: path to the file containing atomic physics values from Chianti, the *G(n, t)* function.
 

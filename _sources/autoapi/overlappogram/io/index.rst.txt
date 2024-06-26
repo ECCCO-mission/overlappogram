@@ -19,7 +19,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: load_overlappogram(image_path: str, weights_path: str | None) -> ndcube.NDCube
+.. py:function:: load_overlappogram(image_path: str, weights_path: str | None = None, mask_path: str | None = None) -> ndcube.NDCube
 
 .. py:function:: load_response_cube(path: str) -> ndcube.NDCube
 

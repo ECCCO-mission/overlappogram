@@ -44,8 +44,8 @@ docs = ["sphinx", "sphinx-autoapi", "sphinx-automodapi", "pydata-sphinx-theme"]
 unfold = "overlappogram.cli:unfold"
 
 [project.urls]
-Homepage = "https://example.com"
-Documentation = "https://readthedocs.org"
+Homepage = "https://github.com/ECCCO-mission/overlappogram"
+Documentation = "https://eccco-mission.github.io/overlappogram/"
 Repository = "https://github.com/eccco-mission/overlappogram.git"
 "Bug Tracker" = "https://github.com/eccco-mission/overlappogram/issues"
 Changelog = "https://github.com/eccco-mission/overlappogram/blob/main/CHANGELOG.md"

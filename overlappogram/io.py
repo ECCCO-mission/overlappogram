@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from astropy.io import fits
@@ -19,7 +21,9 @@ RESPONSE_HEADER_KEYS = ['DATE',
                         'ELECDIST']
 
 
-def load_overlappogram(image_path: str, weights_path: str | None = None, mask_path: str | None = None) -> NDCube:
+def load_overlappogram(image_path: str,
+                       weights_path: str | None = None,
+                       mask_path: str | None = None) -> NDCube:
     with fits.open(image_path) as image_hdul:
         image = image_hdul[0].data
         header = image_hdul[0].header

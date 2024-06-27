@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import astropy.wcs as wcs
 import numpy as np

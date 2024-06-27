@@ -19,7 +19,7 @@ dependencies = ["numpy<2.0.0",
     "click",
     "tqdm"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 authors = [
     {name = "J. Marcus Hughes", email = "hughes.jmb@gmail.com"},
     {name = "Dyana Beabout", email = "dyana.l.beabout@nasa.gov"},

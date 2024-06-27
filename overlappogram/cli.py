@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 NUMPY_THREAD_COUNT = 1

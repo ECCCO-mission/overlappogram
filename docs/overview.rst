@@ -14,6 +14,8 @@ to recover an emission measure cube that could have created the observation. To 
 this emission measure, it then generates spectrally pure maps which can be validated with a
 ground truth observation.
 
+You can read about the theoretical background of the technique in `this paper <https://arxiv.org/abs/2407.10436v1>`_. 
+
 Installation
 -------------
 

@@ -17,6 +17,83 @@ Module Contents
 
 .. py:class:: Inverter(response_cube: ndcube.NDCube, solution_fov_width: int = 1, smooth_over: str = 'dependence', response_dependency_list: list = None, field_angle_range: list = None, detector_row_range: list = None)
 
+   .. py:attribute:: _solution_fov_width
+
+
+   .. py:attribute:: _smooth_over
+
+
+   .. py:attribute:: _field_angle_range
+
+
+   .. py:attribute:: _detector_row_range
+
+
+   .. py:attribute:: _mode
+
+
+   .. py:attribute:: _models
+      :value: []
+
+
+
+   .. py:attribute:: _completed_row_count
+      :value: 0
+
+
+
+   .. py:attribute:: _unconverged_rows
+      :value: []
+
+
+
+   .. py:attribute:: _overlappogram
+      :type:  ndcube.NDCube | None
+      :value: None
+
+
+
+   .. py:attribute:: _em_data
+      :type:  numpy.ndarray | None
+      :value: None
+
+
+
+   .. py:attribute:: _inversion_prediction
+      :type:  numpy.ndarray | None
+      :value: None
+
+
+
+   .. py:attribute:: _row_scores
+      :type:  numpy.ndarray | None
+      :value: None
+
+
+
+   .. py:attribute:: _overlappogram_width
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: _overlappogram_height
+      :type:  int | None
+      :value: None
+
+
+
+   .. py:attribute:: _thread_count_lock
+
+
+   .. py:attribute:: _response_meta
+
+
+   .. py:attribute:: _progress_bar
+      :value: None
+
+
+
    .. py:property:: is_inverted
       :type: bool
 

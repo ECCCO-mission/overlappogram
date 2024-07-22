@@ -482,7 +482,92 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="overlappogram.Inverter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">overlappogram.</span></span><span class="sig-name descname"><span class="pre">Inverter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_cube</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndcube.NDCube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_fov_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_over</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dependence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_dependency_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_angle_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_row_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#overlappogram.Inverter" title="Link to this definition">#</a></dt>
-<dd><dl class="py property">
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._solution_fov_width">
+<span class="sig-name descname"><span class="pre">_solution_fov_width</span></span><a class="headerlink" href="#overlappogram.Inverter._solution_fov_width" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._smooth_over">
+<span class="sig-name descname"><span class="pre">_smooth_over</span></span><a class="headerlink" href="#overlappogram.Inverter._smooth_over" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._field_angle_range">
+<span class="sig-name descname"><span class="pre">_field_angle_range</span></span><a class="headerlink" href="#overlappogram.Inverter._field_angle_range" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._detector_row_range">
+<span class="sig-name descname"><span class="pre">_detector_row_range</span></span><a class="headerlink" href="#overlappogram.Inverter._detector_row_range" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._mode">
+<span class="sig-name descname"><span class="pre">_mode</span></span><a class="headerlink" href="#overlappogram.Inverter._mode" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._models">
+<span class="sig-name descname"><span class="pre">_models</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#overlappogram.Inverter._models" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._completed_row_count">
+<span class="sig-name descname"><span class="pre">_completed_row_count</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#overlappogram.Inverter._completed_row_count" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._unconverged_rows">
+<span class="sig-name descname"><span class="pre">_unconverged_rows</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#overlappogram.Inverter._unconverged_rows" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._overlappogram">
+<span class="sig-name descname"><span class="pre">_overlappogram</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndcube.NDCube</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._overlappogram" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._em_data">
+<span class="sig-name descname"><span class="pre">_em_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._em_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._inversion_prediction">
+<span class="sig-name descname"><span class="pre">_inversion_prediction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._inversion_prediction" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._row_scores">
+<span class="sig-name descname"><span class="pre">_row_scores</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._row_scores" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._overlappogram_width">
+<span class="sig-name descname"><span class="pre">_overlappogram_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._overlappogram_width" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._overlappogram_height">
+<span class="sig-name descname"><span class="pre">_overlappogram_height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._overlappogram_height" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._thread_count_lock">
+<span class="sig-name descname"><span class="pre">_thread_count_lock</span></span><a class="headerlink" href="#overlappogram.Inverter._thread_count_lock" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._response_meta">
+<span class="sig-name descname"><span class="pre">_response_meta</span></span><a class="headerlink" href="#overlappogram.Inverter._response_meta" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="overlappogram.Inverter._progress_bar">
+<span class="sig-name descname"><span class="pre">_progress_bar</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#overlappogram.Inverter._progress_bar" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="overlappogram.Inverter.is_inverted">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_inverted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#overlappogram.Inverter.is_inverted" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -594,6 +679,23 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter"><code class="docutils literal notranslate"><span class="pre">Inverter</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._solution_fov_width"><code class="docutils literal notranslate"><span class="pre">Inverter._solution_fov_width</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._smooth_over"><code class="docutils literal notranslate"><span class="pre">Inverter._smooth_over</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._field_angle_range"><code class="docutils literal notranslate"><span class="pre">Inverter._field_angle_range</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._detector_row_range"><code class="docutils literal notranslate"><span class="pre">Inverter._detector_row_range</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._mode"><code class="docutils literal notranslate"><span class="pre">Inverter._mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._models"><code class="docutils literal notranslate"><span class="pre">Inverter._models</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._completed_row_count"><code class="docutils literal notranslate"><span class="pre">Inverter._completed_row_count</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._unconverged_rows"><code class="docutils literal notranslate"><span class="pre">Inverter._unconverged_rows</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._overlappogram"><code class="docutils literal notranslate"><span class="pre">Inverter._overlappogram</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._em_data"><code class="docutils literal notranslate"><span class="pre">Inverter._em_data</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._inversion_prediction"><code class="docutils literal notranslate"><span class="pre">Inverter._inversion_prediction</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._row_scores"><code class="docutils literal notranslate"><span class="pre">Inverter._row_scores</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._overlappogram_width"><code class="docutils literal notranslate"><span class="pre">Inverter._overlappogram_width</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._overlappogram_height"><code class="docutils literal notranslate"><span class="pre">Inverter._overlappogram_height</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._thread_count_lock"><code class="docutils literal notranslate"><span class="pre">Inverter._thread_count_lock</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._response_meta"><code class="docutils literal notranslate"><span class="pre">Inverter._response_meta</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._progress_bar"><code class="docutils literal notranslate"><span class="pre">Inverter._progress_bar</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter.is_inverted"><code class="docutils literal notranslate"><span class="pre">Inverter.is_inverted</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._invert_image_row"><code class="docutils literal notranslate"><span class="pre">Inverter._invert_image_row()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#overlappogram.Inverter._progress_indicator"><code class="docutils literal notranslate"><span class="pre">Inverter._progress_indicator()</span></code></a></li>
@@ -662,7 +764,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.6.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     <br/>
   </p>
 </div>

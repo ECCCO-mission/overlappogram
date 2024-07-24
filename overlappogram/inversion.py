@@ -53,6 +53,7 @@ class Inverter:
         self._row_scores: np.ndarray | None = None
         self._overlappogram_width: int | None = None
         self._overlappogram_height: int | None = None
+        self._n_iter: np.ndarray | None = None
 
         self._thread_count_lock = Lock()
 
@@ -104,13 +105,15 @@ class Inverter:
             data_out = model.predict(masked_response_function)
             em = model.coef_
             score_data = model.score(masked_response_function, image_row)
+            n_iter = model.n_iter_
         except ConvergenceWarning:
             self._unconverged_rows.append(row_index)
             em = np.zeros((self._num_slits * self._num_deps), dtype=np.float32)
             data_out = np.zeros(self._overlappogram_width, dtype=np.float32)
             score_data = -999
+            n_iter = -1
 
-        return row_index, em, data_out, score_data
+        return row_index, em, data_out, score_data, n_iter
 
     def _progress_indicator(self, future):
         """used in multithreading to track progress of inversion"""
@@ -155,7 +158,7 @@ class Inverter:
 
     def _collect_results(self, mode_switch_thread_count, model_config, alpha, rho):
         for future in concurrent.futures.as_completed(self.futures):
-            row_index, em, data_out, score_data = future.result()
+            row_index, em, data_out, score_data, n_iter = future.result()
             for slit_num in range(self._num_slits):
                 if self._smooth_over == "dependence":
                     slit_em = em[slit_num * self._num_deps : (slit_num + 1) * self._num_deps]
@@ -164,6 +167,7 @@ class Inverter:
                 self._em_data[row_index, slit_num, :] = slit_em
             self._inversion_prediction[row_index, :] = data_out
             self._row_scores[row_index] = score_data
+            self._n_iter[row_index] = n_iter
 
             rows_remaining = self.total_row_count - self._completed_row_count
 
@@ -173,7 +177,6 @@ class Inverter:
 
     def _start_row_inversion(self, model_config, alpha, rho, num_threads):
         self.executors = [concurrent.futures.ThreadPoolExecutor(max_workers=num_threads)]
-
         self.futures = {}
         self._models = []
         for i, row_index in enumerate(range(self._detector_row_range[0], self._detector_row_range[1])):
@@ -253,6 +256,7 @@ class Inverter:
         self._em_data = np.zeros((self._overlappogram_height, self._num_slits, self._num_deps), dtype=np.float32)
         self._inversion_prediction = np.zeros((self._overlappogram_height, self._overlappogram_width), dtype=np.float32)
         self._row_scores = np.zeros((self._overlappogram_height, 1), dtype=np.float32)
+        self._n_iter = np.zeros((self._overlappogram_height, 1), dtype=np.int32)
 
     def invert(
         self,
@@ -301,4 +305,5 @@ class Inverter:
             NDCube(data=self._inversion_prediction, wcs=out_wcs, meta=self._response_meta),
             self._row_scores,
             self._unconverged_rows,
+            self._n_iter
         )

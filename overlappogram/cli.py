@@ -49,17 +49,17 @@ def unfold(config):
 
     for alpha in config["model"]["alphas"]:
         for rho in config["model"]["rhos"]:
-            print(80*"-")
+            print(80 * "-")
             print(f"Beginning inversion for alpha={alpha}, rho={rho}.")
             start = time.time()
-            em_cube, prediction, scores, unconverged_rows = inversion.invert(
-                    overlappogram,
-                    config["model"],
-                    alpha,
-                    rho,
-                    num_threads=config["execution"]["num_threads"],
-                    mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
-                    mode=MODE_MAPPING.get(config['execution']['mode'], 'invalid')
+            em_cube, prediction, scores, unconverged_rows, n_iter = inversion.invert(
+                overlappogram,
+                config["model"],
+                alpha,
+                rho,
+                num_threads=config["execution"]["num_threads"],
+                mode_switch_thread_count=config["execution"]["mode_switch_thread_count"],
+                mode=MODE_MAPPING.get(config['execution']['mode'], 'invalid')
             )
             end = time.time()
             print(
@@ -68,8 +68,11 @@ def unfold(config):
                 f"seconds; {len(unconverged_rows)} unconverged rows",
             )
 
+            print(f"Unconverged rows: {unconverged_rows}")
+
             postfix = (
-                "x" + str(config["inversion"]["solution_fov_width"]) + "_" + str(rho * 10) + "_" + str(alpha) + "_wpsf"
+                    "x" + str(config["inversion"]["solution_fov_width"]) + "_" + str(rho * 10) + "_" + str(
+                alpha) + "_wpsf"
             )
             save_em_cube(
                 em_cube,
@@ -89,6 +92,11 @@ def unfold(config):
                                        f"{config['output']['prefix']}_scores_{postfix}.txt")
             with open(scores_path, 'w') as f:
                 f.write("\n".join(scores.flatten().astype(str).tolist()))
+
+            niter_path = os.path.join(config["output"]["directory"],
+                                      f"{config['output']['prefix']}_niter_{postfix}.txt")
+            with open(niter_path, 'w') as f:
+                f.write("\n".join(n_iter.flatten().astype(str).tolist()))
 
             if config["output"]["make_spectral"]:
                 spectral_images = create_spectrally_pure_images(

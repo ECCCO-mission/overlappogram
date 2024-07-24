@@ -5,11 +5,12 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+from overlappogram import __version__
 
 project = "overlappogram"
 copyright = "2024, J. Marcus Hughes, Dyana Beabout"
 author = "J. Marcus Hughes, Dyana Beabout"
-release = "0.0.8"
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

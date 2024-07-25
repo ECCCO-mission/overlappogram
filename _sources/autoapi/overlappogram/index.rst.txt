@@ -106,6 +106,12 @@ Package Contents
 
 
 
+   .. py:attribute:: _n_iter
+      :type:  numpy.ndarray | None
+      :value: None
+
+
+
    .. py:attribute:: _thread_count_lock
 
 

@@ -34,7 +34,7 @@ def test_create_spectrally_pure_images(tmp_path):
         detector_row_range=config["inversion"]["detector_row_range"],
     )
 
-    em_cube, prediction, scores, unconverged_rows = inversion.invert(
+    em_cube, prediction, scores, unconverged_rows, _ = inversion.invert(
         overlappogram,
         config["model"],
         3E-5,

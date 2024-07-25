@@ -45,7 +45,7 @@ def test_inversion_runs(tmp_path, inversion_mode, is_weighted):
         detector_row_range=config["inversion"]["detector_row_range"],
     )
 
-    em_cube, prediction, scores, unconverged_rows = inversion.invert(
+    em_cube, prediction, scores, unconverged_rows, niter = inversion.invert(
         overlappogram,
         config["model"],
         3E-5,

@@ -18,15 +18,23 @@ Module Contents
 .. py:class:: Inverter(response_cube: ndcube.NDCube, solution_fov_width: int = 1, smooth_over: str = 'dependence', response_dependency_list: list = None, field_angle_range: list = None, detector_row_range: list = None)
 
    .. py:attribute:: _solution_fov_width
+      :value: 1
+
 
 
    .. py:attribute:: _smooth_over
+      :value: 'dependence'
+
 
 
    .. py:attribute:: _field_angle_range
+      :value: None
+
 
 
    .. py:attribute:: _detector_row_range
+      :value: None
+
 
 
    .. py:attribute:: _mode
